@@ -14,7 +14,6 @@ except ImportError:
     print("Can't seem to import Cope.py (for debugging). Try installing varname via pip.")
 import re
 
-
 from PyQt5 import *
 from PyQt5 import QtCore, QtGui, QtMultimedia, QtWidgets, uic
 # from PyQt5.QtCore import *
@@ -24,7 +23,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMainWindow, QWidget
 
 DIR = os.path.dirname(__file__)
-
 
 
 class Main(QMainWindow):
@@ -83,7 +81,6 @@ class Main(QMainWindow):
 
         self.lastTab = 0
 
-
     # Switch to the error tab, if there's an error, then switch back when there's not.
     def updateLastTab(self):
         if self.output.currentIndex() != 2:
@@ -119,17 +116,12 @@ class Main(QMainWindow):
             self.answer.setPlainText(self.solve())
         except Exception as err:
             self.error.setPlainText(str(err))
-            self.output.setTabIcon(2, QIcon("/home/marvin/Documents/assets/Misc/red!.png"))
+            self.output.setTabIcon(2, QIcon(DIR + "/red!.png"))
             index = 2
             if self.throwError.isChecked():
                 raise err
 
         self.output.setCurrentIndex(index)
-        debug(self.lexpr)
-        debug(self.rexpr)
-        # for s in self.rsyms:
-            # debug(s)
-        print('------------------------------------------------------------------')
 
 
     def parseVars(self):
@@ -157,16 +149,6 @@ class Main(QMainWindow):
         self.varInfo.setPlainText(f'Name: {s}\nType: {type(s)}\nValue: {val}\nFunction: {s.is_Function}\nReal: {bool(s.is_real)}')
 
 
-
-    # def getVarsDict(self):
-    #     rtn = {}
-    #     for s in self.rsyms + self.rexpr:
-    #         rtn[s.]
-
-
-
-
-
     def genCode(self):
         args = {"local_dict":{}, "global_dict":globals(), "transformations":self.trans}
 
@@ -187,6 +169,7 @@ class Main(QMainWindow):
 
         return s
 
+
     def solve(self):
         if '=' in self.equ:
             lside, rside = re.split(r'=', self.equ)
@@ -196,32 +179,28 @@ class Main(QMainWindow):
             self.ans = sym.simplify(self.equ)
         return str(self.ans)
 
-# f(x) = 2y + x
-
 
     def _saveAs(self):
         file = QFileDialog.getSaveFileName()[0]
         if len(file):
             with open(file, 'w') as f:
-                f.write(self._getFunc())
+                f.write(self.equ)
             print('File Saved!')
+
 
     def _save(self):
         if self.lastSaveLoc:
             with open(self.lastSaveLoc, 'w') as f:
-                f.write(self._getFunc())
+                f.write(self.equ)
             print('File Saved!')
+
 
     def _load(self):
         file = QFileDialog.getOpenFileName()[0]
         if len(file):
             with open(file, 'r') as f:
-                self.code.setPlainText(f.read()[54:])
-
-    def reset(self):
-        self.num = self.resetVal.value()
-
-
+                self.equation.setPlainText(f.read())
+                self.updateEquation()
 
 
 if __name__ == "__main__":
