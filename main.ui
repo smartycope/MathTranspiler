@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>462</width>
-    <height>499</height>
+    <width>471</width>
+    <height>607</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>0</x>
       <y>0</y>
       <width>461</width>
-      <height>441</height>
+      <height>551</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -32,7 +32,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPlainTextEdit" name="equation">
+      <widget class="QPlainTextEdit" name="equationInput">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -42,7 +42,13 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>50</height>
+         <height>60</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>0</width>
+         <height>30</height>
         </size>
        </property>
        <property name="baseSize">
@@ -54,20 +60,8 @@
        <property name="toolTip">
         <string>The equation to be evaluated</string>
        </property>
-       <property name="documentTitle">
-        <string/>
-       </property>
-       <property name="lineWrapMode">
-        <enum>QPlainTextEdit::NoWrap</enum>
-       </property>
-       <property name="plainText">
-        <string/>
-       </property>
-       <property name="tabStopWidth">
-        <number>15</number>
-       </property>
        <property name="placeholderText">
-        <string>Enter Equation</string>
+        <string>Enter Text</string>
        </property>
       </widget>
      </item>
@@ -79,14 +73,63 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="variables"/>
+      <widget class="QComboBox" name="variableSelector"/>
      </item>
      <item>
-      <widget class="QTextBrowser" name="varInfo">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLineEdit" name="varNamer">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="placeholderText">
+          <string>Variable Name</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>=</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="varSetter">
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="placeholderText">
+          <string>Variable Value</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QTextBrowser" name="varInfoBox">
        <property name="maximumSize">
         <size>
          <width>16777215</width>
          <height>100</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>0</width>
+         <height>30</height>
         </size>
        </property>
        <property name="verticalScrollBarPolicy">
@@ -113,23 +156,29 @@ p, li { white-space: pre-wrap; }
      <item>
       <widget class="QTabWidget" name="output">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="answerTab">
         <attribute name="title">
          <string>Solution</string>
         </attribute>
-        <widget class="QTextBrowser" name="answer">
+        <widget class="QTextBrowser" name="answerBox">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
            <width>451</width>
-           <height>231</height>
+           <height>221</height>
           </rect>
          </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="placeholderText">
-          <string>Solved Equation</string>
+          <string>No Equation Provided</string>
          </property>
          <property name="openLinks">
           <bool>false</bool>
@@ -140,14 +189,20 @@ p, li { white-space: pre-wrap; }
         <attribute name="title">
          <string>Code</string>
         </attribute>
-        <widget class="QTextBrowser" name="python">
+        <widget class="QTextBrowser" name="codeBox">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
            <width>451</width>
-           <height>231</height>
+           <height>221</height>
           </rect>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -163,7 +218,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="placeholderText">
-          <string>Equation expressed as Python code</string>
+          <string>No Equation Provided</string>
          </property>
          <property name="openLinks">
           <bool>false</bool>
@@ -174,17 +229,23 @@ p, li { white-space: pre-wrap; }
         <attribute name="title">
          <string>Errors</string>
         </attribute>
-        <widget class="QTextBrowser" name="error">
+        <widget class="QTextBrowser" name="errorBox">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
            <width>451</width>
-           <height>231</height>
+           <height>221</height>
           </rect>
          </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
          <property name="placeholderText">
-          <string>Problems with the given equation</string>
+          <string>No Errors :)</string>
          </property>
          <property name="openLinks">
           <bool>false</bool>
@@ -201,7 +262,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>462</width>
+     <width>471</width>
      <height>30</height>
     </rect>
    </property>
@@ -212,20 +273,45 @@ p, li { white-space: pre-wrap; }
     <addaction name="save"/>
     <addaction name="saveAs"/>
     <addaction name="load"/>
+    <addaction name="separator"/>
+    <addaction name="exportLatex"/>
+    <addaction name="exportMathML"/>
+    <addaction name="exportMathmatica"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
      <string>Options</string>
     </property>
     <addaction name="throwError"/>
+    <addaction name="useVarNamesInSolution"/>
+    <addaction name="rememberVarNames"/>
+    <addaction name="dontSimplify"/>
+    <addaction name="prettySolution"/>
+    <addaction name="printSolution"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="plotButton"/>
+    <addaction name="limitButton"/>
+   </widget>
+   <widget class="QMenu" name="menuMath">
+    <property name="title">
+     <string>Math</string>
+    </property>
+    <addaction name="getIntegralButton"/>
+    <addaction name="getDiffButton"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuOptions"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuMath"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="save">
    <property name="text">
-    <string>Save Program</string>
+    <string>Save Equation</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -233,7 +319,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="saveAs">
    <property name="text">
-    <string>Save Program As...</string>
+    <string>Save Equation As...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
@@ -241,7 +327,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="load">
    <property name="text">
-    <string>Equation</string>
+    <string>Open Equation...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -253,6 +339,96 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Throw Errors</string>
+   </property>
+  </action>
+  <action name="plotButton">
+   <property name="text">
+    <string>Plot</string>
+   </property>
+  </action>
+  <action name="useVarNamesInSolution">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use Names in Solution</string>
+   </property>
+   <property name="toolTip">
+    <string>Use the given variable names in the solution instead of the equation names</string>
+   </property>
+  </action>
+  <action name="rememberVarNames">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Remember Variable Names</string>
+   </property>
+   <property name="toolTip">
+    <string>Remember variable names after they've been deleted</string>
+   </property>
+  </action>
+  <action name="getIntegralButton">
+   <property name="text">
+    <string>Get the Integral</string>
+   </property>
+  </action>
+  <action name="getDiffButton">
+   <property name="text">
+    <string>Get the Differential</string>
+   </property>
+  </action>
+  <action name="limitButton">
+   <property name="text">
+    <string>Get Limit...</string>
+   </property>
+  </action>
+  <action name="dontSimplify">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Don't Simplify Solution</string>
+   </property>
+  </action>
+  <action name="prettySolution">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Prettify the Solution</string>
+   </property>
+  </action>
+  <action name="exportLatex">
+   <property name="text">
+    <string>Export to Latex...</string>
+   </property>
+  </action>
+  <action name="exportMathML">
+   <property name="text">
+    <string>Export to MathML...</string>
+   </property>
+  </action>
+  <action name="exportMathmatica">
+   <property name="text">
+    <string>Export to Mathmatica...</string>
+   </property>
+  </action>
+  <action name="printSolution">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Regular print Solution</string>
    </property>
   </action>
  </widget>

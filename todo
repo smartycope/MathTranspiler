@@ -1,0 +1,10 @@
+Math Transpiler Todo list:
+
+Fix the current bug
+add ability to set variables
+add semicolons? maybe to let you specify many related expressions at once
+add graphing
+add reverse (convert code into a math equation)
+
+intrest rate calculator
+change the equation box to update on enter instead of constantly
