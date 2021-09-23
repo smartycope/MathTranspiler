@@ -361,10 +361,10 @@ def debug(var=None, *more_vars, name=None, merge: bool=False, repr: bool=False, 
         #   If not, then set cantGetName to True
     if name is None:
         try:
-            varNames = nameof(*[i[1] for i in variables], caller=calls+1, full=True)
+            varNames = nameof(*[i[1] for i in variables], vars_only=False) #caller=calls+1,
         except VarnameRetrievingError:
             try:
-                varNames = nameof(*[i[1] for i in variables], caller=calls+1)
+                varNames = nameof(*[i[1] for i in variables]) #, caller=calls+1
             except VarnameRetrievingError:
                 if type(var) is str:
                     _printDebugCount()

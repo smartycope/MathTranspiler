@@ -4,17 +4,37 @@ from os.path import dirname, join
 
 # from PyQt5 import *
 from PyQt5 import QtCore, QtGui, QtMultimedia, QtWidgets, uic
-from PyQt5.QtCore import QEvent, QFile, QLine, QLineF, QRect, QRectF, Qt, QTimer
+from PyQt5.QtCore import QEvent, QFile, QLine, QLineF, QRect, QRectF, Qt, QTimer, QByteArray
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QFileDialog, QMainWindow, QWidget, QDialog
+from PyQt5.QtSvg import QSvgWidget
+
+# from PySide.QtXml import *
+# from PySide.QtSvg import *
 
 import sympy as sym
-from sympy.parsing.sympy_parser import parse_expr, standard_transformations
+from sympy.parsing.sympy_parser import (parse_expr, standard_transformations,
+                                        implicit_multiplication_application,
+                                        implicit_multiplication, convert_xor)
 from sympy.printing.pycode import pycode
 from sympy.printing.latex import latex
 from sympy.printing.mathml import mathml
 from sympy.printing.mathematica import mathematica_code
+from sympy import abc
+from sympy.abc import *
+from sympy import *
+
+# from xml import sax
+# from xml.sax.saxutils import XMLGenerator
+# from svgmath.tools.saxtools import XMLGenerator, ContentFilter
+# from svgmath.mathhandler import MathHandler, MathNS
+# import libxml2
+
+# import StringIO
+
+import ziamath as zm
+
 
 from Variable import Variable
 from EasyRegex import EasyRegex as ere
@@ -25,6 +45,11 @@ displayAllFuncs(True)
 displayAllLinks(True)
 
 DIR = dirname(__file__)
+
+_parsingDict = {}
+for i in dir(abc):
+    if i[0] != '_':
+        _parsingDict[i] = abc.symbols(i)
 
 # TODO Look into the sympy.Expr.rewrite function (or possibly the sympy.Function.rewrite function)
 class Main(QMainWindow):
@@ -37,12 +62,18 @@ class Main(QMainWindow):
     defaultExtension = ''
     defaultLatexExtension = ''
     defaultMathmlExtension = ''
+    # self.trans = standard_transformations + (implicit_multiplication_application,)
+    trans = standard_transformations + (convert_xor, implicit_multiplication_application)
+    # self.trans = standard_transformations
+    # self.trans = implicit_multiplication_application
+    parsingDict = _parsingDict
     # inputTabIndex = 2
 
     def __init__(self):
         super(Main, self).__init__()
         uic.loadUi(join(DIR, "main.ui"), self)
         self.setWindowTitle('Math Transpiler')
+        self.setGeometry(0, 0, self.width(), self.height())
 
         self.inputAlertIcon = self.errorIcon = QIcon(DIR + "/red!.png")
 
@@ -66,14 +97,10 @@ class Main(QMainWindow):
         self.limitButton.triggered.connect(self.onLimitButtonPressed)
         self.dontSimplify.triggered.connect(self.updateEquation)
         self.prettySolution.triggered.connect(self.updateEquation)
+        self.doEval.triggered.connect(self.updateEquation)
+        self.resetButton.triggered.connect(self.resetEverything)
 
         # self.inputBox.returnPressed.connect(self.onInputAccepted)
-
-        # The sympy transformations we use
-        # self.trans = standard_transformations + (implicit_multiplication_application,)
-        # self.trans = standard_transformations + (implicit_multiplication,)
-        self.trans = standard_transformations
-        # self.trans = implicit_multiplication_application
 
         self.lastTab = 0
         self.blockVariableSelector = False
@@ -88,6 +115,13 @@ class Main(QMainWindow):
         self._vars = [] # An ordered list of Variables
         self._lexpr = None
         self._rexpr = None
+
+        self.svgBox = QSvgWidget(self.svgBox)
+        # self.widgetSvg.setGeometry(10, 10, 1080, 1080)
+
+        # self.chessboardSvg = chess.svg.board(self.chessboard).encode("UTF-8")
+        # self.widgetSvg.load(self.chessboardSvg)
+
 
 
 # Getters, setters, and deleters
@@ -208,6 +242,15 @@ class Main(QMainWindow):
 
 
 # Private
+    def resetEverything(self):
+        self.equationInput.setPlainText('')
+        self.vars = []
+        self.resetOuput()
+        self.varName = ''
+        self.varValueBox = ''
+        self.variableSelector.clear()
+
+
     def resetTab(self):
         self.output.setCurrentIndex(self.lastTab)
 
@@ -281,9 +324,17 @@ class Main(QMainWindow):
 
     def getFullExpr(self):
         if '=' in self.equ:
-            return sym.Eq(self.lexpr, self.rexpr)
+            rtn = sym.Eq(self.lexpr, self.rexpr)
         else:
-            return self.lexpr
+            rtn = self.lexpr
+        # debug(self.parsingDict)
+        # Update with constants
+            # rtn = rtn.subs(self.parsingDict)
+            # rtn = rtn.subs('e', abc.E)
+
+        # debug(rtn)
+        return rtn
+        # return rtn.subs(self.parsingDict)
 
 
     def subVarNames(self, string):
@@ -396,6 +447,10 @@ class Main(QMainWindow):
         return ans
 
 
+    def loadSVG(self, eq):
+        self.svgBox.load(QByteArray(bytes(zm.Math.fromlatex(latex(e)).svg(), 'ascii')))
+
+
 # Slots
     def onTabChanged(self):
         # Switch to the error tab, if there's an error, then switch back when there's not.
@@ -506,16 +561,33 @@ class Main(QMainWindow):
 
     def updateVarValue(self):
         if self.currentVar and self.currentVar.valueChanged:
-            self.varValueBox = str(self.currentVar.value)
+            if self.prettySolution.isChecked():
+                ans = sym.pretty(self.currentVar.value)
+            else:
+                ans = str(self.currentVar.value)
+
+            self.varValueBox = ans
         else:
-            self.varValueBox = str(sym.solveset(self.getFullExpr(), self.currentVar.symbol)) \
-                if '=' in self.equ \
-                else 'Undefined'
+            if '=' in self.equ:
+                if self.prettySolution.isChecked():
+                    ans = sym.pretty(sym.solveset(self.getFullExpr(), self.currentVar.symbol))
+                else:
+                    ans = str(sym.solveset(self.getFullExpr(), self.currentVar.symbol))
+            else:
+                ans = 'Undefined'
+
+            self.varValueBox = ans
 
 
     def _updateVars(self):
-        # vars = self.vars
-        # self.vars = []
+        # Update with constants
+        # if self.lexpr:
+        #     self.lexpr = self.lexpr.subs(self.parsingDict)
+        #     self.lexpr = self.lexpr.subs('e', abc.E)
+        # if self.rexpr:
+        #     self.rexpr = self.rexpr.subs(self.parsingDict)
+        #     self.lexpr = self.lexpr.subs('e', abc.E)
+
         atoms = set()
         if '=' in self.equ:
             atoms = self.lexpr.atoms(*self.varTypes).union(self.rexpr.atoms(*self.varTypes))
@@ -541,6 +613,15 @@ class Main(QMainWindow):
             if self.rexpr and var.valueChanged:
                 self.rexpr = self.rexpr.subs(var.symbol, var.value)
 
+
+        # # Update with constants
+        # if self.lexpr:
+        #     # self.lexpr = self.lexpr.subs(self.parsingDict)
+        #     self.lexpr = self.lexpr.subs('e', abc.E)
+        # if self.rexpr:
+        #     # self.rexpr = self.rexpr.subs(self.parsingDict)
+        #     self.lexpr = self.lexpr.subs('e', abc.E)
+
         lastVarIndex = self.varIndex
         self.blockVariableSelector = True
         self.variableSelector.clear()
@@ -551,21 +632,20 @@ class Main(QMainWindow):
 
     def updateSolution(self):
         # Simplify both sides of the equation
-        if '=' in self.equ:
-            # lside, rside = re.split(r'=', self.equ)
-            try:
-                ans = self.getFullExpr().doit()
-            except:
-                debug()
-            else:
-                ans = self.getFullExpr()
-
-            # ans = str(sym.simplify(rside)) + ' = ' + str(sym.simplify(lside))
+        try:
+            ans = self.getFullExpr().doit()
+        except Exception as err:
+            debug(err)
         else:
-            ans = self.equ
+            ans = self.getFullExpr()
 
         if not self.dontSimplify.isChecked():
-            ans = sym.simplify(ans)
+            # if type(ans) is str:
+                # ans = sym.parse_expr(sym, transformations=self.trans)
+            ans = ans.simplify() #, transformations=self.trans)
+
+        if self.doEval.isChecked():
+            ans = ans.evalf()
 
         if self.prettySolution.isChecked():
             ans = sym.pretty(ans, use_unicode=False)
@@ -581,6 +661,8 @@ class Main(QMainWindow):
 
         if self.printSolution.isChecked():
             print(ans)
+
+        self.loadSVG(ans)
 
         self.solution = ans
 
