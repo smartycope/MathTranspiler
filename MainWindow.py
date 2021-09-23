@@ -33,8 +33,11 @@ from sympy import *
 
 # import StringIO
 
-import ziamath as zm
-
+# import ziamath as zm
+# import matplotlib.pyplot as plt
+# import latextools
+# import drawSvg as draw  # pip3 install drawSvg
+# from latex2svg import latex2svg
 
 from Variable import Variable
 from EasyRegex import EasyRegex as ere
@@ -121,7 +124,6 @@ class Main(QMainWindow):
 
         # self.chessboardSvg = chess.svg.board(self.chessboard).encode("UTF-8")
         # self.widgetSvg.load(self.chessboardSvg)
-
 
 
 # Getters, setters, and deleters
@@ -372,24 +374,29 @@ class Main(QMainWindow):
             return string
 
 
-    def getAsLatex(self):
+    def getSolutionExpr(self):
         # Simplify both sides of the equation
-        if '=' in self.equ:
-            # lside, rside = re.split(r'=', self.equ)
-            try:
-                ans = self.getFullExpr().doit()
-            except:
-                debug()
-            else:
-                ans = self.getFullExpr()
-
+        try:
+            ans = self.getFullExpr().doit()
+        except Exception as err:
+            debug(err)
         else:
-            ans = self.equ
+            ans = self.getFullExpr()
 
         if not self.dontSimplify.isChecked():
-            ans = sym.simplify(ans)
+            ans = ans.simplify()
 
-        ans = latex(ans)
+        if self.doEval.isChecked():
+            ans = ans.evalf()
+
+        if self.prettySolution.isChecked():
+            ans = sym.pretty(ans, use_unicode=False)
+
+        return ans
+
+
+    def getAs(self, func):
+        ans = func(self.getSolutionExpr())
 
         if self.useVarNamesInSolution.isChecked():
             ans = self.subVarNames(ans)
@@ -397,58 +404,28 @@ class Main(QMainWindow):
         return ans
 
 
-    def getAsMathML(self):
-        # Simplify both sides of the equation
-        if '=' in self.equ:
-            # lside, rside = re.split(r'=', self.equ)
-            try:
-                ans = self.getFullExpr().doit()
-            except:
-                debug()
-            else:
-                ans = self.getFullExpr()
+    def loadSVG(self):
+        # self.svgBox.load(bytes(debugged(zm.Math.fromlatex(self.getAs(latex), size=100).svg()), 'utf-8'))
 
-        else:
-            ans = self.equ
+        # plt.plot()
+        # plt.text(0.5, 0.5, rf'${debugged(self.getAs(latex))}$')
+        # plt.show()
 
-        if not self.dontSimplify.isChecked():
-            ans = sym.simplify(ans)
+        # self.svgBox.load('/home/marvin/hello/python/MathTranspiler/tmp.del')
 
-        ans = mathml(ans)
+        debug(self.getAs(latex))
+        # r'\documentclass{article}\begin{document}\begin{equation}' + self.getAs(latex) + r'\end{equation}\end{document}'
+        # \documentclass{article}\begin{document}\begin{equation}\mathtt{\text{x}}\end{equation}\end{document}
+        # Render latex
+        # self.svgBox.load(latextools.render_snippet(self.getAs(latex), commands=[latextools.cmd.all_math]).as_svg())
+        # self.svgBox.load(latex2svg(self.getAs(latex))['svg'])
+        # Use the rendered latex in a vector drawing
+        # d = draw.Drawing(100, 100, origin='center', displayInline=False)
+        # d.append(draw.Circle(0, 0, 49, fill='yellow', stroke='black', stroke_width=2))
+        # d.draw(svg_eq, x=0, y=0, center=True, scale=2.5)
 
-        if self.useVarNamesInSolution.isChecked():
-            ans = self.subVarNames(ans)
-
-        return ans
-
-
-    def getAsMathmatica(self):
-        # Simplify both sides of the equation
-        if '=' in self.equ:
-            # lside, rside = re.split(r'=', self.equ)
-            try:
-                ans = self.getFullExpr().doit()
-            except:
-                debug()
-            else:
-                ans = self.getFullExpr()
-
-        else:
-            ans = self.equ
-
-        if not self.dontSimplify.isChecked():
-            ans = sym.simplify(ans)
-
-        ans = mathematica_code(ans)
-
-        if self.useVarNamesInSolution.isChecked():
-            ans = self.subVarNames(ans)
-
-        return ans
-
-
-    def loadSVG(self, eq):
-        self.svgBox.load(QByteArray(bytes(zm.Math.fromlatex(latex(e)).svg(), 'ascii')))
+        # d.saveSvg('vector.svg')
+        # d.savePng('vector.png')
 
 
 # Slots
@@ -631,28 +608,8 @@ class Main(QMainWindow):
 
 
     def updateSolution(self):
-        # Simplify both sides of the equation
-        try:
-            ans = self.getFullExpr().doit()
-        except Exception as err:
-            debug(err)
-        else:
-            ans = self.getFullExpr()
-
-        if not self.dontSimplify.isChecked():
-            # if type(ans) is str:
-                # ans = sym.parse_expr(sym, transformations=self.trans)
-            ans = ans.simplify() #, transformations=self.trans)
-
-        if self.doEval.isChecked():
-            ans = ans.evalf()
-
-        if self.prettySolution.isChecked():
-            ans = sym.pretty(ans, use_unicode=False)
-            # ans = self.rebalanceEqualsSign(sym.pretty(ans, use_unicode=False))
-
         # ans = self.addEqualsSign(str(ans))
-        ans = str(ans)
+        ans = str(self.getSolutionExpr())
 
         if self.useVarNamesInSolution.isChecked():
             ans = self.subVarNames(ans)
@@ -662,7 +619,7 @@ class Main(QMainWindow):
         if self.printSolution.isChecked():
             print(ans)
 
-        self.loadSVG(ans)
+        self.loadSVG()
 
         self.solution = ans
 
@@ -710,7 +667,7 @@ class Main(QMainWindow):
         file = QFileDialog.getSaveFileName(directory=self.defaultDir, filter=self.latexFileExtensions, initialFilter=self.defaultLatexExtension)[0]
         if len(file):
             with open(file, 'w') as f:
-                f.write(self.getAsLatex())
+                f.write(self.getAs(latex))
             print('File Saved!')
             self.lastSaveLoc = file
 
@@ -719,7 +676,7 @@ class Main(QMainWindow):
         file = QFileDialog.getSaveFileName(directory=self.defaultDir, filter=self.mathmlFileExtensions, initialFilter=self.defaultMathmlExtension)[0]
         if len(file):
             with open(file, 'w') as f:
-                f.write(self.getAsMathML())
+                f.write(self.getAs(mathml))
             print('File Saved!')
             self.lastSaveLoc = file
 
@@ -728,7 +685,7 @@ class Main(QMainWindow):
         file = QFileDialog.getSaveFileName(directory=self.defaultDir, filter=self.fileExtensions, initialFilter=self.defaultExtension)[0]
         if len(file):
             with open(file, 'w') as f:
-                f.write(self.getAsMathmatica())
+                f.write(self.getAs(mathmatica))
             print('File Saved!')
             self.lastSaveLoc = file
 
