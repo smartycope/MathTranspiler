@@ -5,10 +5,10 @@ from os.path import dirname, join
 # from PyQt5 import *
 from PyQt5 import QtCore, QtGui, QtMultimedia, QtWidgets, uic
 from PyQt5.QtCore import QEvent, QFile, QLine, QLineF, QRect, QRectF, Qt, QTimer, QByteArray
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import *
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QWidget, QDialog
-from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtGui import QIcon, QPixmap, QImage
+# from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QWidget, QDialog, QLabel
+# from PyQt5.QtSvg import QSvgWidget
 
 # from PySide.QtXml import *
 # from PySide.QtSvg import *
@@ -20,10 +20,13 @@ from sympy.parsing.sympy_parser import (parse_expr, standard_transformations,
 from sympy.printing.pycode import pycode
 from sympy.printing.latex import latex
 from sympy.printing.mathml import mathml
+from sympy.printing.preview import preview
 from sympy.printing.mathematica import mathematica_code
 from sympy import abc
 from sympy.abc import *
 from sympy import *
+
+from io import BytesIO
 
 # from xml import sax
 # from xml.sax.saxutils import XMLGenerator
@@ -40,7 +43,7 @@ from sympy import *
 # from latex2svg import latex2svg
 
 from Variable import Variable
-from EasyRegex import EasyRegex as ere
+from EasyRegex import *
 from Cope import *
 
 displayAllFiles(True)
@@ -60,13 +63,13 @@ class Main(QMainWindow):
     errorTabIndex = 2
     defaultDir = '/home/marvin/Documents/College/Calculus/'
     fileExtensions = 'Text Files (*.txt)'
-    latexExtensions = 'TeX Document (*.tex, *.latex)'
+    latexFileExtensions = 'TeX Document (*.tex, *.latex)'
     mathmlFileExtensions = 'MathML Document (*.mathml, *.txt)'
     defaultExtension = ''
     defaultLatexExtension = ''
     defaultMathmlExtension = ''
     # self.trans = standard_transformations + (implicit_multiplication_application,)
-    trans = standard_transformations + (convert_xor, implicit_multiplication_application)
+    trans = standard_transformations + (convert_xor, implicit_multiplication)
     # self.trans = standard_transformations
     # self.trans = implicit_multiplication_application
     parsingDict = _parsingDict
@@ -88,7 +91,9 @@ class Main(QMainWindow):
         self.exportMathmatica.triggered.connect(self.exportAsMathmatica)
 
         # The equation input box
-        self.equationInput.textChanged.connect(self.onEquationChanged)
+        # self.equationInput.textChanged.connect(self.onEquationChanged)
+        self.solveButton.clicked.connect(self.onEquationChanged)
+        self.solveButton2.triggered.connect(self.onEquationChanged)
 
         # The ouput tab widget
         self.output.currentChanged.connect(self.onTabChanged)
@@ -102,6 +107,8 @@ class Main(QMainWindow):
         self.prettySolution.triggered.connect(self.updateEquation)
         self.doEval.triggered.connect(self.updateEquation)
         self.resetButton.triggered.connect(self.resetEverything)
+        self.previewSolution.triggered.connect(self.onPreviewSolution)
+        self.previewCurVar.triggered.connect(self.onPreviewCurVar)
 
         # self.inputBox.returnPressed.connect(self.onInputAccepted)
 
@@ -119,11 +126,7 @@ class Main(QMainWindow):
         self._lexpr = None
         self._rexpr = None
 
-        self.svgBox = QSvgWidget(self.svgBox)
-        # self.widgetSvg.setGeometry(10, 10, 1080, 1080)
-
-        # self.chessboardSvg = chess.svg.board(self.chessboard).encode("UTF-8")
-        # self.widgetSvg.load(self.chessboardSvg)
+        # self.pngBox = QSvgWidget(self.svgBox)
 
 
 # Getters, setters, and deleters
@@ -246,6 +249,7 @@ class Main(QMainWindow):
 # Private
     def resetEverything(self):
         self.equationInput.setPlainText('')
+        self.onEquationChanged()
         self.vars = []
         self.resetOuput()
         self.varName = ''
@@ -357,7 +361,7 @@ class Main(QMainWindow):
 
 
     def addEqualsSign(self, string):
-        regex = ere().match('.+-.+').ifPrecededBy('Eq(').ifProceededBy(ere(',').optional(ere().whitechunk()).add('0)')).debug().compile()
+        regex = match('.+-.+') + ifPrecededBy('Eq(') + ifProceededBy(match(',') + optional(whitechunk()) + add('0)')).debug().compile()
         match = re.search(regex, string)
         if match:
             return re.sub('-', '=', match.string)
@@ -366,8 +370,8 @@ class Main(QMainWindow):
 
 
     def rebalanceEqualsSign(self):
-        regex = ere().match('.+-.+=').ifPrecededBy('Eq(').ifProceededBy(ere(',').optional(ere().whitechunk()).add('0)')).debug().compile()
-        match = re.search(regex, string)
+        # regex = ere().match('.+-.+=').ifPrecededBy('Eq(').ifProceededBy(ere(',').optional(ere().whitechunk()).add('0)')).debug().compile()
+        # match = re.search(regex, string)
         if match:
             return re.sub('-', '=', match.string)
         else:
@@ -376,12 +380,14 @@ class Main(QMainWindow):
 
     def getSolutionExpr(self):
         # Simplify both sides of the equation
+        ans = self.getFullExpr()
+        if ans is None:
+            return None
+
         try:
-            ans = self.getFullExpr().doit()
+            ans = ans.doit()
         except Exception as err:
             debug(err)
-        else:
-            ans = self.getFullExpr()
 
         if not self.dontSimplify.isChecked():
             ans = ans.simplify()
@@ -398,34 +404,16 @@ class Main(QMainWindow):
     def getAs(self, func):
         ans = func(self.getSolutionExpr())
 
-        if self.useVarNamesInSolution.isChecked():
-            ans = self.subVarNames(ans)
+        # if self.useVarNamesInSolution.isChecked():
+            # ans = self.subVarNames(ans)
 
         return ans
 
 
-    def loadSVG(self):
-        # self.svgBox.load(bytes(debugged(zm.Math.fromlatex(self.getAs(latex), size=100).svg()), 'utf-8'))
-
-        # plt.plot()
-        # plt.text(0.5, 0.5, rf'${debugged(self.getAs(latex))}$')
-        # plt.show()
-
-        # self.svgBox.load('/home/marvin/hello/python/MathTranspiler/tmp.del')
-
-        debug(self.getAs(latex))
-        # r'\documentclass{article}\begin{document}\begin{equation}' + self.getAs(latex) + r'\end{equation}\end{document}'
-        # \documentclass{article}\begin{document}\begin{equation}\mathtt{\text{x}}\end{equation}\end{document}
-        # Render latex
-        # self.svgBox.load(latextools.render_snippet(self.getAs(latex), commands=[latextools.cmd.all_math]).as_svg())
-        # self.svgBox.load(latex2svg(self.getAs(latex))['svg'])
-        # Use the rendered latex in a vector drawing
-        # d = draw.Drawing(100, 100, origin='center', displayInline=False)
-        # d.append(draw.Circle(0, 0, 49, fill='yellow', stroke='black', stroke_width=2))
-        # d.draw(svg_eq, x=0, y=0, center=True, scale=2.5)
-
-        # d.saveSvg('vector.svg')
-        # d.savePng('vector.png')
+    def getPixmap(self, expr):
+        obj = BytesIO()
+        preview(expr, output='png', viewer='BytesIO', outputbuffer=obj)
+        return QPixmap(QImage.fromData(bytes(obj.getbuffer())))
 
 
 # Slots
@@ -491,10 +479,21 @@ class Main(QMainWindow):
 
 
     def plot(self):
-        if '=' in self.equ:
-            sym.plotting.plot(self.lexpr)
-        else:
-            sym.plotting.plot(self.getFullExpr())
+        try:
+            if '=' in self.equ:
+                sym.plotting.plot(self.lexpr)
+            else:
+                sym.plotting.plot(self.getFullExpr())
+        except Error as err:
+            self.error = err
+
+
+    def onPreviewSolution(self):
+        preview(self.getSolutionExpr(), output='png')
+
+
+    def onPreviewCurVar(self):
+        preview(sym.solveset(self.getFullExpr(), self.currentVar.symbol), output='png')
 
 
 # Update Functions
@@ -512,6 +511,13 @@ class Main(QMainWindow):
         try:
             if self.equ.count('=') > 1:
                 raise SyntaxError("More than 1 '=' in equation")
+
+            # Load the png of what we're writing
+            l, r = self.equ.split('=')
+            self.equationPng.setPixmap(self.getPixmap(Eq(
+                parse_expr(l, transformations=self.trans, evaluate=False),
+                parse_expr(r, transformations=self.trans, evaluate=False))
+            ))
 
             self.updateExprsAndVars()
 
@@ -546,10 +552,12 @@ class Main(QMainWindow):
             self.varValueBox = ans
         else:
             if '=' in self.equ:
+                sol = sym.solveset(self.getFullExpr(), self.currentVar.symbol)
                 if self.prettySolution.isChecked():
-                    ans = sym.pretty(sym.solveset(self.getFullExpr(), self.currentVar.symbol))
+                    ans = sym.pretty(sol)
                 else:
-                    ans = str(sym.solveset(self.getFullExpr(), self.currentVar.symbol))
+                    ans = str(sol)
+                self.varPng.setPixmap(self.getPixmap(sol))
             else:
                 ans = 'Undefined'
 
@@ -609,7 +617,10 @@ class Main(QMainWindow):
 
     def updateSolution(self):
         # ans = self.addEqualsSign(str(ans))
-        ans = str(self.getSolutionExpr())
+        e = self.getSolutionExpr()
+        self.solutionPng.setPixmap(self.getPixmap(e))
+        ans = str(e)
+        # ans = str(self.getSolutionExpr())
 
         if self.useVarNamesInSolution.isChecked():
             ans = self.subVarNames(ans)
@@ -618,8 +629,6 @@ class Main(QMainWindow):
 
         if self.printSolution.isChecked():
             print(ans)
-
-        self.loadSVG()
 
         self.solution = ans
 
@@ -634,7 +643,7 @@ class Main(QMainWindow):
 
     def updateExprsAndVars(self):
         if r'limit(' in self.equ:
-            equation = re.search(ere().anything().matchMax().ifPrecededBy(ere().match('limit(')).ifProceededBy(ere().match(',').anything().matchMax().match(',')).str(), self.equ).string
+            equation = re.search((stuff() + ifPrecededBy(match('limit(')) + ifProceededBy(match(',') + stuff() + match(','))).str(), self.equ).group()
             self.lexpr = sym.parse_expr(equation, transformations=self.trans)
         elif '=' in self.equ:
             lside, rside = re.split(r'=', self.equ)
@@ -651,12 +660,13 @@ class Main(QMainWindow):
     def updateLimit(self, updateVar, updateVal):
         withLimit = f'limit({self.equationInput.toPlainText()}, {updateVar}, {updateVal})'
         self.equationInput.setPlainText(withLimit)
+        self.onEquationChanged()
 
 
 # File functions
     def _saveAs(self):
         file = QFileDialog.getSaveFileName(directory=self.defaultDir, filter=self.fileExtensions, initialFilter=self.defaultExtension)[0]
-        if len(file):
+        if len(file) and self.getFullExpr():
             with open(file, 'w') as f:
                 f.write(self.equ)
             print('File Saved!')
@@ -665,7 +675,7 @@ class Main(QMainWindow):
 
     def exportAsLatex(self):
         file = QFileDialog.getSaveFileName(directory=self.defaultDir, filter=self.latexFileExtensions, initialFilter=self.defaultLatexExtension)[0]
-        if len(file):
+        if len(file) and self.getFullExpr():
             with open(file, 'w') as f:
                 f.write(self.getAs(latex))
             print('File Saved!')
@@ -674,7 +684,7 @@ class Main(QMainWindow):
 
     def exportAsMathML(self):
         file = QFileDialog.getSaveFileName(directory=self.defaultDir, filter=self.mathmlFileExtensions, initialFilter=self.defaultMathmlExtension)[0]
-        if len(file):
+        if len(file) and self.getFullExpr():
             with open(file, 'w') as f:
                 f.write(self.getAs(mathml))
             print('File Saved!')
@@ -683,7 +693,7 @@ class Main(QMainWindow):
 
     def exportAsMathmatica(self):
         file = QFileDialog.getSaveFileName(directory=self.defaultDir, filter=self.fileExtensions, initialFilter=self.defaultExtension)[0]
-        if len(file):
+        if len(file) and self.getFullExpr():
             with open(file, 'w') as f:
                 f.write(self.getAs(mathmatica))
             print('File Saved!')
@@ -691,7 +701,7 @@ class Main(QMainWindow):
 
 
     def _save(self):
-        if self.lastSaveLoc:
+        if self.lastSaveLoc and self.getFullExpr():
             with open(self.lastSaveLoc, 'w') as f:
                 f.write(self.equ)
             print('File Saved!')
@@ -702,5 +712,5 @@ class Main(QMainWindow):
         if len(file):
             with open(file, 'r') as f:
                 self.equationInput.setPlainText(f.read())
-                # self.updateEquation()
+                self.onEquationChanged()
             self.lastSaveLoc = file
