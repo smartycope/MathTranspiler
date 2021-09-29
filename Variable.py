@@ -6,6 +6,7 @@ class Variable:
         self.name = str(symbol)
         self.value = symbol
         self.valueChanged = False
+        self.relationShip = '=='
 
     def __str__(self):
         # return self.name

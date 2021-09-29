@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+""" Cope.py
+A bunch of generic functions and classes useful in multiple projects
+"""
+__version__ = '3.1.0'
+__author__ = 'Copeland Carter'
+__email__ = 'smartycope@gmail.com'
+__license__ = 'GPL 3.0'
+__copyright__ = '(c) 2021, Copeland Carter'
+
+
 # from Point import Pointf, Pointi, Point
 from random import randint
 import math, re
@@ -5,20 +16,28 @@ from time import process_time
 from typing import Callable, Any, Iterable, Optional, Union
 import atexit
 from ctypes import pointer, py_object
-# from Point import Pointf
+from inspect import stack
+from os.path import basename, dirname, join
 
-from os.path import dirname, join
+try:
+    from varname import nameof, VarnameRetrievingError
+except ImportError:
+    Warning("Can't to import Cope.py (for debugging). Try installing varname via pip (pip install varname --user).")
+    haveVarname = False
+else:
+    haveVarname = True
+
 DIR  = dirname(__file__)
-UI   = join(DIR, 'ui/')
-DATA = join(DIR, 'data/')
 
+# This is because I write a lot of C/C++ code
 true, false = True, False
 
 # Override the debug parameters and display the file/function for each debug call
 #   (useful for finding debug calls you left laying around and forgot about)
-debugCount = 0
+_debugCount = 0
 
 DISPLAY_FILE = False
+DISPLAY_PATH = False
 DISPLAY_FUNC = False
 DISPLAY_LINK = False
 HIDE_TODO    = False
@@ -27,6 +46,10 @@ HIDE_TODO    = False
 def displayAllFiles(to=True):
     global DISPLAY_FILE
     DISPLAY_FILE = to
+
+def displayAllPaths(to=True):
+    global DISPLAY_PATH
+    DISPLAY_PATH = to
 
 def displayAllFuncs(to=True):
     global DISPLAY_FUNC
@@ -43,9 +66,10 @@ def hideAllTodos(to=True):
 
 #* Colors
 # none, blue, green, orange, purple, cyan, alert red
-colors = ['0', '34', '32', '33', '35', '36', '31']
+_colors = ['0', '34', '32', '33', '35', '36', '31']
 
 
+# This is bad practice, try to avoid using these
 def ref(obj):
     return pointer(py_object(obj))
 
@@ -53,57 +77,70 @@ def deref(ptr):
     return ptr.contents.value
 
 
-
-# https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
-def _printColor(r, g, b, fg=True):
-    """ Set fg to false to set the background color
+class coloredOutput:
+    """ A class to be used with the with command to print colors.
+        Resets after it's done.
+        https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
     """
-    try:
-        if fg:
-            print(f'\033[38;2;{r};{g};{b}m', end='')
-        else:
-            print(f'\033[48;2;{r};{g};{b}m', end='')
-    except:
-        _resetColor()
+    def __init__(self, r, g, b, foreground=True):
+        self.r, self.g, self.b = r, g, b
+        self.fg = foreground
+
+    def __enter__(self):
+        try:
+            if self.fg:
+                print(f'\033[38;2;{self.r};{self.g};{self.b}m', end='')
+            else:
+                print(f'\033[48;2;{self.r};{self.g};{self.b}m', end='')
+        except:
+            self.reset()
+
+    def __exit__(self, *args):
+        self.reset()
+
+    def reset(self):
+        print('\033[0m',  end='')
+        print('\033[39m', end='')
+        print('\033[49m', end='')
 
 
-def printBasicColor(num, fg=True):
-    """ Sets the terminal to one of, for now, 5 unique colors for debugging purpouses
-        0 resets the terminal and -1 is alert red.
+class basicColoredOutput:
+    """ A class to be used with the with command to print basic colors.
+        Resets after it's done.
+        https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
     """
-    try:
-        if not fg:
-            num += 10
-        print(f'\033[{colors[num]}m', end='')
-    except:
-        _resetColor()
+    def __init__(self, colorID, foreground=True):
+        global _colors
+        self.colors = _colors
+        self.id = colorID
+        self.fg = foreground
+
+    def __enter__(self):
+        if self.id is None:
+            return
+        try:
+            if not self.fg:
+                self.id += 10
+            print(f'\033[{self.colors[self.id]}m', end='')
+        except:
+            self.reset()
+
+    def __exit__(self, *args):
+        if self.id is not None:
+            self.reset()
+
+    def reset(self):
+        print('\033[0m',  end='')
+        print('\033[39m', end='')
+        print('\033[49m', end='')
 
 
-def _resetColor():
-    """ Resets the terminal to it's original color
-    """
 
-    print('\033[0m',  end='')
-    print('\033[39m', end='')
-    print('\033[49m', end='')
-    # print(, end='')
-
-    # try:
-    #     # print('\033[39m', end='')
-    #     # print('\033[49m', end='')
-    #     pass
-    # finally:
-    #     # print(err)
-    #     print('\033[39m', end='')
-    #     print('\033[49m', end='')
-    #     # _resetColor()
-
-
-def _getMetaData(calls=1):
+#* These are all helper functions for debug
+def _debugGetMetaData(calls=1):
     """ Gets the meta data of the line you're calling this function from.
         Calls is for how many function calls to look back from.
     """
-    from inspect import stack
     try:
         s = stack()[calls]
         return s
@@ -111,7 +148,7 @@ def _getMetaData(calls=1):
         return None
 
 
-def _getLink(calls=0, full=False, customMetaData=None):
+def _debugGetLink(calls=0, full=False, customMetaData=None):
     if customMetaData is not None:
         d = customMetaData
     else:
@@ -120,10 +157,10 @@ def _getLink(calls=0, full=False, customMetaData=None):
     _printLink(d.filename, d.lineno, d.function if full else None)
 
 
-KILL_IT = 6
+# KILL_IT = 6
 
 # TODO This doesn't quite work properly
-def _getListStr(v: Union[tuple, list, set, dict], limitToLine: bool=True, minItems: int=2, maxItems: int=10,
+def _debugGetListStr(v: Union[tuple, list, set, dict], limitToLine: bool=True, minItems: int=2, maxItems: int=10,
                 color: int=0) -> str:
     """ "Cast" a tuple, list, set or dict to a string, automatically shorten
         it if it's long, and display how long it is.
@@ -143,7 +180,7 @@ def _getListStr(v: Union[tuple, list, set, dict], limitToLine: bool=True, minIte
         if type(v) is set:
             v = tuple(v)
 
-        ellipsis = f', \033[0m...\033[{colors[color]}m '
+        ellipsis = f', \033[0m...\033[{_colors[color]}m '
         length = f'(len={len(v)})'
 
         if limitToLine:
@@ -176,7 +213,7 @@ def _getListStr(v: Union[tuple, list, set, dict], limitToLine: bool=True, minIte
         return str(v) + f'(len={len(v)})'
 
 
-def _getTypename(var):
+def _debugGetTypename(var):
     if type(var) in (tuple, list, set):
         returnMe = type(var).__name__
         while type(var) in (tuple, list, set):
@@ -196,7 +233,7 @@ def _getTypename(var):
         return type(var).__name__
 
 
-def _printLink(filename, lineNum, function=None):
+def _debugPrintLink(filename, lineNum, function=None):
     """ Print a VSCodium clickable file and line number
         If function is specified, a full python error message style line is printed
     """
@@ -214,81 +251,76 @@ def _printLink(filename, lineNum, function=None):
     print('\033[0m', end='')
 
 
-def basicColoredPrint(string, color, fg, **kwargs):
-    printBasicColor(color, fg=fg)
-    print(string, **kwargs)
-    _resetColor()
+def _printDebugCount(leftAdjust=2, color: int=None):
+    global _debugCount
+    _debugCount += 1
+    with basicColoredOutput(color):
+        print(f'{str(_debugCount)+":":<{leftAdjust+2}}', end='')
 
-
-def coloredPrint(string, r, g, b, fg):
-    _printColor(r, g, b, fg=fg)
-    try:
-        print(string)
-        _resetColor()
-    except:
-        _resetColor()
-    finally:
-        _resetColor()
-
-
-def _printDebugCount(leftAdjust=2):
-    global debugCount
-    debugCount += 1
-    print(f'{str(debugCount)+":":<{leftAdjust+2}}', end='')
-
-
-
-# TODO This is not done
-def copesNameof(calls=0, full=True, displayParamParams=False, customMetaData=None):
-    if customMetaData is not None:
-        line = customMetaData.code_context[0]
-    else:
-        line = _getMetaData(calls+2).code_context[0]
-
-    #* First strip it down to just what it's parameters it was called with
-    line = re.sub(r'\s+', '', line)
-    line = re.sub(r'\bdebug\b', '', line)
-    line = line[1:-1]
-
-    #* Now split all the parameters, and throw away any that are keyword arguements
-    chunks = [re.split(r',', i) for i in re.split(r'\(|\)', line)]
-    for cnt, i in enumerate(chunks[-1]):
-        if '=' in i:
-            chunks[-1].pop(cnt)
-
-
-
-
-
-
-
-    return line
-
-"        debug(classs.method(methodParam1, methodParam2, kwMethodParam=False), secondVar, showFunc=True, color = 6)\n"
-
-# print(copesNameof())
 
 
 # TODO This has not been written
-def getVarName(useBackup=True, calls=0, full=True, customMetaData=None):
-    if customMetaData is not None:
-        line = customMetaData.code_context[0]
+def _debugGetVarName(var, full=True, calls=1):
+    try:
+        name = nameof(var, vars_only=full, frame=calls+1)
+    except VarnameRetrievingError:
+        try:
+            name = nameof(var, frame=calls+1)
+        except VarnameRetrievingError:
+            name = '?'
+
+    # It's a string literal
+    if name == var:
+        return None
+    return name
+    # if customMetaData is not None:
+        # line = customMetaData.code_context[0]
+    # else:
+        # line = _getMetaData(calls+2).code_context[0]
+
+
+def _debugGetContext(metadata, useVscodeStyle, showFunc, showFile, showPath):
+    #* Set the stuff in the [] (the "context")
+    if metadata is not None:
+        if useVscodeStyle:
+            return f'["{metadata.filename}", line {metadata.lineno}, in {metadata.function}()] '
+        else:
+            context = str(metadata.lineno)
+            if showFunc:
+                context = metadata.function + '()->' + context
+
+            if showFile:
+                context = (metadata.filename if showPath else basename(metadata.filename)) + '->' + context
+
+            return f'[{context}] '
     else:
-        line = _getMetaData(calls+2).code_context[0]
+        return ' '
 
 
 
-class _None(): pass
+class _None(object): _nothing = None
 
 # TODO: somehow round any float to a given length, including those printed in iterables
 # TODO make it so if the first is a variable you can't get (or just any variable), and the
 #   second is a string literal, set the string literal as the name of the first variable
 # TODO If there's multiple variables passed in, and it cant get one of them, it gives up.
 #   Call the varname function seperately for each variable.
-def debug(var=None, *more_vars, name=None, merge: bool=False, repr: bool=False, calls: int=1,
-          color: int=None, background: bool=False, showFunc: bool=False, showFile: bool=False,
-          limitToLine: bool=True, minItems: int=4, maxItems: int=10, clickable: bool=False,
-          _tries: int=0) -> None:
+def debug(var=_None,                # The variable to debug
+          name: str=None,           # Don't try to get the name, use this one instead
+          color: int=1,             # A number (-1-5) that is just one of 1 distinct colors, set to None for no color
+          useVscodeStyle: bool=True,# Print metadata as a clickable vscode link
+          showFunc: bool=True,      # Expressly show what function we're called from
+          showFile: bool=True,      # Expressly show what file we're called from
+          showPath: bool=True,      # Show just the file name, or the full filepath
+          repr: bool=False,         # Whether we should print the repr of var instead of str
+          calls: int=1,             # Add extra calls
+          background: bool=False,   # Whether the color parameter applies to the forground or the background
+          limitToLine: bool=True,   # When printing iterables, whether we should only print items to the end of the line
+          minItems: int=4,          # Minimum number of items to print when printing iterables (overrides limitToLine)
+          maxItems: int=10,         # Maximum number of items to print when printing iterables, use None or negative to specify no limit
+          clickable: bool=False,    # I don't remember what this does.
+          _tries: int=0             # Internal usage for debugged. Don't touch this.
+    ) -> None:
     """Print variable names and values for easy debugging.
 
         Call with no parameters to tell if its getting called at all, and call with a only a string to just display the string
@@ -316,136 +348,91 @@ def debug(var=None, *more_vars, name=None, merge: bool=False, repr: bool=False, 
             debug(var, var1, var2, name=('variable', 'variable2', 'variable3')) ->
                 prints each var on their own line with the appropriate name
     """
-    try:
-        from varname import nameof, VarnameRetrievingError
-    except ImportError:
-        Warning("Can't to import Cope.py (for debugging). Try installing varname via pip (pip install varname --user).")
-    from os.path import basename
-
-    global debugCount, DISPLAY_FUNC, DISPLAY_FILE, DISPLAY_LINK
-
-    # +1 call because it itself is a function
-    metaData = _getMetaData(calls+1)
-    cantGetName = metaData == None
-    clr = 1 if color is None else color
-    # codeLine = metaData.code_context[1]
+    global _debugCount, DISPLAY_FUNC, DISPLAY_FILE, DISPLAY_LINK, haveVarname, DISPLAY_PATH
+    CONTEXT_COLOR = color
+    EMPTY_COLOR = -1
     # The max amount of nested function calls you can pass to this function
     hopelessThreashold = 2
-    if maxItems < 0:
+
+    if maxItems < 0 or maxItems is None:
         maxItems = 1000000
 
+    # +1 call because we don't want to get this line, but the one before it
+    metadata = _debugGetMetaData(calls+1)
 
-    #* Set the stuff in the [] (the "context")
-    if metaData is not None:
-        context = str(metaData.lineno)
-        if showFunc or DISPLAY_FUNC:
-            context = metaData.function + '()->' + context
-
-        if showFile or DISPLAY_FILE:
-            context = basename(metaData.filename) + '->' + context
-
-        context = f'[{context}] '
-    else:
-        context = ': '
-
+    _printDebugCount(color=CONTEXT_COLOR)
 
     #* Only print the "HERE! HERE!" message
     if var is None:
-        _printDebugCount()
-        basicColoredPrint(context + 'HERE! HERE!', -1 if color is None else color, fg=not background, end='')
-        # if clickable or DISPLAY_LINK:
-        _getLink(customMetaData=metaData)
+        with basicColoredOutput(None if color is None else EMPTY_COLOR):
+            print(_debugGetContext(metadata, useVscodeStyle, showFunc or DISPLAY_FUNC, showFile or DISPLAY_FILE, showPath or DISPLAY_PATH), end=''
+            )
+            print(f'HERE! {metadata.function}() called!')
+            # _getLink(customMetaData=metaData)
         return
 
+    with basicColoredOutput(color, not background):
+        # codeLine = metaData.code_context[1]
+        print(_debugGetContext(metadata, useVscodeStyle, showFunc or DISPLAY_FUNC, showFile or DISPLAY_FILE, showPath or DISPLAY_PATH), end='')
 
-    #* Seperate the variables into a tuple of (typeStr, varString)
-    variables = ()
-    for v in (var, *more_vars):
-        if type(v) in (tuple, list, set, dict):
-            variables += ((_getTypename(v), _getListStr(v, limitToLine, minItems, maxItems, color=clr)),)
+        #* Seperate the variables into a tuple of (typeStr, varString)
+        if type(var) in (tuple, list, set, dict):
+            varType = _debugGetTypename(var)
+            varVal  = _debugGetListStr(var, limitToLine, minItems, maxItems, color=color)
         else:
-            variables += ((_getTypename(v), str(v)),)
+            varType = _debugGetTypename(var)
+            varVal  = str(var) if not repr else repr(var)
+
+        #* Actually get the name
+        varName = _debugGetVarName(var, calls=calls) if name is None else name
+        # It's a string literal
+        if varName is None:
+            print(var)
+            return
 
 
-    #* Actually get the names
-        # Try to get the full variable name.
-        #   If you can't, try to get what name you can.
-        #   If you still cant, see if it's because the user passed in a string literal.
-        #       If so, just print that and be done.
-        #   If not, then set cantGetName to True
-    if name is None:
-        try:
-            varNames = nameof(*[i[1] for i in variables], vars_only=False) # caller=calls+1
-        except VarnameRetrievingError:
-            try:
-                varNames = nameof(*[i[1] for i in variables]) # caller=calls+1
-            except VarnameRetrievingError:
-                if type(var) is str:
-                    _printDebugCount()
-                    basicColoredPrint(context + var, clr, fg=not background)
-                    if clickable or DISPLAY_LINK:
-                        _getLink(customMetaData=metaData)
-                    return
-                else:
-                    cantGetName = True
-                    varNames = ['?'] * len(variables)
-    else:
-        varNames = name
+        #* Try again with an additional call
+        # if varName == '?' and _tries < hopelessThreashold:
+        #     debug(var, name=name, repr=repr, calls=calls+1, color=color, background=background,
+        #         showFunc=showFunc, showFile=showFile, showPath=showPath, _tries=_tries+1,
+        #         minItems=minItems, maxItems=maxItems, limitToLine=limitToLine)
 
+        print(f'{varType} {varName} = {varVal}')
 
-    #* Make sure the varNames is a tuple
-    if type(varNames) is list:
-        varNames = tuple(varNames)
-    elif type(varNames) is not tuple:
-        varNames = (varNames, )
+    # Does the same this as debugged
+    return var
 
-
-    #* Try again with an additional call
-    if cantGetName and _tries < hopelessThreashold:
-        # pass
-        debug(var, *more_vars, name=name, repr=repr, merge=merge, calls=calls+1, color=color, background=background,
-              showFunc=showFunc, showFile=showFile, _tries=_tries+1, minItems=minItems, maxItems=maxItems,
-              limitToLine=limitToLine)
-
-
-    #* If we've given up, or if we got the name and we're printing...
-    elif (cantGetName and _tries >= hopelessThreashold) or not cantGetName:
-        #* Merge the names with the values
-        nameWithValues = [f"{var_name} = {variables[i][1]!r}" if repr \
-                     else f"{var_name} = {variables[i][1]}" \
-                      for i, var_name in enumerate(varNames)]
-
-        #* Either put everything on it's own line, or print out multiple lines
-        if merge:
-            _printDebugCount()
-            basicColoredPrint(context + ', '.join(nameWithValues), clr, fg=not background)
-        else:
-            for cnt, name_and_value in enumerate(nameWithValues):
-                _printDebugCount()
-                basicColoredPrint(context + variables[cnt][0] + ' ' + name_and_value, clr, fg=not background)
-
-            # debugCount -= 1
-
-
-        if clickable or (cantGetName and name is None) or DISPLAY_LINK:
-            _getLink(customMetaData=metaData)
-            # _printLink(metaData.filename, metaData.lineno)
-
-
-
-def debugged(var=_None, name=None, merge: bool=False, repr: bool=False, calls: int=1,
-             color: int=None, background: bool=False, showFunc: bool=False, showFile: bool=False,
-             limitToLine: bool=True, minItems: int=4, maxItems: int=10, clickable: bool=False):
+'''
+def debugged(var=_None,                # The variable to debug
+             name: str=None,           # Don't try to get the name, use this one instead
+             color: int=1,             # A number (-1-5) that is just one of 1 distinct colors, set to None for no color
+             useVscodeStyle: bool=True,# Print metadata as a clickable vscode link
+             showFunc: bool=True,      # Expressly show what function we're called from
+             showFile: bool=True,      # Expressly show what file we're called from
+             showPath: bool=True,      # Show just the file name, or the full filepath
+             repr: bool=False,         # Whether we should print the repr of var instead of str
+             calls: int=1,             # Add extra calls
+             background: bool=False,   # Whether the color parameter applies to the forground or the background
+             limitToLine: bool=True,   # When printing iterables, whether we should only print items to the end of the line
+             minItems: int=4,          # Minimum number of items to print when printing iterables (overrides limitToLine)
+             maxItems: int=10,         # Maximum number of items to print when printing iterables, use None or negative to specify no limit
+             clickable: bool=False,    # I don't remember what this does.
+    ):
     """ An inline version of debug
     """
 
-    debug(var, name=name, merge=merge, repr=repr, calls=calls+1,
-          color=color, background=background, showFunc=showFunc, showFile=showFile,
-          limitToLine=limitToLine, minItems=minItems, maxItems=maxItems, clickable=clickable)
-
-    _resetColor()
+    debug(var=var, name=name, color=color, useVscodeStyle=useVscodeStyle,
+          showFunc=showFunc, showFile=showFile, showPath=showPath,
+          repr=repr, calls=calls, background=background,
+          limitToLine=limitToLine, minItems=minItems, maxItems=maxItems,
+          clickable=clickable, _tries=1)
 
     return var
+'''
+
+# a = 6
+# debug(a, calls = 1)
+
 
 
 
@@ -466,8 +453,12 @@ def reprise(obj, *args, **kwargs):
     return obj
 
 
+# def checkImport(lib, package=None):
+    # module = __import__(mname, {}, {}, (cls,))
 
-def cmd(args):
+
+
+def runCmd(args):
     """ Run a command and terminate if it fails. """
 
     try:

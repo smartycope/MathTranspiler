@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>648</width>
-    <height>694</height>
+    <width>681</width>
+    <height>716</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,20 +19,59 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>641</width>
-      <height>641</height>
+      <width>681</width>
+      <height>661</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Equation:</string>
+      <widget class="LoadingBar" name="loader">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>673000</width>
+         <height>6</height>
+        </size>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="textVisible">
+        <bool>false</bool>
+       </property>
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
+       <property name="format">
+        <string/>
        </property>
       </widget>
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Base Expression:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="solveButton">
+         <property name="text">
+          <string>Solve!</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QPlainTextEdit" name="equationInput">
          <property name="sizePolicy">
@@ -95,64 +134,164 @@
       </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="solveButton">
-       <property name="text">
-        <string>Solve!</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Variables</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="variableSelector">
-       <property name="placeholderText">
-        <string>Variables</string>
+        <string>Relations:</string>
        </property>
       </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QLineEdit" name="varNamer">
-         <property name="minimumSize">
-          <size>
-           <width>135</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="sizeIncrement">
-          <size>
-           <width>0</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="placeholderText">
-          <string>Variable Name</string>
-         </property>
-        </widget>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="QComboBox" name="varList">
+           <property name="minimumSize">
+            <size>
+             <width>202</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::InsertAtCurrent</enum>
+           </property>
+           <property name="placeholderText">
+            <string>Variables</string>
+           </property>
+           <property name="duplicatesEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>30</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="newRelationButton">
+           <property name="text">
+            <string>New Relation</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>=</string>
-         </property>
-        </widget>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QComboBox" name="relation">
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="editable">
+            <bool>false</bool>
+           </property>
+           <property name="currentText">
+            <string>==</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>==</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>&lt;=</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>&gt;=</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>&lt;</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>&gt;</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>!=</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>30</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="setRelationButton">
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Set</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QLineEdit" name="varSetter">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>400</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>200000</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <property name="sizeIncrement">
             <size>
              <width>0</width>
@@ -170,6 +309,12 @@
             <size>
              <width>0</width>
              <height>70</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>71</height>
             </size>
            </property>
            <property name="text">
@@ -223,6 +368,13 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Result:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QTabWidget" name="output">
        <property name="currentIndex">
         <number>0</number>
@@ -236,8 +388,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>-1</x>
            <y>-5</y>
-           <width>631</width>
-           <height>173</height>
+           <width>671</width>
+           <height>201</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -300,8 +452,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>631</width>
-           <height>161</height>
+           <width>671</width>
+           <height>201</height>
           </rect>
          </property>
          <property name="sizeIncrement">
@@ -339,9 +491,9 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>0</y>
-           <width>631</width>
-           <height>161</height>
+           <y>20</y>
+           <width>671</width>
+           <height>181</height>
           </rect>
          </property>
          <property name="sizeIncrement">
@@ -357,6 +509,19 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
         </widget>
+        <widget class="QLabel" name="implicitMulLabel">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>291</width>
+           <height>18</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Implicit Multiplication is: Off</string>
+         </property>
+        </widget>
        </widget>
       </widget>
      </item>
@@ -368,7 +533,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>648</width>
+     <width>681</width>
      <height>30</height>
     </rect>
    </property>
@@ -376,14 +541,34 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuCopy_to_Clipboard">
+     <property name="title">
+      <string>Copy to Clipboard...</string>
+     </property>
+     <addaction name="copySolution"/>
+     <addaction name="copyCurVar"/>
+     <addaction name="separator"/>
+     <addaction name="copyLatex"/>
+     <addaction name="copyMathML"/>
+     <addaction name="copyMathmatica"/>
+    </widget>
+    <widget class="QMenu" name="menuExport_As">
+     <property name="title">
+      <string>Export As...</string>
+     </property>
+     <addaction name="exportLatex"/>
+     <addaction name="exportMathML"/>
+     <addaction name="exportMathmatica"/>
+    </widget>
     <addaction name="save"/>
     <addaction name="saveAs"/>
     <addaction name="load"/>
     <addaction name="separator"/>
-    <addaction name="exportLatex"/>
-    <addaction name="exportMathML"/>
-    <addaction name="exportMathmatica"/>
+    <addaction name="menuExport_As"/>
     <addaction name="separator"/>
+    <addaction name="menuCopy_to_Clipboard"/>
+    <addaction name="separator"/>
+    <addaction name="solveButton2"/>
     <addaction name="resetButton"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
@@ -393,6 +578,9 @@ p, li { white-space: pre-wrap; }
     <addaction name="throwError"/>
     <addaction name="rememberVarNames"/>
     <addaction name="doEval"/>
+    <addaction name="implicitMult"/>
+    <addaction name="separator"/>
+    <addaction name="interpretAsLatex"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -400,7 +588,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="plotButton"/>
     <addaction name="limitButton"/>
-    <addaction name="solveButton2"/>
+    <addaction name="makePiecewise"/>
    </widget>
    <widget class="QMenu" name="menuMath">
     <property name="title">
@@ -413,7 +601,6 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="useVarNamesInSolution"/>
     <addaction name="dontSimplify"/>
     <addaction name="printSolution"/>
     <addaction name="prettySolution"/>
@@ -464,6 +651,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Plot</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
   </action>
   <action name="useVarNamesInSolution">
    <property name="checkable">
@@ -505,7 +695,10 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="limitButton">
    <property name="text">
-    <string>Get Limit...</string>
+    <string>Add Limit...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
   <action name="dontSimplify">
@@ -554,6 +747,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Reset Everything</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="doEval">
    <property name="checkable">
@@ -577,8 +773,87 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Solve</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+Return</string>
+   </property>
+  </action>
+  <action name="implicitMult">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Implicit Multiplication</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="interpretAsLatex">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Input is LaTeX</string>
+   </property>
+  </action>
+  <action name="copyLatex">
+   <property name="text">
+    <string>Latex</string>
+   </property>
+  </action>
+  <action name="copyMathML">
+   <property name="text">
+    <string>MathML</string>
+   </property>
+  </action>
+  <action name="copySolution">
+   <property name="text">
+    <string>Solution</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="copyCurVar">
+   <property name="text">
+    <string>Selected Variable</string>
+   </property>
+  </action>
+  <action name="copyMathmatica">
+   <property name="text">
+    <string>Mathmatica</string>
+   </property>
+  </action>
+  <action name="makePiecewise">
+   <property name="text">
+    <string>Make Piecewise</string>
+   </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LoadingBar</class>
+   <extends>QProgressBar</extends>
+   <header location="global">LoadingBar</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>equationInput</tabstop>
+  <tabstop>solveButton</tabstop>
+  <tabstop>answerBox</tabstop>
+  <tabstop>varList</tabstop>
+  <tabstop>relation</tabstop>
+  <tabstop>varSetter</tabstop>
+  <tabstop>setRelationButton</tabstop>
+  <tabstop>newRelationButton</tabstop>
+  <tabstop>varInfoBox</tabstop>
+  <tabstop>output</tabstop>
+  <tabstop>codeBox</tabstop>
+  <tabstop>errorBox</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
