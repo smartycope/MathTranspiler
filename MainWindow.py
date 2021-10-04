@@ -8,7 +8,7 @@ from PyQt5 import QtCore, QtGui, QtMultimedia, QtWidgets, uic
 from PyQt5.QtCore import QEvent, QFile, QLine, QLineF, QRect, QRectF, Qt, QTimer, QByteArray
 from PyQt5.QtGui import QIcon, QPixmap, QImage
 # from PyQt5.QtWidgets import *
-from PyQt5.QtWidgets import QFileDialog, QMainWindow, QWidget, QDialog, QLabel
+from PyQt5.QtWidgets import QFileDialog, QMainWindow, QWidget, QDialog, QLabel, QLineEdit, QTableWidgetItem
 # from PyQt5.QtSvg import QSvgWidget
 
 # from PySide.QtXml import *
@@ -17,7 +17,8 @@ from PyQt5.QtWidgets import QFileDialog, QMainWindow, QWidget, QDialog, QLabel
 # import sympy as sym
 from sympy.parsing.sympy_parser import (parse_expr, standard_transformations,
                                         implicit_multiplication_application,
-                                        implicit_multiplication, convert_xor)
+                                        implicit_multiplication, convert_xor,
+                                        lambda_notation)
 from sympy.printing.pycode import pycode
 from sympy.printing.latex import latex
 from sympy.parsing.latex import parse_latex
@@ -26,8 +27,9 @@ from sympy.printing.preview import preview
 from sympy.printing.mathematica import mathematica_code
 from sympy.solvers.inequalities import solve_rational_inequalities
 from sympy.sets.conditionset import ConditionSet
-from sympy.core.function import AppliedUndef
+from sympy.core.function import AppliedUndef, UndefinedFunction
 from sympy.plotting import plot
+from sympy.calculus.util import continuous_domain
 from sympy import abc
 from sympy.abc import *
 from sympy import *
@@ -49,7 +51,9 @@ DIR = dirname(__file__)
 # TODO Pre-parse the input equation for || and replace with Abs() (capitol!)
 # TODO Removed use varnames in solution QAction
 class Main(QMainWindow):
-    varTypes = (Symbol, AppliedUndef) #, WildFunction)
+    varTypes = (Symbol, )
+    funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
+    functionVar = Symbol('x')
     errorTabIndex = 2
     defaultDir = '/home/marvin/Documents/College/Calculus/'
     fileExtensions = 'Text Files (*.txt)'
@@ -58,9 +62,8 @@ class Main(QMainWindow):
     defaultExtension = ''
     defaultLatexExtension = ''
     defaultMathmlExtension = ''
-    baseTrans = standard_transformations + (convert_xor, )
+    baseTrans = standard_transformations + (convert_xor, lambda_notation)
     trans = baseTrans
-    undefinedLatex = r'$_\varnothing$_ '
     varCount = 0
     windowStartingPos = (1000, 0)
 
@@ -173,6 +176,7 @@ class Main(QMainWindow):
         self.copyMathML.triggered.connect(lambda: clip.copy(mathml(self.solvedExpr)))
         self.copyMathmatica.triggered.connect(lambda: clip.copy(mathematica_code(self.solvedExpr)))
         self.copySolution.triggered.connect(lambda: clip.copy(str(self.solvedExpr)))
+        self.copyEquation.triggered.connect(lambda: clip.copy(self.equ))
         # self.copyCurVar.triggered.connect(lambda: clip.copy(self.varValueBox))
         self.copyCurVar.triggered.connect(lambda: clip.copy(todo('figure out current var copy to clipboard')))
 
@@ -180,6 +184,7 @@ class Main(QMainWindow):
         # self.equationInput.textChanged.connect(self.updateEquation)
         self.solveButton.clicked.connect(self.updateEquation)
         self.solveButton2.triggered.connect(self.updateEquation)
+        self.resetVarButton.pressed.connect(self.resetCurVar)
 
         # The ouput tab widget
         self.output.currentChanged.connect(self.onTabChanged)
@@ -189,6 +194,7 @@ class Main(QMainWindow):
         self.setRelationButton.pressed.connect(self.onVarValueChanged)
         self.newRelationButton.pressed.connect(self.onNewRelationWanted)
 
+        self.throwError.triggered.connect(self.updateEquation)
         self.plotButton.triggered.connect(self.plot)
         self.limitButton.triggered.connect(self.onLimitButtonPressed)
         self.dontSimplify.triggered.connect(self.updateEquation)
@@ -198,7 +204,9 @@ class Main(QMainWindow):
         self.previewSolution.triggered.connect(self.onPreviewSolution)
         self.previewCurVar.triggered.connect(self.onPreviewCurVar)
         self.implicitMult.triggered.connect(self.updateImplicitMult)
-        self.makePiecewise.triggered.connect(self.makePiecewise)
+        self.makePiecewise.triggered.connect(self.doPiecewise)
+        self.getContinuous.triggered.connect(self.onGetContinuous)
+        self.getIntDiff.triggered.connect(self.onIntDiff)
 
         # self.inputBox.returnPressed.connect(self.onInputAccepted)
 
@@ -261,26 +269,38 @@ class Main(QMainWindow):
             # except ValueError:
             #     debug('solving using simplify')
 
-            debug(expr, 'solved expr')
-
         if self.doEval.isChecked():
             expr = expr.evalf()
 
         self.solvedExpr = expr
 
 
-    def isContinuous(self, expr, x, a)->bool:
+    def isContinuousAt(self, x):
         # function f(x) is continuous at a point x=a if and only if:
         # f(a) is defined
         # lim(x→a, f(x)) exists
         # lim(x→a, f(x))=f(a)
-        if not (expr):
-            return False
-        if type(expr) is not Function:
-            return False
-        if not expr(x):
-            return False
-        return expr(x) == expr(a)
+
+
+        expr = self.solvedExpr
+        expr.subs(self.currentVar.symbol, x)
+        print(f'Result of f({x}) = {expr}')
+
+        if not (self.solvedExpr):
+            reason = 'Expression does not exist'
+            cont = False
+        # elif type(self.solvedExpr) is not Function:
+        #     return False
+        elif not expr:
+            reason = f'expression is not defined at {x}'
+            cont = False
+        elif Limit(self.solvedExpr, self.currentVar.symbol, x, '-') != Limit(self.solvedExpr, self.currentVar.symbol, x, '+'):
+           reason = f'limit at {x} does not exist'
+           cont = False
+        else:
+            cont = True
+            print(f"Expression is {'' if cont else 'not '}continuous at {x}" + (f':\n{reason}' if cont else ''))
+        # return expr(x) == expr(a)
 
 
     def getPixmap(self, expr):
@@ -357,6 +377,19 @@ class Main(QMainWindow):
 
 
 # Slots
+    def onIntDiff(self):
+        inputWindow = QDialog()
+        uic.loadUi(join(DIR, "diffIntegral.ui"), inputWindow)
+
+        def extractValues():
+            self.updateIntDiff(inputWindow.doDiff.isChecked(),
+                               inputWindow.var.text(),
+                               inputWindow.addMainEquation.isChecked())
+
+        inputWindow.accepted.connect(extractValues)
+        inputWindow.show()
+
+
     def onTabChanged(self):
         # Switch to the error tab, if there's an error, then switch back when there's not.
         if self.output.currentIndex() != self.errorTabIndex:
@@ -377,11 +410,15 @@ class Main(QMainWindow):
         self.updateCode()
 
 
+    # *Sets* the current variable value when enter is pressed
     def onVarValueChanged(self):
         loads = False
         if not self.loading:
             self.loading = True
             loads = True
+
+        # def adjustInput(s):
+            # return re.sub('x', 'xxx', s)
 
         try:
             val = parse_expr(self.varSetter.text(), transformations=self.trans)
@@ -390,24 +427,28 @@ class Main(QMainWindow):
             debug('Failed to parse var value!', color=-1)
             self.error = err
         else:
-            # self.relations.append(Rel(self.currentVar.value, val, self.relation.currentText()))
-            self.updateVars()
-            self.allVars[self.varIndex].value = val
-            self.allVars[self.varIndex].valueChanged = True
-            self.allVars[self.varIndex].relationship = self.relation.currentText()
-            self.calculateSolution()
-            self.updateVarInfo()
-            self.updateSolution()
-            self.updateCode()
-            self.varPng.setPixmap(self.getPixmap(val))
-            # debug(self.allVars, 'vars', color=2)
-
-            # No idea why this is nessicary, but it makes it work.
-            # if self._hack:
-            #     self._hack = False
-            #     self.varSetter.returnPressed.emit()
-            # else:
-            #     self._hack = True
+            try:
+                # self.relations.append(Rel(self.currentVar.value, val, self.relation.currentText()))
+                self.updateVars()
+                # if type(self.currentVar) in (AppliedUndef, Function, Lambda):
+                debug(self.currentVar, 'curVar', useRepr=True)
+                if type(self.currentVar.symbol) in self.funcTypes + (Function,):
+                    # self.allVars[self.varIndex].symbol.rewrite(self.val)
+                    # self.allVars[self.varIndex].symbol = Lambda(self.functionVar, val)
+                    self.allVars[self.varIndex].value = Lambda(self.functionVar, val)
+                    debug()
+                else:
+                    self.allVars[self.varIndex].value = val
+                self.allVars[self.varIndex].valueChanged = True
+                self.allVars[self.varIndex].relationship = self.relation.currentText()
+                self.updateEquation()
+                # self.calculateSolution()
+                # self.updateVarInfo()
+                # self.updateSolution()
+                # self.updateCode()
+                self.varPng.setPixmap(self.getPixmap(val))
+            except Exception as err:
+                self.error = err
 
         if loads:
             self.loading = False
@@ -452,16 +493,42 @@ class Main(QMainWindow):
             self.error = err
 
 
-    def makePiecewise(self):
+    def doPiecewise(self):
         inputWindow = QDialog()
         uic.loadUi(join(DIR, "addPiecewise.ui"), inputWindow)
+        inputWindow.table.setItem(0, 0, QTableWidgetItem(str(self.expr)))
+        inputWindow.table.setItem(0, 1, QTableWidgetItem('True'))
 
         def extractValues():
+            rels = []
+            curRel = ()
+            for row in range(inputWindow.table.rowCount()):
+                for col in range(inputWindow.table.columnCount()):
+                    item = inputWindow.table.item(row, col)
+                    if item:
+                        item = item.text()
+                    if item:
+                        curRel += (parse_expr(item, transformations=self.trans), )
+                        if col == 1:
+                            rels.append(curRel)
+                            curRel = ()
+            # self.piecewise = rels
 
-            self.updatePiecewise()
+            # debug(tuple(rels), 'relations', color=3)
+            self.updatePiecewise(rels, inputWindow.addMainEquation.isChecked())
 
         inputWindow.accepted.connect(extractValues)
         inputWindow.show()
+
+
+    def onGetContinuous(self):
+        get = QLineEdit()
+        def getInput():
+            self.isContinuousAt(get.text())
+            get.destroy()
+
+        get.returnPressed.connect(getInput)
+        get.show()
 
 
     def onPreviewSolution(self):
@@ -472,12 +539,10 @@ class Main(QMainWindow):
         preview(solveset(self.expr, self.currentVar.symbol), output='png')
 
 
-    # def getExprSet(self):
-        # l = [self.expr]
-        # for i in self.vars:
-        #     if i.valueChanged:
-        #         l += i.value
-
+    def resetCurVar(self):
+        self.allVars[self.varIndex] = Variable(self.currentVar.symbol)
+        self.varSetter.setText('')
+        self.updateEquation()
 
 # Update Functions
     def updateEquation(self):
@@ -497,11 +562,18 @@ class Main(QMainWindow):
 
             # Now calculate everything
 
-            # First, run the input string through our function to make sure we take care
-            # of the things sympy won't take care of for us (= to Eq() and the like)
-            equation = self.fixEquationString(self.equ)
+            if self.interpretAsPython.isChecked():
+                expr = None
+                exec(self.equ, globals(), locals())
+                self.expr = expr
+                debug(self.expr, 'expr', color=3)
+                debug(tmp, 'tmp', color=3)
+            else:
+                # First, run the input string through our function to make sure we take care
+                # of the things sympy won't take care of for us (= to Eq() and the like)
+                equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else self.equ
+                self.expr = parse_expr(equation, transformations=self.trans, evaluate=False)
 
-            self.expr = parse_expr(equation, transformations=self.trans, evaluate=False)
             self.calculateSolution()
 
             # Load the png of what we're writing
@@ -522,15 +594,35 @@ class Main(QMainWindow):
 
 
     def updateVarInfo(self):
+        string = ''
+
         if self.currentVar:
-            self.varInfoBox.setPlainText(f'Type: {type(self.currentVar.value)}')
+            #* Type:
+            string += f'Type: {type(self.currentVar.symbol) if type(self.currentVar.symbol) in self.funcTypes else type(self.currentVar.value)}\n'
+
+            #* Continuous at (doesn't work):
+            try:
+                string += f'Continuous at: {continuous_domain(self.solvedExpr, self.currentVar.symbol, Reals)}'
+            except Exception as err:
+                # debug(err, color=-1)
+                if self.throwError.isChecked():
+                    raise err
+
+        self.varInfoBox.setPlainText(string)
 
 
+    # *Fills* the variable setter box when the current variable is changed
     def updateVarValue(self):
+        ans = ''
+        if type(self.currentVar.value) is Lambda:
+            value = self.currentVar.value.expr
+        else:
+            value = self.currentVar.value
+
         if self.currentVar and self.currentVar.valueChanged:
-            ans = pretty(self.currentVar.value) if self.prettySolution.isChecked() else str(self.currentVar.value)
+            ans = pretty(value) if self.prettySolution.isChecked() else str(value)
             self.relation.setCurrentText(self.currentVar.relationship)
-            self.varPng.setPixmap(self.getPixmap(self.currentVar.value))
+            self.varPng.setPixmap(self.getPixmap(value))
 
         elif self.currentVar:
             # Some inequalities aren't impolemented in the complex domain.
@@ -557,7 +649,11 @@ class Main(QMainWindow):
         # Get any variables that are exclusively defined in the variable setter, and add them to atoms
         for i in self.allVars:
             if i.valueChanged:
-                atoms = atoms.union(i.value.atoms(*self.varTypes))
+                atoms = atoms.union(i.value.atoms(*self.varTypes+self.funcTypes))
+                funcs = set()
+                for func in i.value.atoms(*self.funcTypes):
+                    funcs = funcs.union((type(func),))
+                atoms = atoms.union(funcs)
 
         # Get all the variables that are exclusively defined in the relations, and add them to atoms
         # for i in self.relations:
@@ -565,12 +661,17 @@ class Main(QMainWindow):
 
         # Get the variables in the input equation
         atoms = atoms.union(self.expr.atoms(*self.varTypes))
+        funcs = set()
+        for func in self.expr.atoms(*self.funcTypes):
+            funcs = funcs.union((type(func),))
+        atoms = atoms.union(funcs)
+
+        # atoms.remove(Symbol('xxx'))
 
         # Get all the things in what we've just parsed that aren't already in self.vars and add them
         curSymbols = set([v.symbol for v in self.allVars])
         for s in atoms.difference(curSymbols):
             self.allVars.append(Variable(s))
-            self.eqVars.append(Variable(s))
 
         # Now get all the things in self.vars that aren't in the thing we just parsed and delete them
         if not self.rememberVarNames.isChecked():
@@ -578,15 +679,24 @@ class Main(QMainWindow):
                 del self.allVars[getIndexWith(self.allVars, lambda x: x.symbol == s)]
 
         # Make sure our expression is updated with the new values
+        #// Also, iterate through all the vars and edit any of the Functions to add "(x)" to their name
         for var in self.allVars:
+            # debug(var.symbol, 'var')
             if var.valueChanged:
                 self.expr = self.expr.subs(var.symbol, var.value)
+            # if isinstance(var.symbol, self.funcTypes):
+            # if type(var.symbol) in self.funcTypes:
+            #     var.name += '(x)'
+            #     debug()
+
+        # debug(self.allVars, useRepr=True)
 
         # Totally reset the index box
         lastVarIndex = self.varIndex
         self.blockVarList = True
         self.varList.clear()
-        self.varList.addItems([str(v.symbol) for v in self.allVars])
+        self.varList.addItems([str(v) for v in self.allVars])
+        # self.varList.addItems([str(v.name) for v in self.allVars])
         self.varIndex = lastVarIndex if lastVarIndex > 0 else 0
         self.blockVarList = False
 
@@ -606,7 +716,10 @@ class Main(QMainWindow):
 
 
     def updateCode(self):
-        self.codeBox.setPlainText(pycode(self.expr, fully_qualified_modules=False))
+        try:
+            self.codeBox.setPlainText(pycode(self.expr, fully_qualified_modules=False))
+        except Exception as err:
+            debug(err, 'CodeGenError', color=-1)
         # return python(self.expr)
         # # Remove all whitespace
         # s = re.sub(r'\s', '', s)
@@ -661,8 +774,16 @@ class Main(QMainWindow):
         # return s
 
 
-    def updatePiecewise(self, *values):
-        self.relations = values
+    def updatePiecewise(self, relations, addToMainEquation):
+        result = f"Piecewise{tuple(relations)}"
+
+        if addToMainEquation:
+            self.equationInput.setPlainText(result)
+            self.updateEquation()
+        else:
+            self.varValueBox = result
+            # A small hack, make sure we accept the input so we don't overwrite it
+            self.varSetter.returnPressed.emit()
 
 
     def updateLimit(self, updateVar, updateVal, addToMainEquation, dir):
@@ -673,6 +794,18 @@ class Main(QMainWindow):
         else:
             withLimit = f"Limit({self.varSetter}, {updateVar}, {updateVal}" + (f", '{dir}'" if dir else '') + ')'
             self.varValueBox = withLimit
+            # A small hack, make sure we accept the input so we don't overwrite it
+            self.varSetter.returnPressed.emit()
+
+
+    def updateIntDiff(self, diff, var, addToMainEquation):
+        if addToMainEquation:
+            result = ('Derivative' if diff else "Integral") + f"({self.equationInput.toPlainText()}, {var})"
+            self.equationInput.setPlainText(result)
+            self.updateEquation()
+        else:
+            result = ('Derivative' if diff else "Integral") + f"({self.varSetter}, {var})"
+            self.varValueBox = result
             # A small hack, make sure we accept the input so we don't overwrite it
             self.varSetter.returnPressed.emit()
 
@@ -731,7 +864,7 @@ class Main(QMainWindow):
 
 
     def _load(self):
-        file = QFileDialog.getOpenFileName(directory=self.defaultDir, filter=self.fileExtensions, initialFilter=self.defaultExtension)[0]
+        file = QFileDialog.getOpenFileName(directory=self.defaultDir, filter=self.fileExtensions)[0] #, initialFilter=self.defaultExtension + 'All Files (*)'
         if len(file):
             with open(file, 'r') as f:
                 self.equationInput.setPlainText(f.read())

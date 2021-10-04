@@ -312,7 +312,7 @@ def debug(var=_None,                # The variable to debug
           showFunc: bool=True,      # Expressly show what function we're called from
           showFile: bool=True,      # Expressly show what file we're called from
           showPath: bool=True,      # Show just the file name, or the full filepath
-          repr: bool=False,         # Whether we should print the repr of var instead of str
+          useRepr: bool=False,         # Whether we should print the repr of var instead of str
           calls: int=1,             # Add extra calls
           background: bool=False,   # Whether the color parameter applies to the forground or the background
           limitToLine: bool=True,   # When printing iterables, whether we should only print items to the end of the line
@@ -357,17 +357,19 @@ def debug(var=_None,                # The variable to debug
     if maxItems < 0 or maxItems is None:
         maxItems = 1000000
 
+    if isinstance(var, Exception):
+        color = -1
+
     # +1 call because we don't want to get this line, but the one before it
     metadata = _debugGetMetaData(calls+1)
 
     _printDebugCount(color=CONTEXT_COLOR)
 
     #* Only print the "HERE! HERE!" message
-    if var is None:
+    if type(var) is _None:
         with basicColoredOutput(None if color is None else EMPTY_COLOR):
-            print(_debugGetContext(metadata, useVscodeStyle, showFunc or DISPLAY_FUNC, showFile or DISPLAY_FILE, showPath or DISPLAY_PATH), end=''
-            )
-            print(f'HERE! {metadata.function}() called!')
+            print(_debugGetContext(metadata, useVscodeStyle, showFunc or DISPLAY_FUNC, showFile or DISPLAY_FILE, showPath or DISPLAY_PATH), end='')
+            print(f'{metadata.function}() called HERE!')
             # _getLink(customMetaData=metaData)
         return
 
@@ -381,7 +383,7 @@ def debug(var=_None,                # The variable to debug
             varVal  = _debugGetListStr(var, limitToLine, minItems, maxItems, color=color)
         else:
             varType = _debugGetTypename(var)
-            varVal  = str(var) if not repr else repr(var)
+            varVal  = str(var) if not useRepr else repr(var)
 
         #* Actually get the name
         varName = _debugGetVarName(var, calls=calls) if name is None else name
@@ -734,7 +736,7 @@ def darken(rgb, amount):
 
 
 def ensureIterable(obj, useList=False):
-    if not isinstance(obj, typing.Iterable):
+    if not isinstance(obj, Iterable):
         return [obj, ] if useList else (obj, )
     else:
         return obj

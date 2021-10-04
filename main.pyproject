@@ -1,3 +1,3 @@
 {
-    "files": ["main.py","limitsInput.ui","main.ui"]
+    "files": ["main.py","limitsInput.ui","main.ui","diffIntegral.ui", "addPiecewise.ui"]
 }

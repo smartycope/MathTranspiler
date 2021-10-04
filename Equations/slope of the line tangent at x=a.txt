@@ -1,0 +1,5 @@
+# Limit((f(a + h)-f(a))/h, h, 0)
+Derivative(f(a), a)
+# The slope of a tangent line to f(x), at a point x=a, can be defined by this function
+# Don't forget to turn off implicit multiplication
+# Limit((f(a + h)-f(a))/h, h, 0) is the same as Derivative(f(a), a)

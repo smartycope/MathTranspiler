@@ -15,7 +15,6 @@ class LoadingBar(QProgressBar):
         self.min = 0
         self.max = 100
         self._fps = (1 - self.rate) * (self.max / 10)
-        debug(self._fps, 'fps')
 
         self._timer = QTimer(self)
         self._timer.timeout.connect(self._increment)
@@ -36,11 +35,12 @@ class LoadingBar(QProgressBar):
         self.setValue(self.value() + (-self.increments if self._currentlyInverted else self.increments))
 
     def start(self):
-        debug('loading!', color=4)
+        # debug('loading!', color=4)
         self.setEnabled(True)
         self._timer.start(self._fps)
 
     def stop(self):
-        debug('stopped loading', color=4)
+        # debug('stopped loading', color=4)
+        self.setValue(0)
         self.setEnabled(False)
         self._timer.stop()

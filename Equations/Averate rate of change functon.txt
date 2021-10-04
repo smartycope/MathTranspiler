@@ -1,0 +1,2 @@
+(f(b)-f(a))/(b-a)
+# The average rate of change of a function over an interval [a,b] is equal to the slope of the secant line passing through the endpoints of the interval. For an interval [a,b] and function f(x), the secant line is a line through the points (a,f(a)) and (b,f(b)). The slope of a secant line by using the formula.
