@@ -17,3 +17,5 @@ The constant multiple rule for derivatives states that the derivative of a const
 If g(x)=cf(x), where c is a constant, then g′(x)=cf′(x).
 The extended power rule for derivative states that for a function f(x)=x^n, given n is a non-zero integer, then f′(x)=nx^(n−1)
 The equation of the tangent line to a function, f(x), at the point x=a is given by y=mx+b where m is the value of the derivative of f evaluated at a. i.e. m_tan=f′(a).
+
+The slope of the tangent line IS the derivative

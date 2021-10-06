@@ -28,6 +28,7 @@ else:
     haveVarname = True
 
 DIR  = dirname(__file__)
+ROOT = dirname(DIR)
 
 # This is because I write a lot of C/C++ code
 true, false = True, False
