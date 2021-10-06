@@ -1,0 +1,1 @@
+A(years)=money(1 + intrestRate / compundsPerYear)**compundsPerYear*years

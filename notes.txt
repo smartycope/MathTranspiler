@@ -1,0 +1,19 @@
+If the question is about continuity, go on desmos and mess around with sliders until the total equation is:
+drawable without removing your hand
+
+If f(x) is continuous, it may fail to be differentiable. This can happen in the following cases:
+
+1. The graph of the function has a sharp corner (or cusp) at a.
+For example, the absolute value function, f(x)=|x| is continuous but not differentiable at x=0.
+This is because the limit used to calculate the slope of the tangent line at x=0 does not exist, since the left-hand and right-hand limits differ.
+
+2. If f(x) has a vertical tangent line at x=a, then the function is not differentiable at a.
+For example, the function f(x)=x−−√3 is continuous but has a vertical tangent at x=0. Therefore, it is not differentiable at x=0.
+
+Basic derivative rules:
+The constant rule states that the derivative of a constant is 0. If f(x)=c, where c is a constant, then f′(x)=0.
+The power rule for derivatives states that if f(x)=x^n, then f′(x)=nx^(n−1).
+The constant multiple rule for derivatives states that the derivative of a constant times a function is equal to the constant times the derivative of the function.
+If g(x)=cf(x), where c is a constant, then g′(x)=cf′(x).
+The extended power rule for derivative states that for a function f(x)=x^n, given n is a non-zero integer, then f′(x)=nx^(n−1)
+The equation of the tangent line to a function, f(x), at the point x=a is given by y=mx+b where m is the value of the derivative of f evaluated at a. i.e. m_tan=f′(a).

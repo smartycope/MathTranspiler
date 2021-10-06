@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>766</width>
-    <height>716</height>
+    <width>763</width>
+    <height>780</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>762</width>
-      <height>661</height>
+      <width>761</width>
+      <height>726</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -103,6 +103,9 @@
            <width>0</width>
            <height>40</height>
           </size>
+         </property>
+         <property name="cursor" stdset="0">
+          <cursorShape>IBeamCursor</cursorShape>
          </property>
          <property name="toolTip">
           <string>The equation to be evaluated</string>
@@ -373,8 +376,8 @@
         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="placeholderText">
         <string>Variable Info</string>
@@ -394,7 +397,7 @@ p, li { white-space: pre-wrap; }
      <item>
       <widget class="QTabWidget" name="output">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="answerTab">
         <attribute name="title">
@@ -406,7 +409,7 @@ p, li { white-space: pre-wrap; }
            <x>-1</x>
            <y>-5</y>
            <width>761</width>
-           <height>201</height>
+           <height>181</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -464,40 +467,140 @@ p, li { white-space: pre-wrap; }
         <attribute name="title">
          <string>Code</string>
         </attribute>
-        <widget class="QTextBrowser" name="codeBox">
+        <widget class="QWidget" name="verticalLayoutWidget_2">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>761</width>
-           <height>201</height>
+           <width>751</width>
+           <height>243</height>
           </rect>
          </property>
-         <property name="sizeIncrement">
-          <size>
-           <width>0</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOn</enum>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::AdjustToContents</enum>
-         </property>
-         <property name="html">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QTextBrowser" name="codeInput">
+              <property name="sizeIncrement">
+               <size>
+                <width>0</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="cursor" stdset="0">
+               <cursorShape>IBeamCursor</cursorShape>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;expr&amp;quot; is the current expression. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;solution&amp;quot; is the current solution. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;curVar&amp;quot; is the currently selected Variable. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;curSymbol&amp;quot; is the currently selected variable's symbol. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;curValue&amp;quot; is the currently selected variable's value. Recommended. Read-only.&lt;/p&gt;&lt;p&gt;&amp;quot;print&amp;quot; prints to the output box&lt;/p&gt;&lt;p&gt;&amp;quot;show&amp;quot; outputs the latex of the Sympy expression&lt;/p&gt;&lt;p&gt;Set &amp;quot;out&amp;quot; to a Sympy expression to automatically print and show it&lt;/p&gt;&lt;p&gt;Errors are directed to the error tab. All common sympy functions and constants should be available. Press the &amp;quot;Execute&amp;quot; button to execute.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="verticalScrollBarPolicy">
+               <enum>Qt::ScrollBarAlwaysOn</enum>
+              </property>
+              <property name="sizeAdjustPolicy">
+               <enum>QAbstractScrollArea::AdjustToContents</enum>
+              </property>
+              <property name="html">
+               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif';&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="placeholderText">
-          <string>No Equation Provided</string>
-         </property>
-         <property name="openLinks">
-          <bool>false</bool>
-         </property>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              </property>
+              <property name="placeholderText">
+               <string>Directly execute sympy commands on the current equation</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="QPushButton" name="runCodeButton">
+                <property name="text">
+                 <string>Execute</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="resetCodeButton">
+                <property name="text">
+                 <string>Reset</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QTextBrowser" name="codeOutput">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>70</height>
+             </size>
+            </property>
+            <property name="sizeIncrement">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="verticalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOn</enum>
+            </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QAbstractScrollArea::AdjustToContents</enum>
+            </property>
+            <property name="html">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="placeholderText">
+             <string>Code output</string>
+            </property>
+            <property name="openLinks">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="codePng">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>70</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>71</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
        <widget class="QWidget" name="errorTab">
@@ -510,7 +613,7 @@ p, li { white-space: pre-wrap; }
            <x>0</x>
            <y>20</y>
            <width>761</width>
-           <height>181</height>
+           <height>161</height>
           </rect>
          </property>
          <property name="sizeIncrement">
@@ -550,8 +653,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>766</width>
-     <height>23</height>
+     <width>763</width>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -589,6 +692,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="separator"/>
     <addaction name="solveButton2"/>
     <addaction name="resetButton"/>
+    <addaction name="separator"/>
+    <addaction name="exitButton"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
@@ -613,6 +718,9 @@ p, li { white-space: pre-wrap; }
     <addaction name="plotButton"/>
     <addaction name="makePiecewise"/>
     <addaction name="getContinuous"/>
+    <addaction name="runCodeAction"/>
+    <addaction name="separator"/>
+    <addaction name="openNotes"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -798,7 +906,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Enable Implicit Multiplication</string>
@@ -883,6 +991,27 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+Shift+C</string>
    </property>
   </action>
+  <action name="runCodeAction">
+   <property name="text">
+    <string>Run Code</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Return</string>
+   </property>
+  </action>
+  <action name="exitButton">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="openNotes">
+   <property name="text">
+    <string>Open Notes...</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -901,9 +1030,25 @@ p, li { white-space: pre-wrap; }
   <tabstop>newRelationButton</tabstop>
   <tabstop>varInfoBox</tabstop>
   <tabstop>output</tabstop>
-  <tabstop>codeBox</tabstop>
   <tabstop>errorBox</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>exitButton</sender>
+   <signal>triggered()</signal>
+   <receiver>Main</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>385</x>
+     <y>612</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>381</x>
+     <y>389</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
