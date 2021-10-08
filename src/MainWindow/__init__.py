@@ -25,14 +25,14 @@ from sympy.parsing.sympy_parser import (convert_xor, implicit_multiplication,
                                         implicit_multiplication_application,
                                         lambda_notation, parse_expr,
                                         standard_transformations)
-from sympy.plotting import plot
-from sympy.printing.latex import latex
-from sympy.printing.mathematica import mathematica_code
-from sympy.printing.mathml import mathml
-from sympy.printing.preview import preview
-from sympy.printing.pycode import pycode
-from sympy.sets.conditionset import ConditionSet
-from sympy.solvers.inequalities import solve_rational_inequalities
+# from sympy.plotting import plot
+# from sympy.printing.latex import latex
+# from sympy.printing.mathematica import mathematica_code
+# from sympy.printing.mathml import mathml
+# from sympy.printing.preview import preview
+# from sympy.printing.pycode import pycode
+# from sympy.sets.conditionset import ConditionSet
+# from sympy.solvers.inequalities import solve_rational_inequalities
 from Variable import Variable
 
 # from ._file import *
@@ -54,7 +54,7 @@ class Main(QMainWindow):
                          onIntDiff, onLimitButtonPressed,
                          onNewRelationWanted, onPreviewCurVar,
                          onPreviewSolution, onTabChanged, onVarNameChanged,
-                         onVarValueChanged, plot, resetCode, resetCurVar,
+                         onVarValueChanged, _plot, resetCode, resetCurVar,
                          runCode, connectEverything)
     from ._update import (updateCode, updateEquation, updateImplicitMult,
                           updateIntDiff, updateLimit, updatePiecewise,

@@ -405,36 +405,35 @@ def debug(var=_None,                # The variable to debug
     # Does the same this as debugged
     return var
 
-'''
-def debugged(var=_None,                # The variable to debug
-             name: str=None,           # Don't try to get the name, use this one instead
-             color: int=1,             # A number (-1-5) that is just one of 1 distinct colors, set to None for no color
-             useVscodeStyle: bool=True,# Print metadata as a clickable vscode link
-             showFunc: bool=True,      # Expressly show what function we're called from
-             showFile: bool=True,      # Expressly show what file we're called from
-             showPath: bool=True,      # Show just the file name, or the full filepath
-             repr: bool=False,         # Whether we should print the repr of var instead of str
-             calls: int=1,             # Add extra calls
-             background: bool=False,   # Whether the color parameter applies to the forground or the background
-             limitToLine: bool=True,   # When printing iterables, whether we should only print items to the end of the line
-             minItems: int=4,          # Minimum number of items to print when printing iterables (overrides limitToLine)
-             maxItems: int=10,         # Maximum number of items to print when printing iterables, use None or negative to specify no limit
-             clickable: bool=False,    # I don't remember what this does.
-    ):
-    """ An inline version of debug
-    """
 
-    debug(var=var, name=name, color=color, useVscodeStyle=useVscodeStyle,
-          showFunc=showFunc, showFile=showFile, showPath=showPath,
-          repr=repr, calls=calls, background=background,
-          limitToLine=limitToLine, minItems=minItems, maxItems=maxItems,
-          clickable=clickable, _tries=1)
 
-    return var
-'''
+# Decorator
+#! This is untested
+def noteCall(func):
+    def wrap(*args, **kwargs):
+        global _debugCount, DISPLAY_FUNC, DISPLAY_FILE, DISPLAY_LINK, haveVarname, DISPLAY_PATH
+        color = 3
+        CONTEXT_COLOR = color
+        EMPTY_COLOR = -1
 
-# a = 6
-# debug(a, calls = 1)
+
+        # +1 call because we don't want to get this line, but the one before it
+        metadata = _debugGetMetaData(3)
+
+        _printDebugCount(color=CONTEXT_COLOR)
+
+        #* Only print the "HERE! HERE!" message
+        if type(var) is _None:
+            with basicColoredOutput(None if color is None else EMPTY_COLOR):
+                print(_debugGetContext(metadata, useVscodeStyle, showFunc or DISPLAY_FUNC, showFile or DISPLAY_FILE, showPath or DISPLAY_PATH), end='')
+                print(f'{metadata.function}() called!')
+                # _getLink(customMetaData=metaData)
+            return
+
+        return func(*args, **kwargs)
+
+    return wrap
+
 
 
 

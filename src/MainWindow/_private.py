@@ -90,22 +90,14 @@ def calculateSolution(self):
         #         rels += (var.)
         #         self.expr = self.expr.subs(var.symbol, var.value)
 
-        # debug(self.expr, 'self.expr')
-        # debug(self.relations, 'relations')
         # system = solve_rational_inequalities(self.relations + [self.expr])
         # system = solve_poly_set_something(...)
-        # debug(system, 'system')
         expr = expr.simplify()
-        # try:
-        #     expr = solveset(expr)
-        #     debug('solving using solveset')
-        # except ValueError:
-        #     debug('solving using simplify')
 
     if self.doEval.isChecked():
         expr = expr.evalf()
-    self.solvedExpr = expr
 
+    self.solvedExpr = expr
 
 def getPixmap(self, expr):
     obj = BytesIO()

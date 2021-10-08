@@ -24,6 +24,8 @@ def addCustomFuncs(self):
     self._addCustomFunc('Get Equation of Tangent Line', 'out = getTanSlopeEquation(expr=expr, symbol=curSymbol, symbolVal=curValue)')
     self._addCustomFunc('Get Equation of Normal Line',  'out = getNormalSlopeEquation(expr=expr, symbol=curSymbol, symbolVal=curValue)')
     self._addCustomFunc('Is Continuous At...',          'out = isContinuousAt(expr=expr, symbol=curSymbol, at=S.Reals)')
+    self._addCustomFunc('Find Average Rate of Change over Interval', 'out = getAvgRateOfChange(func=Lambda(x, expr), interval=Interval(from, to))')
+    # self._addCustomFunc('', '')
 
 def _addCustomFunc(self, name, code):
     self.menuTools.addAction(name, lambda: self.runCustomFuncInCode(code))
@@ -63,8 +65,6 @@ def isContinuousAt(expr, symbol, at):
     # return expr(x) == expr(a)
 
 
-
-
 def getTanSlopeEquation(expr, symbol, symbolVal):
     # y = mx+b
     # The slope of the tangent line is just the derivative
@@ -84,3 +84,7 @@ def getNormalSlopeEquation(expr, symbol, symbolVal):
     point = (symbolVal, expr.subs(symbol, symbolVal))
     print('derivative:', simp, '\tslope:', slope, '\tpoint:', point)
     return Eq(y, solve(Eq(y - point[1], slope * (x - point[0])), y)[0])
+
+
+def getAvgRateOfChange(func, interval):
+    return ((func(interval.end) - func(interval.start)) / ((interval.end - interval.start))).simplify()

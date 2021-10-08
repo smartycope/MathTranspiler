@@ -72,7 +72,7 @@ def connectEverything(self):
 
     #* Actions
     self.throwError.triggered.connect(self.updateEquation)
-    self.plotButton.triggered.connect(self.plot)
+    self.plotButton.triggered.connect(self._plot)
     self.limitButton.triggered.connect(self.onLimitButtonPressed)
     self.dontSimplify.triggered.connect(self.updateEquation)
     self.prettySolution.triggered.connect(self.updateEquation)
@@ -190,7 +190,7 @@ def onNewRelationWanted(self):
     self.vars.append(var)
 
 
-def plot(self):
+def _plot(self):
     try:
         plot(self.expr)
     except Exception as err:
@@ -223,16 +223,6 @@ def doPiecewise(self):
 
     inputWindow.accepted.connect(extractValues)
     inputWindow.show()
-
-
-# def onGetContinuous(self):
-#     get = QLineEdit()
-#     def getInput():
-#         self.isContinuousAt(get.text())
-#         get.destroy()
-
-#     get.returnPressed.connect(getInput)
-#     get.show()
 
 
 def onPreviewSolution(self):
@@ -291,6 +281,8 @@ def runCode(self):
         out = _local['out']
         if out is not None:
             print(out)
+            print()
+            print(latex(out))
             show(out)
     except Exception as err:
         self.error = err

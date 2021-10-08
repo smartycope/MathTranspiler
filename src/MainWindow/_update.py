@@ -51,23 +51,34 @@ def updateEquation(self):
             return
 
         #* Now calculate everything
-        if self.interpretAsPython.isChecked():
-            expr = None
-            exec(self.equ, globals(), locals())
-            self.expr = expr
-        else:
-            # First, run the input string through our function to make sure we take care
-            # of the things sympy won't take care of for us (= to Eq() and the like)
-            equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else self.sanatizeInput(self.equ)
-            self.expr = parse_expr(equation, transformations=self.trans, evaluate=False)
+        # First, run the input string through our function to make sure we take care
+        # of the things sympy won't take care of for us (= to Eq() and the like)
+        equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else debug(self.sanatizeInput(self.equ))
+        self.expr = parse_expr(equation, transformations=self.trans, evaluate=False)
+        # Set the initial value of subbedExpr
+        self.subbedExpr = self.expr
 
         #* Load the png of what we're writing
         self.equationPng.setPixmap(self.getPixmap(self.expr))
 
         # This order matters
+        debug(self.subbedExpr, 'subbedExpr')
+        debug(self.solvedExpr, 'solvedExpr')
+        debug(self.expr, 'expr')
         self.updateVars()
+
+        debug(self.subbedExpr, 'subbedExpr')
+        debug(self.solvedExpr, 'solvedExpr')
+        debug(self.expr, 'expr')
         self.calculateSolution()
+
+        debug(self.subbedExpr, 'subbedExpr')
+        debug(self.solvedExpr, 'solvedExpr')
+        debug(self.expr, 'expr')
         self.updateSolution()
+        debug(self.subbedExpr, 'subbedExpr')
+        debug(self.solvedExpr, 'solvedExpr')
+        debug(self.expr, 'expr')
         # self.updateCode()
         self.updateVarInfo()
         self.updateVarValue()
@@ -188,8 +199,8 @@ def updateVars(self):
     lastVarIndex = self.varIndex
     self.blockVarList = True
     self.varList.clear()
-    self.varList.addItems([str(v) for v in self.vars])
-    # self.varList.addItems([str(v.name) for v in self.vars])
+    # self.varList.addItems([str(v) for v in self.vars])
+    self.varList.addItems([str(v.name) for v in self.vars])
     self.varIndex = lastVarIndex if lastVarIndex > 0 else 0
     self.blockVarList = False
 
