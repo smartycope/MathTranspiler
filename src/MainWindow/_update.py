@@ -9,7 +9,7 @@ import clipboard as clip
 from Cope import *
 from EasyRegex import *
 from LoadingBar import LoadingBar, showLoading, showWithLoading
-from PyQt5 import QtCore, QtGui, QtMultimedia, QtWidgets, uic
+from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
                           QRectF, Qt, QThread, QTimer)
 from PyQt5.QtGui import QIcon, QImage, QPixmap
@@ -36,59 +36,49 @@ from sympy.solvers.inequalities import solve_rational_inequalities
 from Variable import Variable
 
 
-# @showLoading(_loadingBar)
 def updateEquation(self):
-    # This is literally so I can have access to self
-    # @showLoading(self.loader)
-    self.resetOuput()
-    def hack():
-        try:
-            #* Get the equation
-            if self.interpretAsLatex.isChecked():
-                self.equ = str(parse_latex(self.equationInput.toPlainText()))
-            else:
-                self.equ = self.equationInput.toPlainText()
+    self.loading = True
+    try:
+        self.resetOuput()
+        #* Get the equation
+        if self.interpretAsLatex.isChecked():
+            self.equ = str(parse_latex(self.sanatizeLatex(self.equationInput.toPlainText())))
+        else:
+            self.equ = self.equationInput.toPlainText()
 
-            #* If we've just deleted everything, it's okay
-            if not len(self.equ):
-                return
+        #* If we've just deleted everything, it's okay
+        if not len(self.equ):
+            return
 
-            #* Now calculate everything
-            if self.interpretAsPython.isChecked():
-                expr = None
-                exec(self.equ, globals(), locals())
-                self.expr = expr
-                debug(self.expr, 'expr', color=3)
-            else:
-                # First, run the input string through our function to make sure we take care
-                # of the things sympy won't take care of for us (= to Eq() and the like)
-                equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else self.equ
-                self.expr = parse_expr(equation, transformations=self.trans, evaluate=False)
+        #* Now calculate everything
+        if self.interpretAsPython.isChecked():
+            expr = None
+            exec(self.equ, globals(), locals())
+            self.expr = expr
+        else:
+            # First, run the input string through our function to make sure we take care
+            # of the things sympy won't take care of for us (= to Eq() and the like)
+            equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else self.sanatizeInput(self.equ)
+            self.expr = parse_expr(equation, transformations=self.trans, evaluate=False)
 
-            self.calculateSolution()
+        #* Load the png of what we're writing
+        self.equationPng.setPixmap(self.getPixmap(self.expr))
 
-            #* Load the png of what we're writing
-            self.equationPng.setPixmap(self.getPixmap(self.expr))
+        # This order matters
+        self.updateVars()
+        self.calculateSolution()
+        self.updateSolution()
+        # self.updateCode()
+        self.updateVarInfo()
+        self.updateVarValue()
+        # Make sure the code box has updated values
+        self.runCodeButton.pressed.emit()
+        self.resetTab()
 
-            self.updateVars()
-            self.ans = self.updateSolution()
-            self.updateCode()
-            self.s = self.updateVarInfo()
-            self.updateVarValue()
-            # self.resetTab()
+    except Exception as err:
+        self.error = err
 
-        except Exception as err:
-            self.error = err
-    # hack = showLoading(hack, self.loader)
-    hack()
-    # self.loading = True
-    # t = threading.QThread(target=hack)
-    # t.start()
-    # t.join()
-    # self.loading = False
-
-    # self.answerBox.setPlainText(self.ans)
-    # self.varInfoBox.setPlainText(self.s)
+    self.loading = False
 
 
 def updateVarInfo(self):
@@ -130,13 +120,13 @@ def updateVarValue(self):
     else:
         # Some inequalities aren't impolemented in the complex domain.
         # (I totally understand what that means.)
-        if type(self.expr) is Eq:
+        if type(self.subbedExpr) is Eq:
             try:
-                sol = solve(self.expr, self.currentVar.symbol)
-                # sol = solveset(self.expr, self.currentVar.symbol)
+                sol = solve(self.subbedExpr, self.currentVar.symbol)
+                # sol = solveset(self.subbedExpr, self.currentVar.symbol)
             except NotImplementedError:
-                sol = solve(self.expr, self.currentVar.symbol, domain=S.Reals)
-                # sol = solveset(self.expr, self.currentVar.symbol, domain=S.Reals)
+                sol = solve(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
+                # sol = solveset(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
 
             self.varPng.setPixmap(self.getPixmap(sol))
             ans = pretty(sol) if self.prettySolution.isChecked() else str(sol)
@@ -150,7 +140,7 @@ def updateVarValue(self):
 def updateVars(self):
     atoms = set()
     # Get any variables that are exclusively defined in the variable setter, and add them to atoms
-    for i in self.allVars:
+    for i in self.vars:
         if i.valueChanged:
             atoms = atoms.union(i.value.atoms(*self.varTypes+self.funcTypes))
             funcs = set()
@@ -172,34 +162,34 @@ def updateVars(self):
     # atoms.remove(Symbol('xxx'))
 
     # Get all the things in what we've just parsed that aren't already in self.vars and add them
-    curSymbols = set([v.symbol for v in self.allVars])
+    curSymbols = set([v.symbol for v in self.vars])
     for s in atoms.difference(curSymbols):
-        self.allVars.append(Variable(s))
+        self.vars.append(Variable(s))
 
     # Now get all the things in self.vars that aren't in the thing we just parsed and delete them
     if not self.rememberVarNames.isChecked():
         for s in curSymbols.difference(atoms):
-            del self.allVars[getIndexWith(self.allVars, lambda x: x.symbol == s)]
+            del self.vars[getIndexWith(self.vars, lambda x: x.symbol == s)]
 
     # Make sure our expression is updated with the new values
     #// Also, iterate through all the vars and edit any of the Functions to add "(x)" to their name
-    for var in self.allVars:
+    for var in self.vars:
         # debug(var.symbol, 'var')
         if var.valueChanged:
-            self.expr = self.expr.subs(var.symbol, var.value)
+            self.subbedExpr = self.expr.subs(var.symbol, var.value)
         # if isinstance(var.symbol, self.funcTypes):
         # if type(var.symbol) in self.funcTypes:
         #     var.name += '(x)'
         #     debug()
 
-    # debug(self.allVars, useRepr=True)
+    # debug(self.vars, useRepr=True)
 
     # Totally reset the index box
     lastVarIndex = self.varIndex
     self.blockVarList = True
     self.varList.clear()
-    self.varList.addItems([str(v) for v in self.allVars])
-    # self.varList.addItems([str(v.name) for v in self.allVars])
+    self.varList.addItems([str(v) for v in self.vars])
+    # self.varList.addItems([str(v.name) for v in self.vars])
     self.varIndex = lastVarIndex if lastVarIndex > 0 else 0
     self.blockVarList = False
 

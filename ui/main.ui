@@ -397,7 +397,7 @@ p, li { white-space: pre-wrap; }
      <item>
       <widget class="QTabWidget" name="output">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="answerTab">
         <attribute name="title">
@@ -707,6 +707,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="useFixString"/>
     <addaction name="interpretAsLatex"/>
     <addaction name="interpretAsPython"/>
+    <addaction name="interpretVarAsLatex"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -717,10 +718,10 @@ p, li { white-space: pre-wrap; }
     <addaction name="separator"/>
     <addaction name="plotButton"/>
     <addaction name="makePiecewise"/>
-    <addaction name="getContinuous"/>
     <addaction name="runCodeAction"/>
     <addaction name="separator"/>
     <addaction name="openNotes"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -927,6 +928,9 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Latex</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
   </action>
   <action name="copyMathML">
    <property name="text">
@@ -1012,6 +1016,27 @@ p, li { white-space: pre-wrap; }
     <string>Open Notes...</string>
    </property>
   </action>
+  <action name="getTanEqu">
+   <property name="text">
+    <string>Get Equation of Tangent Line</string>
+   </property>
+  </action>
+  <action name="getNormalEqu">
+   <property name="text">
+    <string>Get Equation of Normal Line</string>
+   </property>
+  </action>
+  <action name="interpretVarAsLatex">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Variable Input is LaTeX</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1041,8 +1066,8 @@ p, li { white-space: pre-wrap; }
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>385</x>
-     <y>612</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>381</x>

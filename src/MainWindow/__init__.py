@@ -9,7 +9,7 @@ import clipboard as clip
 from Cope import *
 from EasyRegex import *
 from LoadingBar import LoadingBar, showLoading, showWithLoading
-from PyQt5 import QtCore, QtGui, QtMultimedia, QtWidgets, uic
+from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
                           QRectF, Qt, QThread, QTimer)
 from PyQt5.QtGui import QIcon, QImage, QPixmap
@@ -35,29 +35,36 @@ from sympy.sets.conditionset import ConditionSet
 from sympy.solvers.inequalities import solve_rational_inequalities
 from Variable import Variable
 
+# from ._file import *
+# from ._private import *
+# from ._slots import *
+# from ._update import *
+
 
 # TODO Pre-parse the input equation for || and replace with Abs() (capitol!)
 # TODO Removed use varnames in solution QAction
 class Main(QMainWindow):
     from ._file import (_load, _save, _saveAs, exportAsLatex,
                         exportAsMathmatica, exportAsMathML)
-    from ._private import (calculateSolution, connectEverything,
-                           fixEquationString, getPixmap, isContinuousAt,
+    from ._private import (calculateSolution, sanatizeInput, sanatizeLatex,
+                           fixEquationString, getPixmap,
                            printToCodeOutput, resetError, resetEverything,
-                           resetIcon, resetOuput, resetTab)
+                           resetIcon, resetOuput, resetTab, runCustomFuncInCode)
     from ._slots import (doPiecewise, notes, onCurrentVariableChanged,
-                         onGetContinuous, onIntDiff, onLimitButtonPressed,
+                         onIntDiff, onLimitButtonPressed,
                          onNewRelationWanted, onPreviewCurVar,
                          onPreviewSolution, onTabChanged, onVarNameChanged,
                          onVarValueChanged, plot, resetCode, resetCurVar,
-                         runCode)
+                         runCode, connectEverything)
     from ._update import (updateCode, updateEquation, updateImplicitMult,
                           updateIntDiff, updateLimit, updatePiecewise,
                           updateSolution, updateVarInfo, updateVars,
                           updateVarValue)
+    from ._customFuncs import addCustomFuncs, _addCustomFunc
     varTypes = (Symbol, )
     funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
     functionVar = Symbol('x')
+    codeTabIndex = 1
     errorTabIndex = 2
     defaultDir = join(ROOT, 'Equations')
     fileExtensions = 'Text Files (*.txt)'
@@ -76,12 +83,14 @@ class Main(QMainWindow):
         uic.loadUi(join(ROOT, "ui/main.ui"), self)
         self.setWindowTitle('Math Transpiler')
         self.setGeometry(*self.windowStartingPos, self.width(), self.height())
+        self.setUpdatesEnabled(True)
 
         self.inputAlertIcon = self.errorIcon = QIcon(join(ROOT, "assets/red!.png"))
         if self.implicitMult.isChecked():
             self.trans += (implicit_multiplication,)
 
         self.connectEverything()
+        self.addCustomFuncs()
 
         self.lastTab = 0
         self.blockVarList = False
@@ -96,14 +105,17 @@ class Main(QMainWindow):
         # A list of just the Variables in the equation
         self.eqVars = []
         # An ordered list of all the Variables in the combobox
-        self.allVars = []
+        self.vars = []
         self.expr = EmptySet
         self.solvedExpr = EmptySet
+        self.subbedExpr = EmptySet
 
         # The list of relations to feed to the solver
         self.relations = []
 
         self._hack = True
+        self._loading = False
+        self._codeLoading = False
 
         # self.pngBox = QSvgWidget(self.svgBox)
 
@@ -119,10 +131,10 @@ class Main(QMainWindow):
     @property
     def currentVar(self):
         try:
-            return self.allVars[self.varIndex]
+            return self.vars[self.varIndex]
         except IndexError:
             try:
-                tmp = self.allVars[0]
+                tmp = self.vars[0]
                 self.varIndex = 0
                 return tmp
             except IndexError:
@@ -131,7 +143,7 @@ class Main(QMainWindow):
     @currentVar.setter
     def currentVar(self, value):
         try:
-            self.allVars[self.varIndex] = value
+            self.vars[self.varIndex] = value
         except IndexError:
             pass
 
@@ -151,3 +163,43 @@ class Main(QMainWindow):
                 raise err
 
             self.output.setCurrentIndex(self.errorTabIndex)
+
+
+    @property
+    def loading(self):
+        return self._loading
+
+    @loading.setter
+    def loading(self, startLoading):
+        if self._loading == startLoading:
+            return
+        else:
+            self._loading = startLoading
+            if startLoading:
+                # self.equationPng.setPixmap(QPixmap())
+                self.equationPng.setText('Loading...')
+                self.equationPng.repaint()
+                # self.update()
+                # self.repaint()
+            else:
+                self.equationPng.setText('')
+
+
+    @property
+    def codeLoading(self):
+        return self._codeLoading
+
+    @codeLoading.setter
+    def codeLoading(self, startLoading):
+        if self._codeLoading == startLoading:
+            return
+        else:
+            self._codeLoading = startLoading
+            if startLoading:
+                # self.equationPng.setPixmap(QPixmap())
+                self.codePng.setText('Loading...')
+                self.codePng.repaint()
+                # self.update()
+                # self.repaint()
+            else:
+                self.codePng.setText('')

@@ -1,7 +1,5 @@
 # This Python file uses the following encoding: utf-8
-import math
 import re
-import threading
 from io import BytesIO
 from os.path import dirname, join
 
@@ -9,7 +7,7 @@ import clipboard as clip
 from Cope import *
 from EasyRegex import *
 from LoadingBar import LoadingBar, showLoading, showWithLoading
-from PyQt5 import QtCore, QtGui, QtMultimedia, QtWidgets, uic
+from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
                           QRectF, Qt, QThread, QTimer)
 from PyQt5.QtGui import QIcon, QImage, QPixmap
@@ -34,6 +32,59 @@ from sympy.printing.pycode import pycode
 from sympy.sets.conditionset import ConditionSet
 from sympy.solvers.inequalities import solve_rational_inequalities
 from Variable import Variable
+
+from ._customFuncs import *
+
+
+def connectEverything(self):
+    #* File Connections
+    self.save.triggered.connect(self._save)
+    self.saveAs.triggered.connect(self._saveAs)
+    self.load.triggered.connect(self._load)
+    self.exportLatex.triggered.connect(self.exportAsLatex)
+    self.exportMathML.triggered.connect(self.exportAsMathML)
+    self.exportMathmatica.triggered.connect(self.exportAsMathmatica)
+
+    #* Copy Actions
+    self.copyLatex.triggered.connect(lambda: clip.copy(latex(self.solvedExpr)))
+    self.copyMathML.triggered.connect(lambda: clip.copy(mathml(self.solvedExpr)))
+    self.copyMathmatica.triggered.connect(lambda: clip.copy(mathematica_code(self.solvedExpr)))
+    self.copySolution.triggered.connect(lambda: clip.copy(str(self.solvedExpr)))
+    self.copyEquation.triggered.connect(lambda: clip.copy(self.equ))
+    # self.copyCurVar.triggered.connect(lambda: clip.copy(self.varValueBox))
+    self.copyCurVar.triggered.connect(lambda: clip.copy(todo('figure out current var copy to clipboard')))
+
+    #* UI Buttons
+    self.solveButton.clicked.connect(self.updateEquation)
+    self.solveButton2.triggered.connect(self.updateEquation)
+    self.resetVarButton.pressed.connect(self.resetCurVar)
+    self.runCodeButton.pressed.connect(self.runCode)
+    self.runCodeAction.triggered.connect(self.runCode)
+    self.setRelationButton.pressed.connect(self.onVarValueChanged)
+    self.newRelationButton.pressed.connect(self.onNewRelationWanted)
+    self.resetCodeButton.pressed.connect(self.resetCode)
+
+    #* Input widget connections
+    self.output.currentChanged.connect(self.onTabChanged)
+    self.varList.currentIndexChanged.connect(self.onCurrentVariableChanged)
+    self.varList.editTextChanged.connect(self.onVarNameChanged)
+    self.varSetter.returnPressed.connect(self.onVarValueChanged)
+
+    #* Actions
+    self.throwError.triggered.connect(self.updateEquation)
+    self.plotButton.triggered.connect(self.plot)
+    self.limitButton.triggered.connect(self.onLimitButtonPressed)
+    self.dontSimplify.triggered.connect(self.updateEquation)
+    self.prettySolution.triggered.connect(self.updateEquation)
+    self.doEval.triggered.connect(self.updateEquation)
+    self.resetButton.triggered.connect(self.resetEverything)
+    self.previewSolution.triggered.connect(self.onPreviewSolution)
+    self.previewCurVar.triggered.connect(self.onPreviewCurVar)
+    self.implicitMult.triggered.connect(self.updateImplicitMult)
+    self.makePiecewise.triggered.connect(self.doPiecewise)
+    # self.getContinuous.triggered.connect(self.onGetContinuous)
+    self.getIntDiff.triggered.connect(self.onIntDiff)
+    self.openNotes.triggered.connect(self.notes)
 
 
 def notes(self):
@@ -73,38 +124,38 @@ def onCurrentVariableChanged(self, varIndex):
 def onVarNameChanged(self):
     # debug(showFunc=True)
     if self.currentVar:
-        self.allVars[self.varIndex].name = self.varList.currentText()
+        self.vars[self.varIndex].name = self.varList.currentText()
     # self.updateVarInfo()
     self.updateSolution()
     self.updateCode()
 
 
 # *Sets* the current variable value when enter is pressed
-# @showLoading(_loadingBar)
 def onVarValueChanged(self):
-    # This is literally so I can have access to self
-    # @showLoading(self.loader)
-    def hack():
+    try:
+        if self.interpretVarAsLatex.isChecked():
+            input = str(parse_latex(self.sanatizeLatex(self.varSetter.text())))
+        else:
+            input = self.varSetter.text()
+        val = parse_expr(input, transformations=self.trans)
+        self.resetTab()
+    except Exception as err:
+        debug('Failed to parse var value!')
+        self.error = err
+    else:
         try:
-            val = parse_expr(self.varSetter.text(), transformations=self.trans)
+            self.updateVars()
+            if type(self.currentVar.symbol) in self.funcTypes + (Function,):
+                self.vars[self.varIndex].value = Lambda(self.functionVar, val)
+            else:
+                self.vars[self.varIndex].value = val
+            self.vars[self.varIndex].valueChanged = True
+            self.vars[self.varIndex].relationship = self.relation.currentText()
+            self.updateEquation()
+            self.varPng.setPixmap(self.getPixmap(val))
             self.resetTab()
         except Exception as err:
-            debug('Failed to parse var value!')
             self.error = err
-        else:
-            try:
-                self.updateVars()
-                if type(self.currentVar.symbol) in self.funcTypes + (Function,):
-                    self.allVars[self.varIndex].value = Lambda(self.functionVar, val)
-                else:
-                    self.allVars[self.varIndex].value = val
-                self.allVars[self.varIndex].valueChanged = True
-                self.allVars[self.varIndex].relationship = self.relation.currentText()
-                self.updateEquation()
-                self.varPng.setPixmap(self.getPixmap(val))
-            except Exception as err:
-                self.error = err
-    hack()
 
 
 def onLimitButtonPressed(self):
@@ -136,7 +187,7 @@ def onNewRelationWanted(self):
     var = Variable(name)
     var.valueChanged = True
     var.value = EmptySet
-    self.allVars.append(var)
+    self.vars.append(var)
 
 
 def plot(self):
@@ -174,14 +225,14 @@ def doPiecewise(self):
     inputWindow.show()
 
 
-def onGetContinuous(self):
-    get = QLineEdit()
-    def getInput():
-        self.isContinuousAt(get.text())
-        get.destroy()
+# def onGetContinuous(self):
+#     get = QLineEdit()
+#     def getInput():
+#         self.isContinuousAt(get.text())
+#         get.destroy()
 
-    get.returnPressed.connect(getInput)
-    get.show()
+#     get.returnPressed.connect(getInput)
+#     get.show()
 
 
 def onPreviewSolution(self):
@@ -189,11 +240,11 @@ def onPreviewSolution(self):
 
 
 def onPreviewCurVar(self):
-    preview(solveset(self.expr, self.currentVar.symbol), output='png')
+    preview(solveset(self.subbedExpr, self.currentVar.symbol), output='png')
 
 
 def resetCurVar(self):
-    self.allVars[self.varIndex] = Variable(self.currentVar.symbol)
+    self.vars[self.varIndex] = Variable(self.currentVar.symbol)
     self.varSetter.setText('')
     self.updateEquation()
 
@@ -205,30 +256,38 @@ def resetCode(self):
 
 
 def runCode(self):
+    self.codeLoading = True
     self.codeOutput.setPlainText('')
     code = self.codeInput.toPlainText()
+
     #* Set the locals (for convienence)
-    expr = self.expr
-    curVar = self.currentVar
-    solution = self.solvedExpr
+    expr       = self.expr
+    subbedExpr = self.subbedExpr
+    subExpr    = subbedExpr
+    sub        = subbedExpr
+    curVar     = self.currentVar
+    solution   = self.solvedExpr
+    sol        = solution
+    input      = lambda *_: None
+    print      = self.printToCodeOutput
+    show       = lambda e: self.codePng.setPixmap(self.getPixmap(e))
+    out        = None
     if self.currentVar:
         curSymbol = curVar.symbol
         curValue = curVar.value
     else:
         curSymbol = None
         curValue = None
-    print = self.printToCodeOutput
-    show = lambda e: self.codePng.setPixmap(self.getPixmap(e))
-    x, y = symbols('x y')
-    out = None
+    curVal = curValue
 
-    # def isContinuous(expr, x, symbol):
-        # return (limit(func, symbol, x).is_real)
-    # So then what about the question: Find the values of x that make f(x)=(x+1)/(x−5) continuous
+    v = dict(zip([i.name for i in self.vars], [i.value for i in self.vars]))
 
     try:
         _local = locals()
+        _local.update(v)
+
         exec(code, globals(), _local)
+
         out = _local['out']
         if out is not None:
             print(out)
@@ -237,4 +296,7 @@ def runCode(self):
         self.error = err
         self.codePng.setPixmap(QPixmap())
     else:
+        self.resetTab()
         self.error = None
+
+    self.codeLoading = False

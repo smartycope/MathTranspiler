@@ -18,8 +18,8 @@ class Variable:
         # if isinstance(self.symbol, funcTypes):
             # return (str(self.symbol) if not self.valueChanged else self.name) + '(x)'
         # else:
-        return str(self.symbol) if not self.valueChanged else self.name
-        # return self.name
+        # return str(self.symbol) if not self.valueChanged else self.name
+        return self.name
         # return repr(self)
 
     def __repr__(self):
