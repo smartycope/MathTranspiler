@@ -47,21 +47,22 @@ class Main(QMainWindow):
     from ._file import (_load, _save, _saveAs, exportAsLatex,
                         exportAsMathmatica, exportAsMathML)
     from ._private import (calculateSolution, sanatizeInput, sanatizeLatex,
-                           fixEquationString, getPixmap,
+                           fixEquationString, getIcon, setError,
                            printToCodeOutput, resetError, resetEverything,
                            resetIcon, resetOuput, resetTab, runCustomFuncInCode)
     from ._slots import (doPiecewise, notes, onCurrentVariableChanged,
-                         onIntDiff, onLimitButtonPressed,
-                         onNewRelationWanted, onPreviewCurVar,
+                         onIntDiff, onLimitButtonPressed, onResetVars,
+                         onNewRelationWanted, onPreviewCurVar, #onUpdateVars,
                          onPreviewSolution, onTabChanged, onVarNameChanged,
                          onVarValueChanged, _plot, resetCode, resetCurVar,
-                         runCode, connectEverything)
+                         runCode, connectEverything, onConvertLatex)
     from ._update import (updateCode, updateEquation, updateImplicitMult,
                           updateIntDiff, updateLimit, updatePiecewise,
                           updateSolution, updateVarInfo, updateVars,
                           updateVarValue)
     from ._customFuncs import addCustomFuncs, _addCustomFunc
-    varTypes = (Symbol, )
+
+    varTypes = (Symbol, Derivative, Function, FunctionCall)
     funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
     functionVar = Symbol('x')
     codeTabIndex = 1
@@ -76,7 +77,7 @@ class Main(QMainWindow):
     baseTrans = standard_transformations + (convert_xor, lambda_notation)
     trans = baseTrans
     varCount = 0
-    windowStartingPos = (1000, 0)
+    windowStartingPos = (3000, 0)
 
     def __init__(self):
         super(Main, self).__init__()
@@ -148,24 +149,6 @@ class Main(QMainWindow):
             pass
 
     @property
-    def error(self):
-        return self.errorBox.plainText()
-
-    @error.setter
-    def error(self, err):
-        if err is None:
-            self.resetError()
-        else:
-            self.errorBox.setPlainText(str(err))
-            self.output.setTabIcon(self.errorTabIndex, self.errorIcon)
-
-            if self.throwError.isChecked():
-                raise err
-
-            self.output.setCurrentIndex(self.errorTabIndex)
-
-
-    @property
     def loading(self):
         return self._loading
 
@@ -176,13 +159,17 @@ class Main(QMainWindow):
         else:
             self._loading = startLoading
             if startLoading:
-                # self.equationPng.setPixmap(QPixmap())
+                self.equationPng.setIcon(QIcon())
+                self.solutionPng.setIcon(QIcon())
                 self.equationPng.setText('Loading...')
+                self.solutionPng.setText('Loading...')
                 self.equationPng.repaint()
+                self.solutionPng.repaint()
                 # self.update()
                 # self.repaint()
             else:
                 self.equationPng.setText('')
+                self.solutionPng.setText('')
 
 
     @property
@@ -196,7 +183,7 @@ class Main(QMainWindow):
         else:
             self._codeLoading = startLoading
             if startLoading:
-                # self.equationPng.setPixmap(QPixmap())
+                self.codePng.setIcon(QIcon())
                 self.codePng.setText('Loading...')
                 self.codePng.repaint()
                 # self.update()

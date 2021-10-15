@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>763</width>
-    <height>780</height>
+    <width>762</width>
+    <height>797</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>0</x>
       <y>0</y>
       <width>761</width>
-      <height>726</height>
+      <height>741</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -116,21 +116,27 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="equationPng">
+        <widget class="QPushButton" name="equationPng">
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>70</height>
+           <height>75</height>
           </size>
          </property>
          <property name="text">
           <string/>
          </property>
-         <property name="scaledContents">
+         <property name="iconSize">
+          <size>
+           <width>750</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="default">
           <bool>false</bool>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -324,27 +330,27 @@
           </layout>
          </item>
          <item>
-          <widget class="QLabel" name="varPng">
+          <widget class="QPushButton" name="varPng">
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>70</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>71</height>
+             <height>75</height>
             </size>
            </property>
            <property name="text">
             <string/>
            </property>
-           <property name="scaledContents">
+           <property name="iconSize">
+            <size>
+             <width>750</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="default">
             <bool>false</bool>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
+           <property name="flat">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -397,7 +403,7 @@ p, li { white-space: pre-wrap; }
      <item>
       <widget class="QTabWidget" name="output">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="answerTab">
         <attribute name="title">
@@ -406,29 +412,35 @@ p, li { white-space: pre-wrap; }
         <widget class="QWidget" name="verticalLayoutWidget_3">
          <property name="geometry">
           <rect>
-           <x>-1</x>
-           <y>-5</y>
-           <width>761</width>
-           <height>181</height>
+           <x>0</x>
+           <y>0</y>
+           <width>751</width>
+           <height>241</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QLabel" name="solutionPng">
+           <widget class="QPushButton" name="solutionPng">
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>100</height>
+              <height>75</height>
              </size>
             </property>
             <property name="text">
              <string/>
             </property>
-            <property name="scaledContents">
+            <property name="iconSize">
+             <size>
+              <width>750</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="default">
              <bool>false</bool>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -443,7 +455,7 @@ p, li { white-space: pre-wrap; }
             <property name="maximumSize">
              <size>
               <width>9999999</width>
-              <height>150</height>
+              <height>145</height>
              </size>
             </property>
             <property name="sizeIncrement">
@@ -473,7 +485,7 @@ p, li { white-space: pre-wrap; }
            <x>0</x>
            <y>0</y>
            <width>751</width>
-           <height>243</height>
+           <height>248</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -570,33 +582,27 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="codePng">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+           <widget class="QPushButton" name="codePng">
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>70</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>71</height>
+              <height>75</height>
              </size>
             </property>
             <property name="text">
              <string/>
             </property>
-            <property name="scaledContents">
+            <property name="iconSize">
+             <size>
+              <width>750</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="default">
              <bool>false</bool>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -629,18 +635,59 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
         </widget>
-        <widget class="QLabel" name="implicitMulLabel">
+        <widget class="QWidget" name="horizontalLayoutWidget">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>291</width>
-           <height>18</height>
+           <width>527</width>
+           <height>22</height>
           </rect>
          </property>
-         <property name="text">
-          <string>Implicit Multiplication is: Off</string>
-         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="errorLocLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>300</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Error Generated by: Nothing</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="implicitMulLabel">
+            <property name="text">
+             <string>Implicit Multiplication is Off</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </widget>
       </widget>
@@ -653,7 +700,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>763</width>
+     <width>762</width>
      <height>30</height>
     </rect>
    </property>
@@ -701,13 +748,13 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="throwError"/>
     <addaction name="rememberVarNames"/>
+    <addaction name="resetVars"/>
     <addaction name="doEval"/>
     <addaction name="implicitMult"/>
     <addaction name="separator"/>
     <addaction name="useFixString"/>
-    <addaction name="interpretAsLatex"/>
-    <addaction name="interpretAsPython"/>
-    <addaction name="interpretVarAsLatex"/>
+    <addaction name="convertLatex"/>
+    <addaction name="convertVarLatex"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -811,6 +858,9 @@ p, li { white-space: pre-wrap; }
   <action name="getIntDiff">
    <property name="text">
     <string>Get Differential/Integral...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
   <action name="getDiff">
@@ -916,12 +966,15 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+M</string>
    </property>
   </action>
-  <action name="interpretAsLatex">
+  <action name="convertLatex">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
-    <string>Input is LaTeX</string>
+    <string>Convert from LaTeX</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+L</string>
    </property>
   </action>
   <action name="copyLatex">
@@ -929,7 +982,7 @@ p, li { white-space: pre-wrap; }
     <string>Latex</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+L</string>
+    <string>Ctrl+C</string>
    </property>
   </action>
   <action name="copyMathML">
@@ -941,13 +994,13 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>Solution</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+C</string>
-   </property>
   </action>
   <action name="copyCurVar">
    <property name="text">
     <string>Selected Variable</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C, Ctrl+V</string>
    </property>
   </action>
   <action name="copyMathmatica">
@@ -974,17 +1027,6 @@ p, li { white-space: pre-wrap; }
   <action name="getContinuous">
    <property name="text">
     <string>Is Continuous At...</string>
-   </property>
-  </action>
-  <action name="interpretAsPython">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Input is Python</string>
    </property>
   </action>
   <action name="copyEquation">
@@ -1026,15 +1068,23 @@ p, li { white-space: pre-wrap; }
     <string>Get Equation of Normal Line</string>
    </property>
   </action>
-  <action name="interpretVarAsLatex">
+  <action name="convertVarLatex">
    <property name="checkable">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="checked">
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Variable Input is LaTeX</string>
+    <string>Convert Varaible from LaTeX</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+L, Ctrl+V</string>
+   </property>
+  </action>
+  <action name="resetVars">
+   <property name="text">
+    <string>Reset Variables</string>
    </property>
   </action>
  </widget>

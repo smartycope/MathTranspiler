@@ -274,6 +274,7 @@ class EasyRegexMember:
             print(f"Compiled EasyRegex String = {self}")
         else:
             debug(self, name='Compiled EasyRegex String')
+        return self
 
     def debugStr(self):
         return self.debug().str()
@@ -299,8 +300,18 @@ class EasyRegexMember:
         """ "Inverts" the current Regex expression to give an example of a string it would match.
             Useful for debugging purposes.
         """
+        try:
+            from Cope import debug
+        except ImportError:
+            print(f"Inverted Regex = {self.unsanitize(self._compile(True))}")
+        else:
+            debug(self.unsanitize(self._compile(True)), name='Inverted Regex')
+        return self
 
-        return self.unsanitize(self._compile(True))
+    def invert(self):
+        """ Alias of inverse
+        """
+        return self.inverse()
 
     def printInverse(self):
         print(self.inverse())

@@ -85,6 +85,15 @@ def connectEverything(self):
     # self.getContinuous.triggered.connect(self.onGetContinuous)
     self.getIntDiff.triggered.connect(self.onIntDiff)
     self.openNotes.triggered.connect(self.notes)
+    self.convertLatex.triggered.connect(self.onConvertLatex)
+    self.convertVarLatex.triggered.connect(lambda: self.onConvertLatex(True))
+    self.resetVars.triggered.connect(self.onResetVars)
+    # self.updateVars.triggered.connect(self.onUpdateVars)
+
+    #* All the latex buttons
+    self.equationPng.pressed.connect(lambda: clip.copy(latex(self.expr)))
+    self.solutionPng.pressed.connect(lambda: clip.copy(latex(self.solvedExpr)))
+    self.varPng.pressed.connect(lambda: clip.copy(latex(self.currentVar.value)))
 
 
 def notes(self):
@@ -97,13 +106,16 @@ def notes(self):
 
 
 def onIntDiff(self):
+    if self.equ != self.equationInput.toPlainText():
+        self.updateEquation()
     inputWindow = QDialog()
     uic.loadUi(join(ROOT, "ui/diffIntegral.ui"), inputWindow)
 
     def extractValues():
         self.updateIntDiff(inputWindow.doDiff.isChecked(),
-                            inputWindow.var.text(),
-                            inputWindow.addMainEquation.isChecked())
+                           inputWindow.var.text(),
+                           inputWindow.addMainEquation.isChecked(),
+                           inputWindow.order.value())
 
     inputWindow.accepted.connect(extractValues)
     inputWindow.show()
@@ -123,7 +135,7 @@ def onCurrentVariableChanged(self, varIndex):
 
 def onVarNameChanged(self):
     # debug(showFunc=True)
-    if self.currentVar:
+    if self.currentVar and not self.blockVarList:
         self.vars[self.varIndex].name = self.varList.currentText()
     # self.updateVarInfo()
     self.updateSolution()
@@ -133,15 +145,10 @@ def onVarNameChanged(self):
 # *Sets* the current variable value when enter is pressed
 def onVarValueChanged(self):
     try:
-        if self.interpretVarAsLatex.isChecked():
-            input = str(parse_latex(self.sanatizeLatex(self.varSetter.text())))
-        else:
-            input = self.varSetter.text()
-        val = parse_expr(input, transformations=self.trans)
-        self.resetTab()
+        val = parse_expr(self.varSetter.text(), transformations=self.trans)
     except Exception as err:
         debug('Failed to parse var value!')
-        self.error = err
+        self.setError(err, "Varaible Parser")
     else:
         try:
             self.updateVars()
@@ -152,13 +159,16 @@ def onVarValueChanged(self):
             self.vars[self.varIndex].valueChanged = True
             self.vars[self.varIndex].relationship = self.relation.currentText()
             self.updateEquation()
-            self.varPng.setPixmap(self.getPixmap(val))
-            self.resetTab()
+            self.varPng.setIcon(self.getIcon(val))
         except Exception as err:
-            self.error = err
+            self.setError(err, "Setting Varaible")
+        else:
+            self.resetError()
 
 
 def onLimitButtonPressed(self):
+    if self.equ != self.equationInput.toPlainText():
+        self.updateEquation()
     inputWindow = QDialog()
     uic.loadUi(join(ROOT, "ui/limitsInput.ui"), inputWindow)
 
@@ -194,10 +204,14 @@ def _plot(self):
     try:
         plot(self.expr)
     except Exception as err:
-        self.error = err
+        self.setError(err, "Plotting")
+    else:
+        self.resetError()
 
 
 def doPiecewise(self):
+    if self.equ != self.equationInput.toPlainText():
+        self.updateEquation()
     inputWindow = QDialog()
     uic.loadUi(join(ROOT, "ui/addPiecewise.ui"), inputWindow)
     inputWindow.table.setItem(0, 0, QTableWidgetItem(str(self.expr)))
@@ -239,10 +253,34 @@ def resetCurVar(self):
     self.updateEquation()
 
 
+def onResetVars(self):
+    self.vars = []
+    # self.updateVars()
+    self.varSetter.setText('Undefined')
+    self.updateEquation()
+
+
+def onConvertLatex(self, var=False):
+    self.loading = True
+    try:
+        if var:
+            self.varSetter.setText(str(parse_latex(self.sanatizeLatex(self.varSetter.text()))))
+            self.onVarValueChanged()
+        else:
+            self.equationInput.setPlainText(str(parse_latex(self.sanatizeLatex(self.equationInput.toPlainText()))))
+    except Exception as err:
+        self.setError(err, "Latex Parser")
+    else:
+        self.resetError()
+    self.updateEquation()
+    self.loading = False
+
+
 def resetCode(self):
     self.codeOutput.setPlainText('')
-    self.codePng.setPixmap(QPixmap())
+    self.codePng.setIcon(QIcon())
     self.codeInput.setPlainText('')
+    self.resetError()
 
 
 def runCode(self):
@@ -251,7 +289,16 @@ def runCode(self):
     code = self.codeInput.toPlainText()
 
     #* Set the locals (for convienence)
-    expr       = self.expr
+    expr       = self.expr if type(self.expr) is not Lambda else self.expr.expr
+    try:
+        func   = self.expr if type(self.expr) is Lambda else Lambda(Symbol('x'), self.expr)
+    except Exception as err:
+        self.setError(err, 'Making the Current expression into a lambda')
+        return
+    else:
+        self.resetError()
+
+        # func   = 'Lambda(x, expr)'
     subbedExpr = self.subbedExpr
     subExpr    = subbedExpr
     sub        = subbedExpr
@@ -260,7 +307,7 @@ def runCode(self):
     sol        = solution
     input      = lambda *_: None
     print      = self.printToCodeOutput
-    show       = lambda e: self.codePng.setPixmap(self.getPixmap(e))
+    show       = lambda e: self.codePng.setIcon(self.getIcon(e))
     out        = None
     if self.currentVar:
         curSymbol = curVar.symbol
@@ -270,25 +317,25 @@ def runCode(self):
         curValue = None
     curVal = curValue
 
-    v = dict(zip([i.name for i in self.vars], [i.value for i in self.vars]))
+    vars = dict(zip([i.name for i in self.vars], [i.value for i in self.vars]))
 
     try:
         _local = locals()
-        _local.update(v)
+        _local.update(vars)
 
         exec(code, globals(), _local)
 
         out = _local['out']
         if out is not None:
+            self.codePng.pressed.connect(lambda: clip.copy(latex(out)))
             print(out)
-            print()
-            print(latex(out))
+            # print()
+            # print(latex(out))
             show(out)
     except Exception as err:
-        self.error = err
-        self.codePng.setPixmap(QPixmap())
+        self.setError(err, "Custom Code")
+        self.codePng.setIcon(QIcon())
     else:
-        self.resetTab()
-        self.error = None
+        self.resetError()
 
     self.codeLoading = False

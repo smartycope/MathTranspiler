@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (QDialog, QFileDialog, QLabel, QLineEdit,
 from sympy import *
 from sympy import abc
 from sympy.abc import *
-from sympy.calculus.util import continuous_domain
+from sympy.calculus.util import continuous_domain, function_range
 from sympy.core.function import AppliedUndef, UndefinedFunction
 from sympy.parsing.latex import parse_latex
 from sympy.parsing.sympy_parser import (convert_xor, implicit_multiplication,
@@ -33,18 +33,16 @@ from sympy.printing.preview import preview
 from sympy.printing.pycode import pycode
 from sympy.sets.conditionset import ConditionSet
 from sympy.solvers.inequalities import solve_rational_inequalities
+from sympy import S
 from Variable import Variable
-
 
 def updateEquation(self):
     self.loading = True
     try:
         self.resetOuput()
+
         #* Get the equation
-        if self.interpretAsLatex.isChecked():
-            self.equ = str(parse_latex(self.sanatizeLatex(self.equationInput.toPlainText())))
-        else:
-            self.equ = self.equationInput.toPlainText()
+        self.equ = self.equationInput.toPlainText()
 
         #* If we've just deleted everything, it's okay
         if not len(self.equ):
@@ -53,41 +51,29 @@ def updateEquation(self):
         #* Now calculate everything
         # First, run the input string through our function to make sure we take care
         # of the things sympy won't take care of for us (= to Eq() and the like)
-        equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else debug(self.sanatizeInput(self.equ))
+        equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else self.sanatizeInput(self.equ)
         self.expr = parse_expr(equation, transformations=self.trans, evaluate=False)
         # Set the initial value of subbedExpr
         self.subbedExpr = self.expr
 
         #* Load the png of what we're writing
-        self.equationPng.setPixmap(self.getPixmap(self.expr))
+        self.equationPng.setIcon(QIcon(self.getIcon(self.expr)))
 
         # This order matters
-        debug(self.subbedExpr, 'subbedExpr')
-        debug(self.solvedExpr, 'solvedExpr')
-        debug(self.expr, 'expr')
         self.updateVars()
-
-        debug(self.subbedExpr, 'subbedExpr')
-        debug(self.solvedExpr, 'solvedExpr')
-        debug(self.expr, 'expr')
         self.calculateSolution()
-
-        debug(self.subbedExpr, 'subbedExpr')
-        debug(self.solvedExpr, 'solvedExpr')
-        debug(self.expr, 'expr')
         self.updateSolution()
-        debug(self.subbedExpr, 'subbedExpr')
-        debug(self.solvedExpr, 'solvedExpr')
-        debug(self.expr, 'expr')
+        # Yes, update it again, because we need to get the new vars in just the solution as well.
+        self.updateVars()
         # self.updateCode()
         self.updateVarInfo()
         self.updateVarValue()
         # Make sure the code box has updated values
         self.runCodeButton.pressed.emit()
-        self.resetTab()
-
     except Exception as err:
-        self.error = err
+        self.setError(err, "Solver")
+    else:
+        self.resetError()
 
     self.loading = False
 
@@ -100,12 +86,12 @@ def updateVarInfo(self):
         string += f'Type: {type(self.currentVar.symbol) if type(self.currentVar.symbol) in self.funcTypes else type(self.currentVar.value)}\n'
 
         #* Continuous at (doesn't work):
-        try:
-            string += f'Continuous at: {continuous_domain(self.solvedExpr, self.currentVar.symbol, Reals)}'
-        except Exception as err:
+        # try:
+            # string += f'Continuous at: {continuous_domain(self.solvedExpr, self.currentVar.symbol, Reals)}'
+        # except Exception as err:
             # debug(err, color=-1)
-            if self.throwError.isChecked():
-                raise err
+            # if self.throwError.isChecked():
+                # raise err
 
     if threading.current_thread().name == "MainThread":
         self.varInfoBox.setPlainText(string)
@@ -126,87 +112,100 @@ def updateVarValue(self):
     if self.currentVar.valueChanged:
         ans = pretty(value) if self.prettySolution.isChecked() else str(value)
         self.relation.setCurrentText(self.currentVar.relationship)
-        self.varPng.setPixmap(self.getPixmap(value))
+        self.varPng.setIcon(self.getIcon(value))
 
     else:
         # Some inequalities aren't impolemented in the complex domain.
         # (I totally understand what that means.)
         if type(self.subbedExpr) is Eq:
-            try:
-                sol = solve(self.subbedExpr, self.currentVar.symbol)
+            # try:
+                # sol = solve(self.subbedExpr, self.currentVar.symbol)
                 # sol = solveset(self.subbedExpr, self.currentVar.symbol)
-            except NotImplementedError:
-                sol = solve(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
+            # except NotImplementedError:
+            sol = solve(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
                 # sol = solveset(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
 
-            self.varPng.setPixmap(self.getPixmap(sol))
+            self.varPng.setIcon(self.getIcon(sol))
             ans = pretty(sol) if self.prettySolution.isChecked() else str(sol)
         else:
             ans = 'Undefined'
-            self.varPng.setPixmap(self.getPixmap(EmptySet))
+            self.varPng.setIcon(self.getIcon(EmptySet))
 
     self.varSetter.setText(ans)
 
 
 def updateVars(self):
-    atoms = set()
-    # Get any variables that are exclusively defined in the variable setter, and add them to atoms
-    for i in self.vars:
-        if i.valueChanged:
-            atoms = atoms.union(i.value.atoms(*self.varTypes+self.funcTypes))
-            funcs = set()
-            for func in i.value.atoms(*self.funcTypes):
-                funcs = funcs.union((type(func),))
-            atoms = atoms.union(funcs)
+    def getAtoms():
+        atoms = set()
+        #* Get any variables that are exclusively defined in the variable setter, and add them to atoms
+        for i in self.vars:
+            if i.valueChanged:
+                atoms = atoms.union(i.value.atoms(*self.varTypes+self.funcTypes))
+                funcs = set()
+                for func in i.value.atoms(*self.funcTypes):
+                    funcs = funcs.union((type(func),))
+                atoms = atoms.union(funcs)
 
-    # Get all the variables that are exclusively defined in the relations, and add them to atoms
-    # for i in self.relations:
-        # atoms = atoms.union(i.atoms(*self.varTypes))
+        # Get all the variables that are exclusively defined in the relations, and add them to atoms
+        # for i in self.relations:
+            # atoms = atoms.union(i.atoms(*self.varTypes))
 
-    # Get the variables in the input equation
-    atoms = atoms.union(self.expr.atoms(*self.varTypes))
-    funcs = set()
-    for func in self.expr.atoms(*self.funcTypes):
-        funcs = funcs.union((type(func),))
-    atoms = atoms.union(funcs)
+        #* Get the atoms in the input equation
+        atoms = atoms.union(self.expr.atoms(*self.varTypes))
+        funcs = set()
+        for func in self.expr.atoms(*self.funcTypes):
+            funcs = funcs.union((type(func),))
+        atoms = atoms.union(funcs)
 
-    # atoms.remove(Symbol('xxx'))
+        #* Get the atoms in the solution
+        atoms = atoms.union(self.solvedExpr.atoms(*self.varTypes))
+        # There shouldn't be any new function types exclusively in the solution
+        # funcs = set()
+        # for func in self.expr.atoms(*self.funcTypes):
+            # funcs = funcs.union((type(func),))
+        # atoms = atoms.union(funcs)
 
-    # Get all the things in what we've just parsed that aren't already in self.vars and add them
+        return atoms
+
+    def resetVarBox():
+        #* Totally reset the index box
+        lastVarIndex = self.varIndex
+        self.blockVarList = True
+        self.varList.clear()
+        self.varList.addItems([str(v) for v in self.vars])
+        self.varIndex = lastVarIndex if lastVarIndex > 0 else 0
+        self.blockVarList = False
+
+    atoms = getAtoms()
+
+    #* Get all the things in what we've just parsed that aren't already in self.vars and add them
     curSymbols = set([v.symbol for v in self.vars])
     for s in atoms.difference(curSymbols):
         self.vars.append(Variable(s))
 
-    # Now get all the things in self.vars that aren't in the thing we just parsed and delete them
+    #* Now get all the things in self.vars that aren't in the thing we just parsed and delete them
     if not self.rememberVarNames.isChecked():
         for s in curSymbols.difference(atoms):
             del self.vars[getIndexWith(self.vars, lambda x: x.symbol == s)]
 
-    # Make sure our expression is updated with the new values
-    #// Also, iterate through all the vars and edit any of the Functions to add "(x)" to their name
-    for var in self.vars:
-        # debug(var.symbol, 'var')
+    #* MOVED to calculateSolution() in private
+    #* Make sure our expression is updated with the new values
+    # symbols = vals = []
+    # This crude, but I think it might work?
+    for var in sorted(self.vars, key=lambda v: len(str(v.symbol)), reverse=True):
         if var.valueChanged:
-            self.subbedExpr = self.expr.subs(var.symbol, var.value)
-        # if isinstance(var.symbol, self.funcTypes):
-        # if type(var.symbol) in self.funcTypes:
-        #     var.name += '(x)'
-        #     debug()
+            # symbols.append(var.symbol)
+            # vals.append(var.value)
+            self.subbedExpr = self.subbedExpr.subs(var.symbol, var.value)
+            # self.subbedExpr = Subs(self.subbedExpr, var.symbol, var.value)
+    # self.subbedExpr = self.subbedExpr.subs(symbols, vals)
+    # self.subbedExpr = Subs(self.expr, symbols, vals).doit()
 
-    # debug(self.vars, useRepr=True)
-
-    # Totally reset the index box
-    lastVarIndex = self.varIndex
-    self.blockVarList = True
-    self.varList.clear()
-    # self.varList.addItems([str(v) for v in self.vars])
-    self.varList.addItems([str(v.name) for v in self.vars])
-    self.varIndex = lastVarIndex if lastVarIndex > 0 else 0
-    self.blockVarList = False
+    resetVarBox()
 
 
 def updateSolution(self):
-    self.solutionPng.setPixmap(self.getPixmap(self.solvedExpr))
+    self.solutionPng.setIcon(self.getIcon(self.solvedExpr))
 
     if self.prettySolution.isChecked():
         ans = pretty(self.solvedExpr)
@@ -297,23 +296,29 @@ def updatePiecewise(self, relations, addToMainEquation):
 
 def updateLimit(self, updateVar, updateVal, addToMainEquation, dir):
     if addToMainEquation:
-        withLimit = f"Limit({self.equationInput.toPlainText()}, {updateVar}, {updateVal}" + (f", '{dir}'" if dir else '') + ')'
+        withLimit = f"Limit({self.expr}, {updateVar}, {updateVal}" + (f", '{dir}'" if dir else '') + ')'
         self.equationInput.setPlainText(withLimit)
         self.updateEquation()
     else:
-        withLimit = f"Limit({self.varSetter}, {updateVar}, {updateVal}" + (f", '{dir}'" if dir else '') + ')'
+        withLimit = f"Limit({self.currentVar.value}, {updateVar}, {updateVal}" + (f", '{dir}'" if dir else '') + ')'
         self.varValueBox = withLimit
         # A small hack, make sure we accept the input so we don't overwrite it
         self.varSetter.returnPressed.emit()
 
 
-def updateIntDiff(self, diff, var, addToMainEquation):
+def updateIntDiff(self, diff, var, addToMainEquation, order):
     if addToMainEquation:
-        result = ('Derivative' if diff else "Integral") + f"({self.equationInput.toPlainText()}, {var})"
+        if not len(var):
+            result = ('Derivative' if diff else "Integral") + f"({self.expr})"
+        else:
+            result = ('Derivative' if diff else "Integral") + f"({self.expr}, ({var}, {order}))"
         self.equationInput.setPlainText(result)
         self.updateEquation()
     else:
-        result = ('Derivative' if diff else "Integral") + f"({self.varSetter}, {var})"
+        if not len(var):
+            result = ('Derivative' if diff else "Integral") + f"({self.currentVar.value})"
+        else:
+            result = ('Derivative' if diff else "Integral") + f"({self.currentVar.value}, ({var}, {order}))"
         self.varValueBox = result
         # A small hack, make sure we accept the input so we don't overwrite it
         self.varSetter.returnPressed.emit()
@@ -324,5 +329,5 @@ def updateImplicitMult(self):
         self.trans = self.baseTrans + (implicit_multiplication,)
     else:
         self.trans = self.baseTrans
-    self.implicitMulLabel.setText(f'Implicit Multiplication is: {"On" if self.implicitMult.isChecked() else "Off"}')
+    self.implicitMulLabel.setText(f'Implicit Multiplication is {"On" if self.implicitMult.isChecked() else "Off"}')
     self.updateEquation()

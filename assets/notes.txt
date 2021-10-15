@@ -12,14 +12,27 @@ For example, the function f(x)=x−−√3 is continuous but has a vertical tang
 
 Basic derivative rules:
 The constant rule states that the derivative of a constant is 0. If f(x)=c, where c is a constant, then f′(x)=0.
+
 The power rule for derivatives states that if f(x)=x^n, then f′(x)=nx^(n−1).
+
 The constant multiple rule for derivatives states that the derivative of a constant times a function is equal to the constant times the derivative of the function.
 If g(x)=cf(x), where c is a constant, then g′(x)=cf′(x).
+
 The extended power rule for derivative states that for a function f(x)=x^n, given n is a non-zero integer, then f′(x)=nx^(n−1)
+
 The equation of the tangent line to a function, f(x), at the point x=a is given by y=mx+b where m is the value of the derivative of f evaluated at a. i.e. m_tan=f′(a).
+
 The sum and difference rules for derivatives state that the derivative of the sum or difference of two functions is equal to the sum or difference of their derivative.
 i.e. Derivative(f(x) ± g(x)) = Derivative(f(x)) ± Derivative(g(x))
+
 The constant multiple rule for derivatives states that the derivative of a constant times a function is equal to the constant times the derivative of the function.
 i.e. assuming c is a constant: Derivative(c * f(x)) = c * Derivative(f(x))
+
+The product rule for derivatives states that the derivative of the product of two functions is equal to the derivative of the first function times the second
+function plus the derivative of the second function times the first function.
+f(x) = g(x)*h(x)
+f(x) = g'(x)*h(x) + g(x)*h'(x)
+
+
 
 The slope of the tangent line IS the derivative
