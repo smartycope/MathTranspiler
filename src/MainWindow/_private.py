@@ -36,6 +36,8 @@ from Variable import Variable
 from copy import deepcopy
 import re
 
+#TODO Add an option to use solve or solveset
+#TODO add an option to automatically replace the logs in the solution with ln's
 
 def resetEverything(self):
     self.equationInput.setPlainText('')
@@ -109,10 +111,10 @@ def calculateSolution(self):
 
     expr = self.subbedExpr.doit()
     if not self.dontSimplify.isChecked():
-        try:
-            expr = expr.doit()
-        except Exception as err:
-            debug(err, color=-1, raiseError=True)
+        # try:
+        #     expr = expr.doit()
+        # except Exception as err:
+        #     debug(err, color=-1, raiseError=True)
 
         # rels = []
         # for var in self.vars:
@@ -198,10 +200,10 @@ def fixEquationString(self, eq:str):
 
 # The difference between these 2 functions is that sanatizeInput() does the bare essentials and should always be run, while
 # fixEquationString() does extra stuff enabled by the setting action, and also sanatizes it
-
 def sanatizeInput(self, eq:str):
     #* Replace the weird minus symbol with a proper minus symbol
     eq = re.sub('−', '-', eq)
+    # eq = re.sub((match('e') + optional(ifPrecededBy(digit())) + ifNotFollowedBy(anyAlphaNum()) + ifNotPrecededBy(alpha())).str(), 'E', eq)
 
     #* Just don't allow any '='s in the equation, they always mean something different.
     if '=' in eq:
