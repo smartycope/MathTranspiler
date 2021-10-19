@@ -23,17 +23,22 @@ from sympy.sets.conditionset import ConditionSet
 from sympy.solvers.inequalities import solve_rational_inequalities
 
 def addCustomFuncs(self):
-    self._addCustomFunc('Get Continuous at',            'out = isContinuousAt(expr=expr, symbol=curSymbol, at=S.Reals)')
-    self._addCustomFunc('Get Equation of Tangent Line', 'out = getTanSlopeEquation(expr=expr, symbol=curSymbol, symbolVal=curValue)')
-    self._addCustomFunc('Get Equation of Normal Line',  'out = getNormalSlopeEquation(expr=expr, symbol=curSymbol, symbolVal=curValue)')
+    self._addCustomFunc('Get Continuous at',             'out = isContinuousAt(expr=expr, symbol=curSymbol, at=S.Reals)')
+    self._addCustomFunc('Get Equation of Tangent Line',  'out = getTanSlopeEquation(expr=expr, symbol=curSymbol, symbolVal=curValue)')
+    self._addCustomFunc('Get Equation of Normal Line',   'out = getNormalSlopeEquation(expr=expr, symbol=curSymbol, symbolVal=curValue)')
     self._addCustomFunc('Find Average Rate of Change over Interval', 'out = getAvgRateOfChange(func=func, interval=Interval(from, to))')
-    self._addCustomFunc('Intermediate Value Theorem',   'out = leastPossibleVal(func=func, interval=Interval(from, to))')
-    self._addCustomFunc('Solve as Implicit Derivative', 'out = idiff(eq=expr, y=y, x=x, n=1)', 'eq is the equation. Must equal 0 (use -, not Eq() or =)', 'n is the order of the derivative')
-    self._addCustomFunc('Get left/right at time',       'print(leftOrRight(func=func, timeVal=))')
+    self._addCustomFunc('Intermediate Value Theorem',    'out = leastPossibleVal(func=func, interval=Interval(from, to))')
+    self._addCustomFunc('Solve as Implicit Derivative',  'out = idiff(eq=expr, y=y, x=x, n=1)', 'eq is the equation. Must equal 0 (use -, not Eq() or =)', 'n is the order of the derivative')
+    self._addCustomFunc('Get left/right at time',        'print(leftOrRight(func=func, timeVal=))')
+    self._addCustomFunc('Get velocity at time',          'out = timesAtHeight(expr=expr, timeVar=Symbol(\'t\'), height=0)')
+    self._addCustomFunc('Get Velocity at height',        'out = velocityAtHeight(expr=expr, timeVar=Symbol("t"), height=0)')
+    self._addCustomFunc('Get acceleration at time',      'out = accAtTime(expr=expr, timeVar=Symbol("t"), time=0)')
+    self._addCustomFunc('Is speeding up at time',        'print(isSpeedingUpAtTime(expr=expr, timeVar=Symbol("t"), time=t))')
     # self._addCustomFunc('', '')
 
 def _addCustomFunc(self, name, code, *comments):
     self.menuTools.addAction(name, lambda: self.runCustomFuncInCode(code, *comments))
+
 
 
 seperate = lambda: print('--------------------------------')
@@ -121,11 +126,45 @@ def leftOrRight(func, timeVal):
     return 'Right' if func(timeVal) > 0 else 'Left'
 
 
-def timeAtRest(expr, timeVar):
+def timesAtHeight(expr, timeVar, height):
+    if height == 0:
+        expr = expr.diff(timeVar)
+
+    return solveset(Eq(expr, height), timeVar)
+
+
+def velocityAtHeight(expr, timeVar, height):
     diff = expr.diff(timeVar)
-    sol = solve(expr, timeVar)
+    ans = []
+
+    heights = ensureIterable(solveset(Eq(expr, height), timeVar))
+    print('Derivative:', diff)
+    print('Heights:', heights)
+    for i in heights:
+        ans.append(diff.subs(timeVar, i))
+
+    return ans
 
 
+def accAtTime(expr, timeVar, time):
+    diff = expr.diff(timeVar, 2)
+    ans = []
+
+    heights = ensureIterable(solveset(expr, timeVar))
+    print('Derivative:', diff)
+    print('Heights:', heights)
+    for i in heights:
+        ans.append(diff.subs(timeVar, i))
+
+    return ans
+
+
+def isSpeedingUpAtTime(expr, timeVar, time):
+    diff1 = expr.diff(timeVar, 1).subs(timeVar, time)
+    diff2 = expr.diff(timeVar, 2).subs(timeVar, time)
+    print('First Derivative:', diff1)
+    print('Second Derivative:', diff2)
+    return (diff1 > 0) == (diff2 > 0)
 
 
 

@@ -94,7 +94,7 @@ def connectEverything(self):
     #* All the latex buttons
     self.equationPng.pressed.connect(lambda: clip.copy(latex(self.expr)))
     self.solutionPng.pressed.connect(lambda: clip.copy(latex(self.solvedExpr)))
-    self.varPng.pressed.connect(lambda: clip.copy(latex(self.currentVar.value)))
+    self.varPng.pressed.connect(lambda: clip.copy(latex(self.currentVar.value if self.currentVar is not None else '')))
 
 
 def notes(self):
