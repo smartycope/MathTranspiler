@@ -79,24 +79,25 @@ def updateEquation(self):
 
 
 def updateVarInfo(self):
-    string = ''
+    pass
+    # string = ''
 
-    if self.currentVar:
-        #* Type:
-        string += f'Type: {type(self.currentVar.symbol) if type(self.currentVar.symbol) in self.funcTypes else type(self.currentVar.value)}\n'
+    # if self.currentVar:
+    #     #* Type:
+    #     string += f'Type: {type(self.currentVar.symbol) if type(self.currentVar.symbol) in self.funcTypes else type(self.currentVar.value)}\n'
 
-        #* Continuous at (doesn't work):
-        # try:
-            # string += f'Continuous at: {continuous_domain(self.solvedExpr, self.currentVar.symbol, Reals)}'
-        # except Exception as err:
-            # debug(err, color=-1)
-            # if self.throwError.isChecked():
-                # raise err
+    #     #* Continuous at (doesn't work):
+    #     # try:
+    #         # string += f'Continuous at: {continuous_domain(self.solvedExpr, self.currentVar.symbol, Reals)}'
+    #     # except Exception as err:
+    #         # debug(err, color=-1)
+    #         # if self.throwError.isChecked():
+    #             # raise err
 
-    if threading.current_thread().name == "MainThread":
-        self.varInfoBox.setPlainText(string)
-    else:
-        return string
+    # if threading.current_thread().name == "MainThread":
+    #     self.varInfoBox.setPlainText(string)
+    # else:
+    #     return string
 
 
 # *Fills* the variable setter box when the current variable is changed

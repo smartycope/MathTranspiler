@@ -36,8 +36,15 @@ from Variable import Variable
 from copy import deepcopy
 import re
 
-#TODO Add an option to use solve or solveset
-#TODO add an option to automatically replace the logs in the solution with ln's
+todo(r'automatically convert from \dfrac{} to \frac{} in latex')
+todo('add an option to use solve or solveset')
+todo('add an option to automatically replace the logs in the solution with ln\'s')
+todo('add automatic latex detection')
+todo('autofill derrivative variable box')
+todo('change plotting to plotter')
+todo('fix and finish implementing Type box')
+todo('add a function (and/or variable) to detect whether self.equ/self.solution/self.expr is updated to the current equation, and add it to everything')
+todo('add a copy to desmos function and option')
 
 def resetEverything(self):
     self.equationInput.setPlainText('')
@@ -47,7 +54,6 @@ def resetEverything(self):
     # self.varList.setText('')
     self.varList.clear()
     self.varSetter.setText('')
-    self.varInfoBox.setPlainText('')
     self.updateEquation()
     self.onResetVars()
     self.varPng.setIcon(QIcon())

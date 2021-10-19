@@ -55,7 +55,8 @@ class Main(QMainWindow):
                          onNewRelationWanted, onPreviewCurVar, #onUpdateVars,
                          onPreviewSolution, onTabChanged, onVarNameChanged,
                          onVarValueChanged, _plot, resetCode, resetCurVar,
-                         runCode, connectEverything, onConvertLatex)
+                         runCode, connectEverything, onConvertLatex,
+                         onVarTypeChanged)
     from ._update import (updateCode, updateEquation, updateImplicitMult,
                           updateIntDiff, updateLimit, updatePiecewise,
                           updateSolution, updateVarInfo, updateVars,
@@ -63,6 +64,7 @@ class Main(QMainWindow):
     from ._customFuncs import addCustomFuncs, _addCustomFunc
 
     varTypes = (Symbol, Derivative, Function, FunctionCall)
+    varTypeMap = {0: Symbol, 1: Function, 2: Derivative, 3: Integral}
     funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
     functionVar = Symbol('x')
     codeTabIndex = 1
@@ -170,7 +172,6 @@ class Main(QMainWindow):
             else:
                 self.equationPng.setText('')
                 self.solutionPng.setText('')
-
 
     @property
     def codeLoading(self):

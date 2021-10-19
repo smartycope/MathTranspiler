@@ -29,6 +29,7 @@ def addCustomFuncs(self):
     self._addCustomFunc('Find Average Rate of Change over Interval', 'out = getAvgRateOfChange(func=func, interval=Interval(from, to))')
     self._addCustomFunc('Intermediate Value Theorem',   'out = leastPossibleVal(func=func, interval=Interval(from, to))')
     self._addCustomFunc('Solve as Implicit Derivative', 'out = idiff(eq=expr, y=y, x=x, n=1)', 'eq is the equation. Must equal 0 (use -, not Eq() or =)', 'n is the order of the derivative')
+    self._addCustomFunc('Get left/right at time',       'print(leftOrRight(func=func, timeVal=))')
     # self._addCustomFunc('', '')
 
 def _addCustomFunc(self, name, code, *comments):
@@ -114,3 +115,29 @@ def leastPossibleVal(func, interval):
             else:
                 i -= 1
     return i
+
+
+def leftOrRight(func, timeVal):
+    return 'Right' if func(timeVal) > 0 else 'Left'
+
+
+def timeAtRest(expr, timeVar):
+    diff = expr.diff(timeVar)
+    sol = solve(expr, timeVar)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+todo('autoconvert to lambda (func and implicitly in varsetter) smartly, ie via a private function and get the atoms first instead of assuming x')
+todo('update code box tooltip')

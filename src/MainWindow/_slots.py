@@ -69,6 +69,7 @@ def connectEverything(self):
     self.varList.currentIndexChanged.connect(self.onCurrentVariableChanged)
     self.varList.editTextChanged.connect(self.onVarNameChanged)
     self.varSetter.returnPressed.connect(self.onVarValueChanged)
+    self.varType.currentIndexChanged.connect(self.onVarTypeChanged)
 
     #* Actions
     self.throwError.triggered.connect(self.updateEquation)
@@ -164,6 +165,10 @@ def onVarValueChanged(self):
             self.setError(err, "Setting Varaible")
         else:
             self.resetError()
+
+
+def onVarTypeChanged(self, index):
+    self.vars[self.varIndex].type = self.varTypeMap[index]
 
 
 def onLimitButtonPressed(self):
