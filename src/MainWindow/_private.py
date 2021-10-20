@@ -44,7 +44,6 @@ todo('autofill derrivative variable box')
 todo('change plotting to plotter')
 todo('fix and finish implementing Type box')
 todo('add a function (and/or variable) to detect whether self.equ/self.solution/self.expr is updated to the current equation, and add it to everything')
-todo('add a copy to desmos function and option')
 
 def resetEverything(self):
     self.equationInput.setPlainText('')
@@ -254,3 +253,9 @@ def runCustomFuncInCode(self, funcString, *comments):
     self.codeInput.setPlainText(('# ' + ('\n# '.join(comments)) + '\n' if len(comments) else '') + funcString)
     self.runCodeButton.pressed.emit()
     self.output.setCurrentIndex(self.codeTabIndex)
+
+
+
+""" code box tooltip
+<html><head/><body><p>&quot;expr&quot; is the current expression. Read-only</p><p>&quot;solution&quot; is the current solution. Read-only</p><p>&quot;curVar&quot; is the currently selected Variable. Read-only</p><p>&quot;curSymbol&quot; is the currently selected variable's symbol. Read-only</p><p>&quot;curValue&quot; is the currently selected variable's value. Recommended. Read-only.</p><p>&quot;print&quot; prints to the output box</p><p>&quot;show&quot; outputs the latex of the Sympy expression</p><p>Set &quot;out&quot; to a Sympy expression to automatically print and show it</p><p>Errors are directed to the error tab. All common sympy functions and constants should be available. Press the &quot;Execute&quot; button to execute.</p></body></html>
+ """

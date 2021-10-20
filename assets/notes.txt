@@ -36,3 +36,9 @@ f(x) = g'(x)*h(x) + g(x)*h'(x)
 
 
 The slope of the tangent line IS the derivative
+
+
+
+
+Extreme Value Theorem (EVT):
+guarantees function f(x) has an absolute maximum and minimum over an interval, f(x) is continuous over the closed and bounded interval.

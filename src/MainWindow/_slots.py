@@ -303,7 +303,6 @@ def runCode(self):
     else:
         self.resetError()
 
-        # func   = 'Lambda(x, expr)'
     subbedExpr = self.subbedExpr
     subExpr    = subbedExpr
     sub        = subbedExpr
@@ -314,6 +313,7 @@ def runCode(self):
     print      = self.printToCodeOutput
     show       = lambda e: self.codePng.setIcon(self.getIcon(e))
     out        = None
+    # pi         = sym.pi
     if self.currentVar:
         curSymbol = curVar.symbol
         curValue = curVar.value

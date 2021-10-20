@@ -413,7 +413,7 @@
            <x>0</x>
            <y>0</y>
            <width>751</width>
-           <height>241</height>
+           <height>301</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -422,7 +422,7 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>75</height>
+              <height>150</height>
              </size>
             </property>
             <property name="text">
@@ -483,7 +483,7 @@
            <x>0</x>
            <y>0</y>
            <width>751</width>
-           <height>248</height>
+           <height>301</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -501,7 +501,7 @@
                <cursorShape>IBeamCursor</cursorShape>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;expr&amp;quot; is the current expression. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;solution&amp;quot; is the current solution. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;curVar&amp;quot; is the currently selected Variable. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;curSymbol&amp;quot; is the currently selected variable's symbol. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;curValue&amp;quot; is the currently selected variable's value. Recommended. Read-only.&lt;/p&gt;&lt;p&gt;&amp;quot;print&amp;quot; prints to the output box&lt;/p&gt;&lt;p&gt;&amp;quot;show&amp;quot; outputs the latex of the Sympy expression&lt;/p&gt;&lt;p&gt;Set &amp;quot;out&amp;quot; to a Sympy expression to automatically print and show it&lt;/p&gt;&lt;p&gt;Errors are directed to the error tab. All common sympy functions and constants should be available. Press the &amp;quot;Execute&amp;quot; button to execute.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string/>
               </property>
               <property name="verticalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -549,7 +549,7 @@ p, li { white-space: pre-wrap; }
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>70</height>
+              <height>60</height>
              </size>
             </property>
             <property name="sizeIncrement">
@@ -584,7 +584,7 @@ p, li { white-space: pre-wrap; }
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>75</height>
+              <height>60</height>
              </size>
             </property>
             <property name="text">
@@ -617,7 +617,7 @@ p, li { white-space: pre-wrap; }
            <x>0</x>
            <y>20</y>
            <width>761</width>
-           <height>161</height>
+           <height>281</height>
           </rect>
          </property>
          <property name="sizeIncrement">
