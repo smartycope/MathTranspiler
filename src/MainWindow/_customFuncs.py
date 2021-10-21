@@ -37,6 +37,12 @@ def addCustomFuncs(self):
     self._addCustomFunc('Get Critical Points',           'out = getCriticalPoints(expr=expr, var=curSymbol, order=1)')
     self._addCustomFunc('Get Critical Points over Interval', 'out = getCriticalPointsOverInterval(expr=expr, var=curSymbol, interval=Interval(from, to), order=1)')
     self._addCustomFunc('Get Min and Max over Interval', 'print(minMaxOverInterval(expr=expr, var=curSymbol, interval=Interval(from, to)))')
+    # self._addCustomFunc('Solve Related Rate',            "out = solveRelatedRate(equation=expr, changeExpr=, solveVar=curSymbol)", "changeExpr is the amount its changing", "equation must be an Eq() statement of type Eq(<stuff>, <stuff involving solveVar>)")
+    self._addCustomFunc('Solve Related Rate',            "# Put one of these in the box, then fill the variables with what you know (rate of change of volume is Derivative(v,t), current value, ect.)",
+                                                         'For a Triangle, with the base changing: Eq(Derivative(volume(time), time), (1/2)*Derivative(base(time), time)*height)',
+                                                         'Cube, with the side changing: Eq(Derivative(volume(time), time), Derivative(side(time), time)**3)',
+                                                         'Rectangle, with any side changing: Eq(Derivative(volume(time), time), Derivative(side(time), time)*width*height)'
+                                                         'Cylinder = V=pi*h*r^2')
     # self._addCustomFunc('', '')
 
 def _addCustomFunc(self, name, code, *comments):
@@ -169,12 +175,16 @@ def isSpeedingUpAtTime(expr, timeVar, time):
     print('Second Derivative:', diff2)
     return (diff1 > 0) == (diff2 > 0)
 
-# "solveRelatedRate(equation=expr, changeExpr=, solveVar=curVar)", "changeExpr is the amount its changing", "equation must be an Eq() statement of type Eq(<stuff>, <stuff involving solveVar>)"
-def solveRelatedRate(equation, changeExpr, solveVar):
-    equation = equation.subs(solveVar, solveVar.diff())
-    # equation.lhs.diff()
-    equation = equation.subs(equation.lhs, changeExpr)
-    return solve(equation, solveVar)
+
+def solveRelatedRate(equation, solveVar, changing):
+    equation = equation.subs(solveVar, Derivative(solveVar))
+    print('just the var derived', equation)
+    equation = equation.subs(equation.lhs, )
+    print('Derived Equation:', equation)
+    try:
+        return solveset(equation, solveVar).simplify()
+    except:
+        return solveset(equation, solveVar)
 
 
 def getCriticalPoints(expr, var, order=1):
@@ -195,8 +205,6 @@ def getCriticalPointsOverInterval(expr, var, interval, order=1):
     if isBetween(b, interval.start, interval.end):
         ans.append(b)
     return ans
-
-
 
 
 def minMaxOverInterval(expr, var, interval):
@@ -234,13 +242,6 @@ def minMaxOverInterval(expr, var, interval):
     return f'Min: {min(solvedEvalPoints).simplify()} at {var} = {min(crit)}, Max: {max(solvedEvalPoints).simplify()} at {var} = {max(crit)}'
 
 
-"""
-1a = 8x + 5e^x - 3/x
-1b = 7*5^(7x - 2)*log(5)
-2a = -8x/(16x^4 + 1)
--x/2x^4+32^8
-2b = 3*(4*2^(6x)*(3x - 1)*log(2)^2 - 4)  /  (8*(3x - 1)*log(2))
-"""
 
 
 

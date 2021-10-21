@@ -114,7 +114,8 @@ def calculateSolution(self):
     # # self.subbedExpr = self.subbedExpr.subs(symbols, vals)
     # # self.subbedExpr = Subs(self.expr, symbols, vals).doit()
 
-    expr = self.subbedExpr.doit()
+    # expr = self.subbedExpr.doit()
+    expr = self.subbedExpr
     if not self.dontSimplify.isChecked():
         # try:
         #     expr = expr.doit()
