@@ -7,6 +7,7 @@ from os.path import dirname, join
 import clipboard as clip
 from Cope import *
 from EasyRegex import *
+import EasyRegex as er
 from LoadingBar import LoadingBar, showLoading, showWithLoading
 from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
@@ -31,19 +32,27 @@ from sympy.printing.mathml import mathml
 from sympy.printing.preview import preview
 from sympy.printing.pycode import pycode
 from sympy.sets.conditionset import ConditionSet
-from sympy.solvers.inequalities import solve_rational_inequalities
+# from sympy.solvers.inequalities import solve_rational_inequalities
+from sympy.solvers.inequalities import *
 from Variable import Variable
 from copy import deepcopy
 import re
 
-todo(r'automatically convert from \dfrac{} to \frac{} in latex')
-todo('add an option to use solve or solveset')
-todo('add an option to automatically replace the logs in the solution with ln\'s')
-todo('add automatic latex detection')
-todo('autofill derrivative variable box')
-todo('change plotting to plotter')
-todo('fix and finish implementing Type box')
-todo('add a function (and/or variable) to detect whether self.equ/self.solution/self.expr is updated to the current equation, and add it to everything')
+todo('all this stuff')
+# todo('add an option to use solve or solveset', False)
+# todo('add an option to automatically replace the logs in the solution with ln\'s', False)
+# todo('add automatic latex detection', False)
+# todo(r'automatically convert from \dfrac{} to \frac{} in latex', False)
+todo('autofill derivative variable box', False)
+todo('fix and finish implementing Type box', False)
+todo('add a function (and/or variable) to detect whether self.equ/self.solution/self.expr is updated to the current equation, and add it to everything', False)
+todo('add auto-uncondition or un-finiteset an answer with only one entry in sanatize solution/sanitize output', False)
+todo('autoconvert to lambda (func and implicitly in varsetter) smartly, ie via a private function and get the atoms first instead of assuming x', False)
+todo('auto sanatize == to Eq(), = to -, and -> to Lambda()', False)
+# todo('update code box tooltip', False)
+# TODO Pre-parse the input equation for || and replace with Abs() (capitol!)
+# TODO Removed use varnames in solution QAction
+
 
 def resetEverything(self):
     self.equationInput.setPlainText('')
@@ -206,14 +215,25 @@ def fixEquationString(self, eq:str):
 
 # The difference between these 2 functions is that sanatizeInput() does the bare essentials and should always be run, while
 # fixEquationString() does extra stuff enabled by the setting action, and also sanatizes it
+arrowRegex    = (er.group(anything() + matchMax()) + match('->') + er.group(anything() + matchMax())).compile()
+doubleEqRegex = (er.group(anything() + matchMax()) + match('==') + er.group(anything() + matchMax())).compile()
+eqRegex       = (er.group(anything() + matchMax()) + match('=')  + er.group(anything() + matchMax())).compile()
 def sanatizeInput(self, eq:str):
     #* Replace the weird minus symbol with a proper minus symbol
     eq = re.sub('−', '-', eq)
+    eq = re.sub('π', 'pi', eq)
+    eRegex = match('e') + ifNotPrecededBy(wordChar()) + ifNotFollowedBy(wordChar())
+    eq = re.sub(str(eRegex), 'E', eq)
+
+    eq = re.subn(arrowRegex,    r'Lambda(\g<1>, \g<2>)', eq, 1)[0]
+    eq = re.subn(doubleEqRegex, r'Eq(\g<1>, \g<2>)',     eq, 1)[0]
+    eq = re.subn(eqRegex,       r'\g<2> - \g<1>', eq, 1)[0]
+
     # eq = re.sub((match('e') + optional(ifPrecededBy(digit())) + ifNotFollowedBy(anyAlphaNum()) + ifNotPrecededBy(alpha())).str(), 'E', eq)
 
     #* Just don't allow any '='s in the equation, they always mean something different.
-    if '=' in eq:
-        raise SyntaxError("Please, don't use equals signs in the equation. Instead, use one of the following:\nEq(right, left): to describe a relation between right and left\nright - left: to define the equation as 0, and thus make it solveable\nLambda(x, expression): to define a function in the form of 'f(x)'")
+    # if '=' in eq:
+        # raise SyntaxError("Please, don't use equals signs in the equation. Instead, use one of the following:\nEq(right, left): to describe a relation between right and left\nright - left: to define the equation as 0, and thus make it solveable\nLambda(x, expression): to define a function in the form of 'f(x)'")
 
     #// Replace all '='s with 'Eq()' statements
     #// Replace all '='s with Lambdas
@@ -233,13 +253,29 @@ def sanatizeInput(self, eq:str):
     return eq
 
 
+# TODO check if log has multiple parameters before converting it
+def sanatizeOutput(self, solution:str):
+    if self.useLn.isChecked():
+        solution = re.sub('log', 'ln', solution)
+    return solution
+
+
 def sanatizeLatex(self, latex):
     if latex[-1] == '.':
         latex = latex[:-1]
     latex = re.sub('\$_', '', latex)
     latex = re.sub('\$', '', latex)
+    latex = re.sub('\\dfrac', '\\frac', latex)
     latex = re.sub(r'\\displaystyle', '', latex)
     return latex
+
+
+def detectLatex(self, s):
+    return '\\' in s or '{' in s or '}' in s
+
+
+def _convertLatex(self, s):
+    return str(parse_latex(self.sanatizeLatex(s)))
 
 
 def printToCodeOutput(self, *args, sep=' ', end='\n'):

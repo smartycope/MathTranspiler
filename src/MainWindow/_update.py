@@ -51,7 +51,11 @@ def updateEquation(self):
         #* Now calculate everything
         # First, run the input string through our function to make sure we take care
         # of the things sympy won't take care of for us (= to Eq() and the like)
-        equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else self.sanatizeInput(self.equ)
+        if self.detectLatex(self.equ):
+            equation = self._convertLatex(self.equ)
+            self.equationInput.setPlainText(equation)
+        else:
+            equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else self.sanatizeInput(self.equ)
         self.expr = parse_expr(equation, transformations=self.trans, evaluate=False)
         # Set the initial value of subbedExpr
         self.subbedExpr = self.expr
@@ -123,7 +127,8 @@ def updateVarValue(self):
                 # sol = solve(self.subbedExpr, self.currentVar.symbol)
                 # sol = solveset(self.subbedExpr, self.currentVar.symbol)
             # except NotImplementedError:
-            sol = solve(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
+            func = solve if self.useSolve.isChecked() else solveset
+            sol = func(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
                 # sol = solveset(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
 
             self.varPng.setIcon(self.getIcon(sol))
@@ -213,13 +218,12 @@ def updateSolution(self):
     else:
         ans = str(self.solvedExpr)
 
+    ans = self.sanatizeOutput(ans)
+
     if self.printSolution.isChecked():
         print(ans)
 
-    if threading.current_thread().name == "MainThread":
-        self.answerBox.setPlainText(ans)
-    else:
-        return ans
+    self.answerBox.setPlainText(ans)
 
 
 #! Depricated

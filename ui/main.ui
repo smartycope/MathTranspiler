@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>765</width>
-    <height>797</height>
+    <height>1000</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>0</x>
       <y>0</y>
       <width>762</width>
-      <height>741</height>
+      <height>1021</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -413,7 +413,7 @@
            <x>0</x>
            <y>0</y>
            <width>751</width>
-           <height>301</height>
+           <height>511</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -443,7 +443,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QTextBrowser" name="answerBox">
+           <widget class="QPlainTextEdit" name="answerBox">
             <property name="minimumSize">
              <size>
               <width>150</width>
@@ -453,7 +453,7 @@
             <property name="maximumSize">
              <size>
               <width>9999999</width>
-              <height>145</height>
+              <height>999999</height>
              </size>
             </property>
             <property name="sizeIncrement">
@@ -461,12 +461,6 @@
               <width>0</width>
               <height>30</height>
              </size>
-            </property>
-            <property name="placeholderText">
-             <string>No Equation Provided</string>
-            </property>
-            <property name="openLinks">
-             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -483,7 +477,7 @@
            <x>0</x>
            <y>0</y>
            <width>751</width>
-           <height>301</height>
+           <height>511</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -549,7 +543,7 @@ p, li { white-space: pre-wrap; }
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>60</height>
+              <height>175</height>
              </size>
             </property>
             <property name="sizeIncrement">
@@ -584,7 +578,7 @@ p, li { white-space: pre-wrap; }
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>60</height>
+              <height>70</height>
              </size>
             </property>
             <property name="text">
@@ -616,8 +610,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>20</y>
-           <width>761</width>
-           <height>281</height>
+           <width>751</width>
+           <height>491</height>
           </rect>
          </property>
          <property name="sizeIncrement">
@@ -750,9 +744,11 @@ p, li { white-space: pre-wrap; }
     <addaction name="doEval"/>
     <addaction name="implicitMult"/>
     <addaction name="separator"/>
+    <addaction name="useSolve"/>
     <addaction name="useFixString"/>
     <addaction name="convertLatex"/>
     <addaction name="convertVarLatex"/>
+    <addaction name="useLn"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -766,7 +762,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="runCodeAction"/>
     <addaction name="separator"/>
     <addaction name="openNotes"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -779,10 +774,16 @@ p, li { white-space: pre-wrap; }
     <addaction name="previewSolution"/>
     <addaction name="previewCurVar"/>
    </widget>
+   <widget class="QMenu" name="menuCustomFunctions">
+    <property name="title">
+     <string>Custom Functions</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menuOptions"/>
    <addaction name="menuTools"/>
+   <addaction name="menuCustomFunctions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="save">
@@ -1083,6 +1084,28 @@ p, li { white-space: pre-wrap; }
   <action name="resetVars">
    <property name="text">
     <string>Reset Variables</string>
+   </property>
+  </action>
+  <action name="useSolve">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use solve instead of solveset</string>
+   </property>
+  </action>
+  <action name="useLn">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Use ln instead of log</string>
    </property>
   </action>
  </widget>

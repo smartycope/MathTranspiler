@@ -2,7 +2,7 @@
 """ EasyRegex
 An readable and intuitive way to generate Regular Expressions
 """
-__version__ = '2.2.0'
+__version__ = '2.2.1'
 __author__ = 'Copeland Carter'
 __email__ = 'smartycope@gmail.com'
 __license__ = 'GPL 3.0'
@@ -189,12 +189,12 @@ __copyright__ = '(c) 2021, Copeland Carter'
 import re
 from enum import Enum, auto
 from random import randint, choice, choices
-try:
-    from random_word import RandomWords
-    _rw = RandomWords()
-except ImportError:
-    print("Can't import random_word (for the EasyRegex invert function). Try pip install Random-Words.")
-    _rw = None
+# try:
+#     from random_word import RandomWords
+#     _rw = RandomWords()
+# except ImportError:
+#     print("Can't import random_word (for the EasyRegex invert function). Try pip install Random-Words.")
+_rw = None
 
 
 # This and the singletons are the only things in this file that *can* be used directly
@@ -478,7 +478,7 @@ anyBetween    = EasyRegexSingleton(lambda cur, input, and_input: cur + r'[' + in
 def _anyOfFunc(cur, *inputs):
     cur += r'['
     for i in inputs:
-        cur += i
+        cur += i + ' '
     cur += r']'
     return cur
 anyOf = EasyRegexSingleton(_anyOfFunc, lambda cur, *inputs: choice(inputs))
@@ -548,3 +548,30 @@ caseInsensitive   = EasyRegexSingleton(r'//i')
 matchMultiLine    = EasyRegexSingleton(r'//m')
 treatAsSingleLine = EasyRegexSingleton(r'//s')
 notGreedy         = EasyRegexSingleton(r'//U')
+
+"""
+todo('Bug report:')
+kwargs = anyOf('name', 'color', 'showFunc', 'showFile', 'showPath', 'useRepr', 'calls', 'background', 'limitToLine', 'minItems', 'maxItems', 'stackTrace', 'raiseError', 'clr', '_repr', 'trace', 'bg', 'throwError', 'throw')
+regex = chunk() + ifPrecededBy(match('debug(')) + anyOf(ifFollowedBy(match(',') + optional(whitespace()) + kwargs), ifFollowedBy(matchMax(')')))
+regex.compile()
+"""
+
+if False:
+    # kwargs = anyOf('name', 'color', 'showFunc', 'showFile', 'showPath', 'useRepr', 'calls', 'background', 'limitToLine', 'minItems', 'maxItems', 'stackTrace', 'raiseError', 'clr', '_repr', 'trace', 'bg', 'throwError', 'throw', ')')
+    # regex = chunk() + ifPrecededBy(match('debug(')) + ifFollowedBy(match(',') + optional(whitespace()) + kwargs)
+    # regex.debug()
+    # regexTestString = '     debug((\'a\', 2, 7.4, 3))\n'
+
+
+
+    regex = match('<span class="verse-number">') + group(number())
+    regexTestString = '<span class="verse-number">8 </span>'
+
+
+
+
+
+    print(regex)
+    print(re.search(regex.compile(), regexTestString))
+
+    # print(re.search(regex.compile(), regexTestString).groups()[0])

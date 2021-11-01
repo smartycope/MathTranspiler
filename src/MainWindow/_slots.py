@@ -73,6 +73,7 @@ def connectEverything(self):
 
     #* Actions
     self.throwError.triggered.connect(self.updateEquation)
+    self.useSolve.triggered.connect(self.updateEquation)
     self.plotButton.triggered.connect(self._plot)
     self.limitButton.triggered.connect(self.onLimitButtonPressed)
     self.dontSimplify.triggered.connect(self.updateEquation)
@@ -209,7 +210,7 @@ def _plot(self):
     try:
         plot(self.expr)
     except Exception as err:
-        self.setError(err, "Plotting")
+        self.setError(err, "Plotter")
     else:
         self.resetError()
 
@@ -268,11 +269,12 @@ def onResetVars(self):
 def onConvertLatex(self, var=False):
     self.loading = True
     try:
+        latex = self._convertLatex(self.varSetter.text() if var else self.equationInput.toPlainText())
         if var:
-            self.varSetter.setText(str(parse_latex(self.sanatizeLatex(self.varSetter.text()))))
+            self.varSetter.setText(latex)
             self.onVarValueChanged()
         else:
-            self.equationInput.setPlainText(str(parse_latex(self.sanatizeLatex(self.equationInput.toPlainText()))))
+            self.equationInput.setPlainText(latex)
     except Exception as err:
         self.setError(err, "Latex Parser")
     else:

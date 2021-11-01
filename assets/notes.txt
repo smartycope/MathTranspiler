@@ -42,3 +42,10 @@ The slope of the tangent line IS the derivative
 
 Extreme Value Theorem (EVT):
 guarantees function f(x) has an absolute maximum and minimum over an interval, f(x) is continuous over the closed and bounded interval.
+
+instantanious velocity is the derivative of the position funciton
+
+if f'(x)=0 over an interval, then f(x) is constant over that interval.
+if f'(x)=g'(x) over an interval f(x)=g(x) + someConstant
+if f'(x) > 0, over an interval, then f(x) is increasing over that interval
+if f'(x) < 0, over an interval, then f(x) is decreasing over that interval

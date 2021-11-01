@@ -41,15 +41,14 @@ from Variable import Variable
 # from ._update import *
 
 
-# TODO Pre-parse the input equation for || and replace with Abs() (capitol!)
-# TODO Removed use varnames in solution QAction
 class Main(QMainWindow):
     from ._file import (_load, _save, _saveAs, exportAsLatex,
                         exportAsMathmatica, exportAsMathML)
     from ._private import (calculateSolution, sanatizeInput, sanatizeLatex,
-                           fixEquationString, getIcon, setError,
+                           fixEquationString, getIcon, setError, detectLatex,
                            printToCodeOutput, resetError, resetEverything,
-                           resetIcon, resetOuput, resetTab, runCustomFuncInCode)
+                           resetIcon, resetOuput, resetTab, runCustomFuncInCode,
+                           _convertLatex, sanatizeOutput)
     from ._slots import (doPiecewise, notes, onCurrentVariableChanged,
                          onIntDiff, onLimitButtonPressed, onResetVars,
                          onNewRelationWanted, onPreviewCurVar, #onUpdateVars,
