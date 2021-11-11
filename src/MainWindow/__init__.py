@@ -55,11 +55,11 @@ class Main(QMainWindow):
                          onPreviewSolution, onTabChanged, onVarNameChanged,
                          onVarValueChanged, _plot, resetCode, resetCurVar,
                          runCode, connectEverything, onConvertLatex,
-                         onVarTypeChanged)
+                         onVarTypeChanged, onGetSumPressed)
     from ._update import (updateCode, updateEquation, updateImplicitMult,
                           updateIntDiff, updateLimit, updatePiecewise,
                           updateSolution, updateVarInfo, updateVars,
-                          updateVarValue)
+                          updateVarValue, updateSubbedExpr, updateSum)
     from ._customFuncs import addCustomFuncs, _addCustomFunc
 
     varTypes = (Symbol, Derivative, Function, FunctionCall)

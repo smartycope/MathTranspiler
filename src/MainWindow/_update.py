@@ -57,6 +57,11 @@ def updateEquation(self):
         else:
             equation = self.fixEquationString(self.equ) if self.useFixString.isChecked() else self.sanatizeInput(self.equ)
         self.expr = parse_expr(equation, transformations=self.trans, evaluate=False)
+
+        if self.removeFx.isChecked() and type(self.expr) is Eq:
+            self.expr = self.expr.rhs
+            self.equationInput.setPlainText(str(self.expr))
+
         # Set the initial value of subbedExpr
         self.subbedExpr = self.expr
 
@@ -138,19 +143,19 @@ def updateVarValue(self):
             self.varPng.setIcon(self.getIcon(EmptySet))
 
     self.varSetter.setText(ans)
+    self.varOrderSetter.setValue(self.currentVar.substitutionOrder)
 
 
 def updateVars(self):
     def getAtoms():
         atoms = set()
         #* Get any variables that are exclusively defined in the variable setter, and add them to atoms
-        for i in self.vars:
-            if i.valueChanged:
-                atoms = atoms.union(i.value.atoms(*self.varTypes+self.funcTypes))
-                funcs = set()
-                for func in i.value.atoms(*self.funcTypes):
-                    funcs = funcs.union((type(func),))
-                atoms = atoms.union(funcs)
+        for i in filter(lambda x: x.valueChanged, self.vars):
+            atoms = atoms.union(i.value.atoms(*self.varTypes+self.funcTypes))
+            funcs = set()
+            for func in i.value.atoms(*self.funcTypes):
+                funcs = funcs.union((type(func),))
+            atoms = atoms.union(funcs)
 
         # Get all the variables that are exclusively defined in the relations, and add them to atoms
         # for i in self.relations:
@@ -182,11 +187,16 @@ def updateVars(self):
         self.varIndex = lastVarIndex if lastVarIndex > 0 else 0
         self.blockVarList = False
 
+    if self.doExpand.isChecked():
+        self.expr = self.expr.expand().simplify()
+
     atoms = getAtoms()
+    # debug(atoms)
 
     #* Get all the things in what we've just parsed that aren't already in self.vars and add them
     curSymbols = set([v.symbol for v in self.vars])
     for s in atoms.difference(curSymbols):
+        # self.vars.append(Variable(s, order=len(self.vars)+1))
         self.vars.append(Variable(s))
 
     #* Now get all the things in self.vars that aren't in the thing we just parsed and delete them
@@ -196,18 +206,26 @@ def updateVars(self):
 
     #* MOVED to calculateSolution() in private
     #* Make sure our expression is updated with the new values
-    # symbols = vals = []
-    # This crude, but I think it might work?
-    for var in sorted(self.vars, key=lambda v: len(str(v.symbol)), reverse=True):
-        if var.valueChanged:
+    # debug(self.vars)
+    self.updateSubbedExpr()
+
+    resetVarBox()
+
+def updateSubbedExpr(self):
+    if self.doExpand.isChecked():
+        self.subbedExpr = self.subbedExpr.expand().simplify()
+    for var in sorted(list(filter(lambda x: x.valueChanged, self.vars)), key=lambda x: x.substitutionOrder):
+        self.subbedExpr = self.subbedExpr.subs(var.symbol, var.value)
+
+
+    # for var in sorted(self.vars, key=lambda v: len(str(v.symbol)), reverse=True):
+        # if var.valueChanged:
             # symbols.append(var.symbol)
             # vals.append(var.value)
-            self.subbedExpr = self.subbedExpr.subs(var.symbol, var.value)
+            # self.subbedExpr = self.subbedExpr.subs(var.symbol, var.value)
             # self.subbedExpr = Subs(self.subbedExpr, var.symbol, var.value)
     # self.subbedExpr = self.subbedExpr.subs(symbols, vals)
     # self.subbedExpr = Subs(self.expr, symbols, vals).doit()
-
-    resetVarBox()
 
 
 def updateSolution(self):
@@ -327,6 +345,19 @@ def updateIntDiff(self, diff, var, addToMainEquation, order):
         self.varValueBox = result
         # A small hack, make sure we accept the input so we don't overwrite it
         self.varSetter.returnPressed.emit()
+
+
+def updateSum(self, count, var, val, addToMainEquation):
+    if addToMainEquation:
+        withit = f"Sum({self.expr}, ({var}, {val}, {count}))"
+        self.equationInput.setPlainText(withit)
+        self.updateEquation()
+    else:
+        withit = f"Sum({self.currentVar.value}, ({var}, {val}, {count}))"
+        self.varValueBox = withit
+        # A small hack, make sure we accept the input so we don't overwrite it
+        self.varSetter.returnPressed.emit()
+
 
 
 def updateImplicitMult(self):

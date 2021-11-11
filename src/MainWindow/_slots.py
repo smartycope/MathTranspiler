@@ -73,9 +73,11 @@ def connectEverything(self):
 
     #* Actions
     self.throwError.triggered.connect(self.updateEquation)
+    self.doExpand.triggered.connect(self.updateEquation)
     self.useSolve.triggered.connect(self.updateEquation)
     self.plotButton.triggered.connect(self._plot)
     self.limitButton.triggered.connect(self.onLimitButtonPressed)
+    self.getSum.triggered.connect(self.onGetSumPressed)
     self.dontSimplify.triggered.connect(self.updateEquation)
     self.prettySolution.triggered.connect(self.updateEquation)
     self.doEval.triggered.connect(self.updateEquation)
@@ -160,6 +162,7 @@ def onVarValueChanged(self):
                 self.vars[self.varIndex].value = val
             self.vars[self.varIndex].valueChanged = True
             self.vars[self.varIndex].relationship = self.relation.currentText()
+            self.vars[self.varIndex].substitutionOrder = self.varOrderSetter.value()
             self.updateEquation()
             self.varPng.setIcon(self.getIcon(val))
         except Exception as err:
@@ -196,10 +199,26 @@ def onLimitButtonPressed(self):
     inputWindow.show()
 
 
+def onGetSumPressed(self):
+    if self.equ != self.equationInput.toPlainText():
+        self.updateEquation()
+    inputWindow = QDialog()
+    uic.loadUi(join(ROOT, "ui/sumInput.ui"), inputWindow)
+
+    def extractValues():
+        self.updateSum(inputWindow.count.text(),
+                       inputWindow.var.text(),
+                       inputWindow.val.text(),
+                       inputWindow.addMainEquation.isChecked())
+
+    inputWindow.accepted.connect(extractValues)
+    inputWindow.show()
+
 def onNewRelationWanted(self):
     self.varCount += 1
     name = f'newVar{self.varCount}'
     self.varList.addItem(name)
+    # var = Variable(name, order=len(self.vars)+1)
     var = Variable(name)
     var.valueChanged = True
     var.value = EmptySet
@@ -305,6 +324,10 @@ def runCode(self):
     else:
         self.resetError()
 
+    def show(e):
+        self.codePng.setIcon(self.getIcon(e))
+        self.codePng.pressed.connect(lambda: clip.copy(latex(e)))
+
     subbedExpr = self.subbedExpr
     subExpr    = subbedExpr
     sub        = subbedExpr
@@ -313,7 +336,7 @@ def runCode(self):
     sol        = solution
     input      = lambda *_: None
     print      = self.printToCodeOutput
-    show       = lambda e: self.codePng.setIcon(self.getIcon(e))
+    # show       = lambda e: self.codePng.setIcon(self.getIcon(e))
     out        = None
     # pi         = sym.pi
     if self.currentVar:
@@ -325,6 +348,9 @@ def runCode(self):
     curVal = curValue
 
     vars = dict(zip([i.name for i in self.vars], [i.value for i in self.vars]))
+    for i in self.vars:
+        locals()[i.name] = i.symbol
+        locals()[i.name + 'Val'] = i.value
 
     try:
         _local = locals()
@@ -334,7 +360,6 @@ def runCode(self):
 
         out = _local['out']
         if out is not None:
-            self.codePng.pressed.connect(lambda: clip.copy(latex(out)))
             print(out)
             # print()
             # print(latex(out))

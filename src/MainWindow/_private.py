@@ -222,6 +222,10 @@ def sanatizeInput(self, eq:str):
     #* Replace the weird minus symbol with a proper minus symbol
     eq = re.sub('−', '-', eq)
     eq = re.sub('π', 'pi', eq)
+    eq = re.sub('∞', 'oo', eq)
+    eq = re.sub('⋅', '*', eq)
+    eq = re.sub('→', '->', eq)
+
     eRegex = match('e') + ifNotPrecededBy(wordChar()) + ifNotFollowedBy(wordChar())
     eq = re.sub(str(eRegex), 'E', eq)
 

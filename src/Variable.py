@@ -4,13 +4,14 @@ from sympy.core.function import AppliedUndef, UndefinedFunction
 funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
 
 class Variable:
-    def __init__(self, symbol: sym.Basic, name='', value=None, _type=None):
+    def __init__(self, symbol: sym.Basic, name='', value=None, order=50, _type=None):
         self.symbol = symbol
         self.name = str(symbol) if not len(name) else name
         self.value = symbol if not value else value
         self.valueChanged = False
         self.relationship = '=='
         self.type = type(symbol) if _type is None else _type
+        self.substitutionOrder = order
 
     # def isFunc(self):
         # return isinstance(self.symbol, funcTypes)
