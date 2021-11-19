@@ -123,6 +123,7 @@ def updateVarValue(self):
         ans = pretty(value) if self.prettySolution.isChecked() else str(value)
         self.relation.setCurrentText(self.currentVar.relationship)
         self.varPng.setIcon(self.getIcon(value))
+        self.varPng.pressed.connect(lambda: clip.copy(latex(value)))
 
     else:
         # Some inequalities aren't impolemented in the complex domain.
@@ -137,10 +138,12 @@ def updateVarValue(self):
                 # sol = solveset(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
 
             self.varPng.setIcon(self.getIcon(sol))
+            self.varPng.pressed.connect(lambda: clip.copy(latex(sol)))
             ans = pretty(sol) if self.prettySolution.isChecked() else str(sol)
         else:
             ans = 'Undefined'
             self.varPng.setIcon(self.getIcon(EmptySet))
+            self.varPng.pressed.connect(lambda: clip.copy(latex(EmptySet)))
 
     self.varSetter.setText(ans)
     self.varOrderSetter.setValue(self.currentVar.substitutionOrder)
@@ -210,6 +213,7 @@ def updateVars(self):
     self.updateSubbedExpr()
 
     resetVarBox()
+
 
 def updateSubbedExpr(self):
     if self.doExpand.isChecked():
@@ -329,19 +333,33 @@ def updateLimit(self, updateVar, updateVal, addToMainEquation, dir):
         self.varSetter.returnPressed.emit()
 
 
-def updateIntDiff(self, diff, var, addToMainEquation, order):
-    if addToMainEquation:
+def updateIntDiff(self, diff, var, addToMainEquation, order, upperBound, lowerBound):
+    #* First check if the input we got is valid
+    if diff and len(upperBound):
+        print("Ignoring upper bound that was given (derivatives don't have upper bounds)")
+    if diff and len(lowerBound):
+        print("Ignoring lower bound that was given (derivatives don't have lower bounds)")
+    if not diff and not len(var) and (len(upperBound) or len(lowerBound)):
+        print("ERROR: upper bound/lower bound specified, but no variable was specified")
+        return
+
+    currentEqu = self.equationInput.toPlainText() if addToMainEquation else self.currentVar.value
+
+    if diff:
         if not len(var):
-            result = ('Derivative' if diff else "Integral") + f"({self.expr})"
+            result = f"Derivative({currentEqu})"
         else:
-            result = ('Derivative' if diff else "Integral") + f"({self.expr}, ({var}, {order}))"
+            result = f"Derivative({currentEqu}, ({var}, {order}))"
+    else:
+        if not len(var):
+            result = f"Integral({currentEqu})"
+        else:
+            result = f"Integral({currentEqu}, ({var}, {lowerBound}, {upperBound}))"
+
+    if addToMainEquation:
         self.equationInput.setPlainText(result)
         self.updateEquation()
     else:
-        if not len(var):
-            result = ('Derivative' if diff else "Integral") + f"({self.currentVar.value})"
-        else:
-            result = ('Derivative' if diff else "Integral") + f"({self.currentVar.value}, ({var}, {order}))"
         self.varValueBox = result
         # A small hack, make sure we accept the input so we don't overwrite it
         self.varSetter.returnPressed.emit()

@@ -55,14 +55,14 @@ class Main(QMainWindow):
                          onPreviewSolution, onTabChanged, onVarNameChanged,
                          onVarValueChanged, _plot, resetCode, resetCurVar,
                          runCode, connectEverything, onConvertLatex,
-                         onVarTypeChanged, onGetSumPressed)
+                         onVarTypeChanged, onGetSumPressed, doOpenTrigSolver)
     from ._update import (updateCode, updateEquation, updateImplicitMult,
                           updateIntDiff, updateLimit, updatePiecewise,
                           updateSolution, updateVarInfo, updateVars,
                           updateVarValue, updateSubbedExpr, updateSum)
     from ._customFuncs import addCustomFuncs, _addCustomFunc
 
-    varTypes = (Symbol, Derivative, Function, FunctionCall)
+    varTypes = (Symbol, Derivative, Function, FunctionCall, Integral)
     varTypeMap = {0: Symbol, 1: Function, 2: Derivative, 3: Integral}
     funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
     functionVar = Symbol('x')

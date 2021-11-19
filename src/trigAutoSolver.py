@@ -17,8 +17,8 @@ from sympy.core.sympify import SympifyError
 
 # displayAllPaths()
 
-radians = lambda x: (x * (pi / 180)).simplify()
-degrees = lambda x: (x * (180 / pi)).simplify()
+# radians = lambda x: (x * (pi / 180)).simplify()
+# degrees = lambda x: (x * (180 / pi)).simplify()
 
 
 @confidence(80)
@@ -61,8 +61,8 @@ class TriangleSolver(QDialog):
     lines  = {'someLine', 'yoMama', 'leftBase', 'rightBase', 'fullBase', 'height'}
     angles = {'leftAngle', 'rightAngle', 'fullAngle', 'theta', 'notTheta'}
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
         uic.loadUi(join(ROOT, "ui/trigInput.ui"), self)
 
         self.values = {
@@ -77,28 +77,44 @@ class TriangleSolver(QDialog):
             'someLine': None,
             'theta': None,
             'yoMama': None,
-            'squareAngle': Integer(90)
+            'squareAngle': pi/2
         }
 
-        # self.fullAngleBox.textEdited.connect(lambda:  self.boxChanged("fullAngle"))
-        # self.fullBaseBox.textEdited.connect(lambda:   self.boxChanged("fullBase"))
-        # self.heightBox.textEdited.connect(lambda:     self.boxChanged("height"))
-        # self.leftAngleBox.textEdited.connect(lambda:  self.boxChanged("leftAngle"))
-        # self.leftBaseBox.textEdited.connect(lambda:   self.boxChanged("leftBase"))
-        # self.notThetaBox.textEdited.connect(lambda:   self.boxChanged("notTheta"))
-        # self.rightAngleBox.textEdited.connect(lambda: self.boxChanged("rightAngle"))
-        # self.rightBaseBox.textEdited.connect(lambda:  self.boxChanged("rightBase"))
-        # self.someLineBox.textEdited.connect(lambda:   self.boxChanged("someLine"))
-        # self.thetaBox.textEdited.connect(lambda:      self.boxChanged("theta"))
-        # self.yoMamaBox.textEdited.connect(lambda:     self.boxChanged("yoMama"))
+        self.userChanged = {
+            'fullAngle': False,
+            'fullBase': False,
+            'height': False,
+            'leftAngle': False,
+            'leftBase': False,
+            'notTheta': False,
+            'rightAngle': False,
+            'rightBase': False,
+            'someLine': False,
+            'theta': False,
+            'yoMama': False,
+        }
 
-        self.solveSymbolic.pressed.connect(self.recalculate)
-        self.isDeg.pressed.connect(self.recalculate)
-        self.isRad.pressed.connect(self.recalculate)
+        self.fullAngleBox.textEdited.connect(  lambda: self.boxChanged("fullAngle"))
+        self.fullBaseBox.textEdited.connect(   lambda: self.boxChanged("fullBase"))
+        self.heightBox.textEdited.connect(     lambda: self.boxChanged("height"))
+        self.leftAngleBox.textEdited.connect(  lambda: self.boxChanged("leftAngle"))
+        self.leftBaseBox.textEdited.connect(   lambda: self.boxChanged("leftBase"))
+        self.notThetaBox.textEdited.connect(   lambda: self.boxChanged("notTheta"))
+        self.rightAngleBox.textEdited.connect( lambda: self.boxChanged("rightAngle"))
+        self.rightBaseBox.textEdited.connect(  lambda: self.boxChanged("rightBase"))
+        self.someLineBox.textEdited.connect(   lambda: self.boxChanged("someLine"))
+        self.thetaBox.textEdited.connect(      lambda: self.boxChanged("theta"))
+        self.yoMamaBox.textEdited.connect(     lambda: self.boxChanged("yoMama"))
+
+        self.solveSymbolic.pressed.connect(self.wipeCalculated)
+        self.isDeg.pressed.connect(self.wipeCalculated)
+        self.isRad.pressed.connect(self.wipeCalculated)
+        self.roundTo.valueChanged.connect(self.wipeCalculated)
         self.resetButton.pressed.connect(self.reset)
         self.calcButton.pressed.connect(self.updateVals)
 
         self._recursiveCount = 0
+        self.show()
 
     def __getitem__(self, key):
         return self.values[key]
@@ -108,18 +124,21 @@ class TriangleSolver(QDialog):
         if self.values[key] is not None:
             if self.isDeg.isChecked() and key in self.angles:
                 # val = getCoterminalAngleOverInterval(degrees(val), isRadians=False)
-                val *= (pi / 180)
-            val = val.simplify() if self.solveSymbolic.isChecked() else val.evalf()
-            debug(self[key], key)
+                val = deg(val)
+            val = val.simplify() if self.solveSymbolic.isChecked() else round(val.evalf(), self.roundTo.value())
+            # debug(self[key], key)
             getattr(self, key + 'Box').setText(str(val))
+
+    def boxChanged(self, box):
+        self.userChanged[box] = True
 
     def updateBox(self, box):
         text = getattr(self, box + 'Box').text()
         if len(text):
             try:
                 p = parse_expr(text, locals(), self.transformations, globals())
-                self.values[box] = p * (180 / pi) if self.isDeg.isChecked() and box in self.angles else p
-                debug(self[box], box)
+                self.values[box] = (rad(p)) if self.isDeg.isChecked() and box in self.angles else p
+                # debug(self[box], box)
             except:
                 self.values[box] = None
         else:
@@ -149,16 +168,34 @@ class TriangleSolver(QDialog):
             'someLine': None,
             'theta': None,
             'yoMama': None,
-            'squareAngle': Integer(90)
+            'squareAngle': pi/2
         }
-        self.upToDate = True
+        self.userChanged = {
+            'fullAngle': False,
+            'fullBase': False,
+            'height': False,
+            'leftAngle': False,
+            'leftBase': False,
+            'notTheta': False,
+            'rightAngle': False,
+            'rightBase': False,
+            'someLine': False,
+            'theta': False,
+            'yoMama': False,
+        }
 
-    def rot(self):
-        return 2*pi if self.isRad.isChecked() else Integer(360)
+    def wipeCalculated(self, *_):
+        for box, changed in self.userChanged.items():
+            if not changed:
+                getattr(self, box + 'Box').setText('')
+        self.update()
+        # self.updateVals()
 
     def recalculate(self):
-        self.reset()
-        self.updateVals()
+        self.wipeCalculated()
+        # self.repaint()
+        # self.calcButton.pressed.emit()
+        # self.updateVals()
 
     def updateVals(self):
         l = list(self.values.keys())
@@ -170,11 +207,11 @@ class TriangleSolver(QDialog):
         netAngles = 0
 
         for i in self.lines:
-            if self.values[i] is not None:
+            if self[i] is not None:
                 netLines += 1
 
         for i in self.angles:
-            if self.values[i] is not None:
+            if self[i] is not None:
                 netAngles += 1
 
         # if not (netLines >= 3 or netAngles = or netAngles + netLines >= 2):
@@ -187,11 +224,11 @@ class TriangleSolver(QDialog):
         self.calculate()
 
     def calculate(self):
-        debug('Calculating...', clr=3)
+        # debug('Calculating...', clr=3)
 
         def have(*stuff:str):
             for i in stuff:
-                if self.values[i] is None:
+                if self[i] is None:
                     return False
             return True
 
@@ -216,9 +253,9 @@ class TriangleSolver(QDialog):
             ('leftAngle', 'notTheta', 'squareAngle'),
         )
         for a, b, c in triangles:
-            if have(a, b): calc(c, self.rot() - self[a] - self[b])
-            if have(a, c): calc(b, self.rot() - self[a] - self[c])
-            if have(b, c): calc(a, self.rot() - self[b] - self[c])
+            if have(a, b): calc(c, pi - self[a] - self[b])
+            if have(a, c): calc(b, pi - self[a] - self[c])
+            if have(b, c): calc(a, pi - self[b] - self[c])
 
 
         angleRelations = (
@@ -253,11 +290,11 @@ class TriangleSolver(QDialog):
             self._recursiveCount = 0
 
 
-if __name__ == "__main__":
-    app = QApplication(argv)
-    win = TriangleSolver()
-    win.show()
-    app.exec()
+# if __name__ == "__main__":
+#     app = QApplication(argv)
+#     win = TriangleSolver()
+#     win.show()
+#     app.exec()
 
 
 

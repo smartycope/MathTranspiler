@@ -34,6 +34,7 @@ from sympy.solvers.inequalities import solve_rational_inequalities
 from Variable import Variable
 
 from ._customFuncs import *
+from trigAutoSolver import TriangleSolver
 
 
 def connectEverything(self):
@@ -92,6 +93,7 @@ def connectEverything(self):
     self.convertLatex.triggered.connect(self.onConvertLatex)
     self.convertVarLatex.triggered.connect(lambda: self.onConvertLatex(True))
     self.resetVars.triggered.connect(self.onResetVars)
+    self.openTrigSolver.triggered.connect(self.doOpenTrigSolver)
     # self.updateVars.triggered.connect(self.onUpdateVars)
 
     #* All the latex buttons
@@ -114,12 +116,18 @@ def onIntDiff(self):
         self.updateEquation()
     inputWindow = QDialog()
     uic.loadUi(join(ROOT, "ui/diffIntegral.ui"), inputWindow)
+    inputWindow.label_4.hide()
+    inputWindow.label_5.hide()
+    inputWindow.lowerBound.hide()
+    inputWindow.upperBound.hide()
 
     def extractValues():
         self.updateIntDiff(inputWindow.doDiff.isChecked(),
                            inputWindow.var.text(),
                            inputWindow.addMainEquation.isChecked(),
-                           inputWindow.order.value())
+                           inputWindow.order.value(),
+                           inputWindow.upperBound.text(),
+                           inputWindow.lowerBound.text())
 
     inputWindow.accepted.connect(extractValues)
     inputWindow.show()
@@ -214,6 +222,7 @@ def onGetSumPressed(self):
     inputWindow.accepted.connect(extractValues)
     inputWindow.show()
 
+
 def onNewRelationWanted(self):
     self.varCount += 1
     name = f'newVar{self.varCount}'
@@ -262,6 +271,10 @@ def doPiecewise(self):
 
     inputWindow.accepted.connect(extractValues)
     inputWindow.show()
+
+
+def doOpenTrigSolver(self):
+    TriangleSolver(self)
 
 
 def onPreviewSolution(self):

@@ -124,6 +124,10 @@
   </widget>
  </widget>
  <tabstops>
+  <tabstop>var</tabstop>
+  <tabstop>val</tabstop>
+  <tabstop>count</tabstop>
+  <tabstop>buttonBox</tabstop>
   <tabstop>addMainEquation</tabstop>
   <tabstop>addCurVar</tabstop>
  </tabstops>

@@ -56,3 +56,13 @@ type ∞−∞
 type 1^∞
 type ∞^0
 type 0^0
+
+the Fundamental Theorem of Calculus states that as long as f(x) is continuous over an interval [a,b], and the function F(x) is defined by
+F(x)=∫_a^x (f(t)) dt
+then F′(x)=f(x) over [a,b].
+
+∫_b^a (f(x)) dx = −∫_a^b (f(x)) dx
+or
+(\int_b^af(x) \, dx = -\int_a^bf(x) \, dx)
+or
+(Eq(Integral(f(x), (x, b, a)), -Integral(f(x), (x, a, b))))
