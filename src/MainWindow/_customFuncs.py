@@ -32,6 +32,7 @@ from sympy.solvers.inequalities import solve_rational_inequalities
 from sympy.solvers.inequalities import *
 from sympy.core.sympify import SympifyError
 from sympy.solvers.ode.systems import dsolve_system
+from sympy.logic.boolalg import Boolean
 from random import randint, uniform
 from typing import Iterable
 
@@ -96,11 +97,11 @@ def _addCustomFunc(self, name, code, *comments):
 
 
 
-seperate = lambda: print('--------------------------------')
+seperate = lambda enabled=True: print('--------------------------------') if enabled else None
 
 degrees = lambda x: (x * (pi / 180)).simplify()
 radians = lambda x: (x * (180 / pi)).simplify()
-printVar = lambda name, var: print(f'{name.title()}: {var}')
+printVar = lambda name, var, enabled=True: print(f'{name.title()}: {var}') if enabled else None
 isPositive = isPos = lambda x: x > 0
 isNegative = isNeg = lambda x: x < 0
 
@@ -566,27 +567,33 @@ def findAbsExtremaOverInterval(expr, solveVar, interval):
 
 
 @confidence(75)
-def findLocalExtremaOverIntervalUsingDerivative(expr, solveVar, interval, order=1):
-    seperate()
+def findLocalExtremaOverIntervalUsingDerivative(expr, solveVar, interval, order=1, extrema='Both'):
+    both = extrema.lower() == 'both'
+    max = extrema.lower() in ('max', 'maximum')
+    min = extrema.lower() in ('min', 'minimum')
+    if extrema.lower() not in ('both', 'max', 'maximum', 'min', 'minimum'):
+        raise TypeError("Invalid extrema parameter. Must be one of (both, max, maximum, min, minimum)")
+
+    seperate(both)
     # printVar('Critival Points', getCriticalPoints(expr, solveVar))
     D = expr.diff((solveVar, order))
-    printVar('Derivative', D)
+    printVar('Derivative', D, both)
     # return ensureNotIterable(constrainToInterval(solveset(Eq(D, 0), solveVar), interval), EmptySet)
 
     # criticalPoints = constrainToInterval(solve(Eq(D, 0), solveVar), interval)debug
     criticalPoints = solveset(Eq(D, 0), solveVar, domain=interval)
-    printVar('Points where y is 0', criticalPoints)
+    printVar('Points where y is 0', criticalPoints, both)
     criticalPoints = [-oo] + sorted(list(criticalPoints)) + [oo]
 
     intervals = []
     for i in range(len(criticalPoints) - 1):
         intervals.append(Interval(criticalPoints[i], criticalPoints[i+1]))
 
-    printVar("Intervals", intervals)
+    printVar("Intervals", intervals, both)
     exampleVals = getTestingValues(intervals)
-    printVar('Testing values', exampleVals)
+    printVar('Testing values', exampleVals, both)
     path = [(D.subs(solveVar, i) > 0).simplify() for i in exampleVals]
-    printVar('Path of the Derivative', path)
+    printVar('Path of the Derivative', path, both)
 
     extrema = []
     for i in range(len(path) - 1):
@@ -595,16 +602,21 @@ def findLocalExtremaOverIntervalUsingDerivative(expr, solveVar, interval, order=
                 extrema.append(('Maximum' if path[i] else 'Minimum', intervals[i].end))
             except TypeError:
                 extrema.append((str(path[i]), intervals[i].end))
-    printVar('Extrema', extrema)
+    printVar('Extrema', extrema, both)
 
     regAns = [expr.subs(solveVar, i[1]) for i in extrema]
-    printVar('Associated answers', regAns)
+    printVar('Associated answers', regAns, both)
 
-    rtnStr = ''
-    for i in range(len(extrema)):
-        rtnStr += f'Relative {extrema[i][0]}: y = {regAns[i].simplify()}, {solveVar} = {extrema[i][1].simplify()}\n'
+    if both:
+        rtnStr = ''
+        for i in range(len(extrema)):
+            rtnStr += f'Relative {extrema[i][0]}: f({solveVar}) = {regAns[i].simplify()}, {solveVar} = {extrema[i][1].simplify()}\n'
 
-    return rtnStr if len(rtnStr) else EmptySet
+        return rtnStr if len(rtnStr) else EmptySet
+    else:
+        for i in range(len(extrema)):
+            if extrema[i][0] == ('Maximum' if max else 'Minimum'):
+                return extrema[i][1].simplify()
 
 
 @confidence(70)
@@ -788,7 +800,7 @@ def getRiemannSum(rational, x, expr, firstNum, solveVar=Symbol('x')):
     b = Symbol('b')
     upper = solve(Eq(upperRational, b-upperRational), b)
     printVar('upper', upper)
-    return Integral((expr * func(expr)).subs(expr, solveVar), (solveVar, upper, firstNum))
+    return Integral((expr * func(expr)).subs(expr, solveVar), (solveVar, firstNum, upper))
 
 
 
@@ -801,14 +813,112 @@ def getRiemannSum(rational, x, expr, firstNum, solveVar=Symbol('x')):
 #     findLocalExtremaOverIntervalUsingDerivative(area, x, interval=(-oo, oo))
 
 
+@confidence(-5)
+def solveEquals(*eqs, solveFor=None):
+    if solveFor is None:
+        variables = set(flattenList([i.atoms(Symbol) for i in eqs]))
+    else:
+        variables = set(ensureIterable(solveFor))
 
-if False:
+    definitions = {}
+    maxIterations = len(eqs) * 3 + 1
+
+    while variables not in variables.intersection(definitions.keys()) or maxIterations <= 0:
+        # If any of the equals have either 1 or 2 variables, then they don't need to be reduced at all
+        for i in eqs:
+            if len(i.atoms(Symbol)) <= 2:
+                definitions[i.lhs] = i.rhs
+
+        debug(definitions, 'First try')
+
+        # If there weren't any of those, find any 2 equals that involve the same variables, and figure them out based on that
+        if not len(definitions):
+            for i in eqs:
+                for k in eqs:
+                    if i == k:
+                        continue
+                    sharedSymbols = i.atoms(Symbol).intersection(k.atoms(Symbol))
+                    if len(sharedSymbols):
+                        # Arbitrarily choose the first symbol
+                        s = sharedSymbols.pop()
+                        val = i.subs(s, ensureNotIterable(solve(k, s)))
+                        if isiterable(val):
+                            val = val[0]
+                        if type(val) is Eq:
+                            val = val.rhs
+
+                        if s != val:
+                            try:
+                                definitions[s]
+                            except KeyError:
+                                definitions[s] = val
+                            else:
+                                # A hack to see which is the simplest
+                                if len(str(val)) < len(str(definitions[s])):
+                                    definitions[s] = val
+
+                        debug(definitions)
+
+        debug(definitions, 'Second try')
+
+        _definitions = {}
+        for i in eqs:
+            for sym, val, in definitions.items():
+                # result = Subs(i, sym, val)
+                result = i.subs(sym, val)
+                if not isinstance(result, Boolean):
+                    if len(result.atoms(Symbol)) <= 2:
+                        _definitions[result.lhs] = result.rhs
+        definitions.update(_definitions)
+
+        debug(definitions, 'Third try')
+
+        maxIterations -= 1
+
+    return definitions
+
+
+
+if True:
     out = None
     expr = parse_expr(' (x**2)/10 + 1 ')
     curSymbol = solveVar = Symbol('x')
-    interval = Interval(-7, 1)
+    interval = Interval(-oo, oo)
 
-    out = approxAreaUnderCurve(expr, interval, 4, False)
+    # HOW TO DO AREA RELATED RATES PROBLEMS:
+    x, y, area, per = symbols('x y area per')
+    area = 2166
+
+    solvedArea = Eq(area, x*y)
+    x = ensureNotIterable(solve(solvedArea, x))
+    solvedPerimeter = x * 3 + y * 2
+    solvedy = findLocalExtremaOverIntervalUsingDerivative(solvedPerimeter, y, interval, extrema='min')
+
+    print('x:', x.subs(y, solvedy))
+    print('y:', solvedy)
+
+
+
+
+    # debug(solveEquals(a, p))
+    # debug(something)
+
+    # thing = reduce_inequalities([
+    #     a,
+    #     p
+    # ], (x, y))
+
+    # debug(solve(thing, x))
+
+    # list(thing.args)[1]
+
+
+
+    # debug(per)
+    # debug(area)
+    # debug(x)
+    # debug(y)
+
 
     # h, p = symbols('h, p', cls=Function)
     # p = Function('p')
