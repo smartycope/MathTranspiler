@@ -190,8 +190,8 @@ def updateVars(self):
         self.varIndex = lastVarIndex if lastVarIndex > 0 else 0
         self.blockVarList = False
 
-    if self.doExpand.isChecked():
-        self.expr = self.expr.expand().simplify()
+    # if self.doExpand.isChecked():
+        # self.expr = self.expr.expand().simplify()
 
     atoms = getAtoms()
     # debug(atoms)
@@ -217,7 +217,9 @@ def updateVars(self):
 
 def updateSubbedExpr(self):
     if self.doExpand.isChecked():
-        self.subbedExpr = self.subbedExpr.expand().simplify()
+        self.subbedExpr = self.subbedExpr.expand()
+    if not self.dontSimplify.isChecked():
+        self.subbedExpr = self.subbedExpr.simplify()
     for var in sorted(list(filter(lambda x: x.valueChanged, self.vars)), key=lambda x: x.substitutionOrder):
         self.subbedExpr = self.subbedExpr.subs(var.symbol, var.value)
 

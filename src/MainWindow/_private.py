@@ -49,6 +49,12 @@ todo('add a function (and/or variable) to detect whether self.equ/self.solution/
 todo('add auto-uncondition or un-finiteset an answer with only one entry in sanatize solution/sanitize output', False)
 todo('autoconvert to lambda (func and implicitly in varsetter) smartly, ie via a private function and get the atoms first instead of assuming x', False)
 todo('auto sanatize == to Eq(), = to -, and -> to Lambda()', False)
+todo('update the button box before the hard calculations so we can make sure its calculating the right thing and not something wrong that takes forever', False)
+todo('multithread the hard parts eventually', False)
+todo('make ctrl+R move the focus to the input box', False)
+todo('make the math latex button bigger', False)
+# todo sort the custom funcs into drop down groups
+
 # todo('update code box tooltip', False)
 # TODO Pre-parse the input equation for || and replace with Abs() (capitol!)
 # TODO Removed use varnames in solution QAction
@@ -127,18 +133,11 @@ def calculateSolution(self):
 
     # expr = self.subbedExpr.doit()
     expr = self.subbedExpr
+
+    if not self.doEval.isChecked() and self.doExpand.isChecked():
+        expr = expr.expand()
+
     if not self.dontSimplify.isChecked():
-        # try:
-        #     expr = expr.doit()
-        # except Exception as err:
-        #     debug(err, color=-1, raiseError=True)
-
-        # rels = []
-        # for var in self.vars:
-        #     if var.valueChanged:
-        #         rels += (var.)
-        #         self.expr = self.expr.subs(var.symbol, var.value)
-
         # system = solve_rational_inequalities(self.relations + [self.expr])
         # system = solve_poly_set_something(...)
         expr = expr.simplify()
@@ -146,7 +145,10 @@ def calculateSolution(self):
     if self.doEval.isChecked():
         expr = expr.evalf()
 
-    self.solvedExpr = expr.doit()
+    if not self.dontSimplify.isChecked():
+        self.solvedExpr = expr.doit()
+    else:
+        self.solvedExpr = expr
 
 
 def getIcon(self, expr):

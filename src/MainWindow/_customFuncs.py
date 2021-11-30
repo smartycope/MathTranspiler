@@ -37,12 +37,13 @@ from random import randint, uniform
 from typing import Iterable
 
 def addCustomFuncs(self):
-    self._addCustomFunc('Deg to Rad',                     'out = degrees(expr)')
-    self._addCustomFunc('Rad to Deg',                     'out = radians(expr)')
+    self._addCustomFunc('Deg to Rad',                    'out = degrees(expr)')
+    self._addCustomFunc('Rad to Deg',                    'out = radians(expr)')
+    self._addCustomFunc('Get the Function between 2 points', 'out = getFunctionBetweenPoints((ax, ay), (bx, by))')
     self._addCustomFunc('Get Continuous at',             'out = isContinuousAt(expr, symbol=Symbol("x"), at=S.Reals)')
-    self._addCustomFunc('Get Quadrant of Angle',          'out = getQuadrant(angle=expr, isRadians=True)')
-    self._addCustomFunc('Get Reference Angle',            'out = getReferenceAngle(angle=expr, isRadians=True)')
-    self._addCustomFunc('Get Coterminal Angle',           'out = getCoterminalAngleOverInterval(angle=expr, interval=Interval(0, 2*pi), isRadians=True)')
+    self._addCustomFunc('Get Quadrant of Angle',         'out = getQuadrant(angle=expr, isRadians=True)')
+    self._addCustomFunc('Get Reference Angle',           'out = getReferenceAngle(angle=expr, isRadians=True)')
+    self._addCustomFunc('Get Coterminal Angle',          'out = getCoterminalAngleOverInterval(angle=expr, interval=Interval(0, 2*pi), isRadians=True)')
     self._addCustomFunc('Get Equation of Tangent Line',  'out = getTanSlopeEquation(expr, symbol=curSymbol, symbolVal=curValue)')
     self._addCustomFunc('Get Slope of Tangent Line',     'out = getTanSlope(expr, symbol=curSymbol, symbolVal=curValue)')
     self._addCustomFunc('Get Equation of Normal Line',   'out = getNormalSlopeEquation(expr, symbol=curSymbol, symbolVal=curValue)')
@@ -86,15 +87,34 @@ def addCustomFuncs(self):
     #                                              'm = Symbol("m")\n'
     #                                              'out = solve(Eq(Sum(, (i, 1, n), Sum(, (i, 1, m) + Sum(, (i, m+1, n)))',
     #                                              'm is a number between 1 and n')
-    self._addCustomFunc('Approximate Area Under Curve',  'out = approxAreaUnderCurve(expr, Interval(from, to), rects=, rightPoint=True, solveVar=Symbol("x"))')
-    self._addCustomFunc('Find netSigned interval', 'print(netSignedInterval(expr, None))')
-    self._addCustomFunc('Get Riemann Sum',         'out = getRiemannSum(rational=6/6, x=6 + 6/6, expr=6 + 6/6 * ln(6 + 6/6), firstNum=6, solveVar=Symbol("x"))',
-                                                   'R_n = rational * Sum(x * func(x)), where x is in the form of firstNum + <something>, and expr is in the form x * func(x)')
+    self._addCustomFunc('Approximate Area Under Curve',   'out = approxAreaUnderCurve(expr, Interval(from, to), rects=, rightPoint=True, solveVar=Symbol("x"))')
+    self._addCustomFunc('Find netSigned interval',        'print(netSignedInterval(expr, None))')
+    self._addCustomFunc('Get Riemann Sum',                'out = getRiemannSum(rational=6/6, x=6 + 6/6, expr=6 + 6/6 * ln(6 + 6/6), firstNum=6, solveVar=Symbol("x"))',
+                        'R_n = rational * Sum(x * func(x)), where x is in the form of firstNum + <something>, and expr is in the form x * func(x)')
+    # self._addCustomFunc('Get the area between 2 curves',  'out = Integral(f(x) - g(x), (x, lowerbound, upperbound))')
+    self._addCustomFunc('Get Volume of a Revolved Curve', 'out = getVolumeOfSolidRevolution(expr, lowerbound, upperbound, solveVar=Symbol("x")).simplify()')
+    self._addCustomFunc('Get Intersecting Points',        'out = getIntersection(fx, gx, solveVar=Symbol("x"))')
+    self._addCustomFunc('Get Area Between Functions',     'out = getAreaBetween(fx, gx, lowerbound=None, upperBound=None, solveVar=Symbol("x"))')
     # self._addCustomFunc('', '')
 
 def _addCustomFunc(self, name, code, *comments):
     self.menuCustomFunctions.addAction(name, lambda: self.runCustomFuncInCode(code, *comments))
 
+
+def addCommonEqus(self):
+    self.menuCommonEquations.addAction('Volume of a Cylinder',           lambda: self.equationInput.setPlainText('π * height * radius^2'))
+    self.menuCommonEquations.addAction('Volume of a Cone',               lambda: self.equationInput.setPlainText('(1/3) * π * height * radius^2'))
+    self.menuCommonEquations.addAction('Volume of a Prism',              lambda: self.equationInput.setPlainText('base * height'))
+    self.menuCommonEquations.addAction('Volume of a Sphere',             lambda: self.equationInput.setPlainText('(4/3) * π * radius^3'))
+    self.menuCommonEquations.addAction('Circumfrence of a Circle',       lambda: self.equationInput.setPlainText('2 * π * radius'))
+    self.menuCommonEquations.addAction('Area of a Circle',               lambda: self.equationInput.setPlainText('π * radius^2'))
+    self.menuCommonEquations.addAction('Area of a Traingle',             lambda: self.equationInput.setPlainText('(base * height) / 2'))
+    self.menuCommonEquations.addAction('Lateral Surface Area of a Cone', lambda: self.equationInput.setPlainText('π * radius * slantHeight'))
+    self.menuCommonEquations.addAction('Surface Area of a Sphere',       lambda: self.equationInput.setPlainText('4 * radius^2'))
+    self.menuCommonEquations.addAction('Pythagorean Theorem',            lambda: self.equationInput.setPlainText('c = sqrt(a^2 + b^2)'))
+    self.menuCommonEquations.addAction('Slope Function',                 lambda: self.equationInput.setPlainText('y = a*x + b'))
+    self.menuCommonEquations.addAction('Area Between 2 Functions',       lambda: self.equationInput.setPlainText('Integral(f(x) - g(x), (x, lowerbound, upperbound))'))
+    # self.menuCommonEquations.addAction('', lambda: self.equationInput.setPlainText(''))
 
 
 seperate = lambda enabled=True: print('--------------------------------') if enabled else None
@@ -136,6 +156,16 @@ def isContinuousAt(expr, symbol, at):
         print(f"Expression is {'' if cont else 'not '}continuous at {x}" + (f':\n{reason}' if cont else ''))
     '''
     # return expr(x) == expr(a)
+
+
+def getFunctionBetweenPoints(a, b):
+    slope, offset = symbols('slope, offset')
+    equ1 = Eq(a[1], offset*a[0] + slope)
+    equ2 = Eq(b[1], offset*b[0] + slope)
+    solvedSlope = debug(ensureNotIterable(solve(equ1, slope)))
+    solvedOffset = debug(ensureNotIterable(equ2.subs(solvedSlope, slope), offset))
+    return Eq(Symbol('y'), solvedOffset * Symbol('x') + solvedSlope)
+
 
 
 @confidence(80)
@@ -759,7 +789,7 @@ def getMaxAreaOfInscribedRect(equation):
     printVar('Possible Widths',  widths)
     return [l*w for l, w in zip(lengths, widths)]
 
-
+@confidence(70)
 def approxAreaUnderCurve(expr, interval, rects, rightPoint=True, solveVar=Symbol('x')):
     seperate()
     delta = (interval.end - interval.start) / rects
@@ -775,7 +805,7 @@ def approxAreaUnderCurve(expr, interval, rects, rightPoint=True, solveVar=Symbol
 
     return sum(areas).simplify()
 
-
+@confidence(10)
 def getDefiniteIntegralOfRiemannSum(expr):
     x, a, b, i = symbols('x_i a b i')
 
@@ -794,6 +824,10 @@ def netSignedInterval(expr, interval):
            'add (or subtract) all the areas'
 
 
+def getIntersection(fx, gx, solveVar=Symbol('x')):
+    return solve(Eq(fx, gx), solveVar)
+
+
 # R_n = rational * Sum(expr * func(expr)),      expr is in the form of firstNum + <something>
 def getRiemannSum(rational, x, expr, firstNum, solveVar=Symbol('x')):
     upperRational = rational.upper
@@ -803,14 +837,25 @@ def getRiemannSum(rational, x, expr, firstNum, solveVar=Symbol('x')):
     return Integral((expr * func(expr)).subs(expr, solveVar), (solveVar, firstNum, upper))
 
 
-
 # def relatedRateWordProblem():
-#     maxFencing = 148
-#     maxFencingEqu = 4x+y
-#     area = x*y
-#     ans = area / 3
-#     area = x*(solve(Eq(maxFencing, maxFencingEqu), y))
-#     findLocalExtremaOverIntervalUsingDerivative(area, x, interval=(-oo, oo))
+    # maxFencing = 148
+    # maxFencingEqu = 4x+y
+    # area = x*y
+    # ans = area / 3
+    # area = x*(solve(Eq(maxFencing, maxFencingEqu), y))
+    # findLocalExtremaOverIntervalUsingDerivative(area, x, interval=(-oo, oo))
+
+    # HOW TO DO AREA RELATED RATES PROBLEMS:
+    # x, y, area, per = symbols('x y area per')
+    # area = 2166
+
+    # solvedArea = Eq(area, x*y)
+    # x = ensureNotIterable(solve(solvedArea, x))
+    # solvedPerimeter = x * 3 + y * 2
+    # solvedy = findLocalExtremaOverIntervalUsingDerivative(solvedPerimeter, y, interval, extrema='min')
+
+    # print('x:', x.subs(y, solvedy))
+    # print('y:', solvedy)
 
 
 @confidence(-5)
@@ -878,24 +923,47 @@ def solveEquals(*eqs, solveFor=None):
     return definitions
 
 
+@confidence(80)
+def getVolumeOfSolidRevolution(expr, lowerbound, upperbound, solveVar=Symbol('x'), simplify=False):
+    i = Integral(pi * (expr)**2, (solveVar, lowerbound, upperbound))
+    if simplify:
+        i.doit().simplify()
+    return i
+
+
+@confidence(0)
+def getAreaBetween(fx, gx, lowerbound=None, upperBound=None, solveVar=Symbol("x")):
+    if bool(lowerbound) != bool(upperbound):
+        raise TypeError
+
+    if lowerbound:
+        return Integral(fx - gx, (solveVar, lowerbound, upperbound))
+    else:
+        return Integral(fx - gx, (solveVar, *sorted(list(getIntersection(fx, gx, solveVar)))))
+
+
+
+    # HOW TO DO AREA RELATED RATES PROBLEMS:
+    # x, y, area, per = symbols('x y area per')
+    # area = 2166
+
+    # solvedArea = Eq(area, x*y)
+    # x = ensureNotIterable(solve(solvedArea, x))
+    # solvedPerimeter = x * 3 + y * 2
+    # solvedy = findLocalExtremaOverIntervalUsingDerivative(solvedPerimeter, y, interval, extrema='min')
+
+    # print('x:', x.subs(y, solvedy))
+    # print('y:', solvedy)
+
+
 
 if True:
     out = None
     expr = parse_expr(' (x**2)/10 + 1 ')
-    curSymbol = solveVar = Symbol('x')
+    curSymbol = solveVar = x = Symbol('x')
     interval = Interval(-oo, oo)
 
-    # HOW TO DO AREA RELATED RATES PROBLEMS:
-    x, y, area, per = symbols('x y area per')
-    area = 2166
 
-    solvedArea = Eq(area, x*y)
-    x = ensureNotIterable(solve(solvedArea, x))
-    solvedPerimeter = x * 3 + y * 2
-    solvedy = findLocalExtremaOverIntervalUsingDerivative(solvedPerimeter, y, interval, extrema='min')
-
-    print('x:', x.subs(y, solvedy))
-    print('y:', solvedy)
 
 
 

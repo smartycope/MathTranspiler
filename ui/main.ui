@@ -703,7 +703,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>767</width>
-     <height>30</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -795,11 +795,17 @@ p, li { white-space: pre-wrap; }
      <string>Custom Functions</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuCommonEquations">
+    <property name="title">
+     <string>Common Equations</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menuOptions"/>
    <addaction name="menuTools"/>
    <addaction name="menuCustomFunctions"/>
+   <addaction name="menuCommonEquations"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="save">
