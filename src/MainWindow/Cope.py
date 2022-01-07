@@ -1,1 +1,0 @@
-/home/marvin/hello/python/MathTranspiler/src/Cope.py

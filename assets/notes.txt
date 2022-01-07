@@ -51,7 +51,7 @@ f(x) is concave up when f''(x) is positive (the y coordinant)
 Indeterminate forms of limits:
 type 0/0
 type ∞/∞
-type 0*∞
+type 0*∞-4
 type ∞−∞
 type 1^∞
 type ∞^0

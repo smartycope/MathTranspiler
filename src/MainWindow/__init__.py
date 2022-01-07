@@ -60,7 +60,7 @@ class Main(QMainWindow):
                           updateIntDiff, updateLimit, updatePiecewise,
                           updateSolution, updateVarInfo, updateVars,
                           updateVarValue, updateSubbedExpr, updateSum)
-    from ._customFuncs import addCustomFuncs, _addCustomFunc
+    from ._customFuncs import addCustomFuncs, _addCustomFunc, addCommonEqus
 
     varTypes = (Symbol, Derivative, Function, FunctionCall, Integral)
     varTypeMap = {0: Symbol, 1: Function, 2: Derivative, 3: Integral}
@@ -91,8 +91,11 @@ class Main(QMainWindow):
         if self.implicitMult.isChecked():
             self.trans += (implicit_multiplication,)
 
+        self._catagories = {}
+
         self.connectEverything()
         self.addCustomFuncs()
+        self.addCommonEqus()
 
         self.lastTab = 0
         self.blockVarList = False

@@ -37,77 +37,134 @@ from random import randint, uniform
 from typing import Iterable
 
 def addCustomFuncs(self):
-    self._addCustomFunc('Deg to Rad',                    'out = degrees(expr)')
-    self._addCustomFunc('Rad to Deg',                    'out = radians(expr)')
-    self._addCustomFunc('Get the Function between 2 points', 'out = getFunctionBetweenPoints((ax, ay), (bx, by))')
-    self._addCustomFunc('Get Continuous at',             'out = isContinuousAt(expr, symbol=Symbol("x"), at=S.Reals)')
-    self._addCustomFunc('Get Quadrant of Angle',         'out = getQuadrant(angle=expr, isRadians=True)')
-    self._addCustomFunc('Get Reference Angle',           'out = getReferenceAngle(angle=expr, isRadians=True)')
-    self._addCustomFunc('Get Coterminal Angle',          'out = getCoterminalAngleOverInterval(angle=expr, interval=Interval(0, 2*pi), isRadians=True)')
-    self._addCustomFunc('Get Equation of Tangent Line',  'out = getTanSlopeEquation(expr, symbol=curSymbol, symbolVal=curValue)')
-    self._addCustomFunc('Get Slope of Tangent Line',     'out = getTanSlope(expr, symbol=curSymbol, symbolVal=curValue)')
-    self._addCustomFunc('Get Equation of Normal Line',   'out = getNormalSlopeEquation(expr, symbol=curSymbol, symbolVal=curValue)')
-    self._addCustomFunc('Find Average Rate of Change over Interval', 'out = getAvgRateOfChange(func=func, interval=Interval(-oo, oo))')
-    self._addCustomFunc('Intermediate Value Theorem',    'out = leastPossibleVal(func=func, interval=Interval(, ))')
-    self._addCustomFunc('Solve as Implicit Derivative',  'out = idiff(eq=expr, y=y, x=x, n=1)', 'eq is the equation. Must equal 0 (use -, not Eq() or =)', 'n is the order of the derivative')
-    self._addCustomFunc('Get left/right at time',        'print(leftOrRight(func=func, timeVal=curSymbol))')
-    self._addCustomFunc('Get times at veolcity',         'out = timesAtHeight(expr, timeVar=curSymbol, height=0)')
-    self._addCustomFunc('Get Velocity at height',        'out = velocityAtHeight(expr, timeVar=curSymbol, height=0)')
-    self._addCustomFunc('Get acceleration at time',      'out = accAtTime(expr, timeVar=curSymbol, time=curValue)')
-    self._addCustomFunc('Is speeding up at time',        'print(isSpeedingUpAtTime(expr, timeVar=curSymbol, time=curValue))')
-    self._addCustomFunc('Get Critical Points',           'out = getCriticalPoints(expr, var=curSymbol, order=1)')
-    self._addCustomFunc('Get Critical Points over Interval', 'out = getCriticalPointsOverInterval(expr, var=curSymbol, interval=Interval(-oo, oo), order=1)')
-    self._addCustomFunc('Get Min and Max over Interval', 'print(minMaxOverInterval(expr, var=curSymbol, interval=Interval(-oo, oo)))')
-    self._addCustomFunc('Solve Related Rate',            "out = solveRelatedRate(equation=expr, changeExpr=, solveVar=Symbol('x'))", "changeExpr is the amount its changing", "equation must be an Eq() statement of type Eq(<stuff>, <stuff involving solveVar>)")
-    self._addCustomFunc('Solve Related Rate -- instructions', "# Put one of these in the box, then fill the variables with what you know (rate of change of volume is Derivative(v,t), current value, ect.)",
-                                                         'For a Triangle, with the base changing: Eq(Derivative(volume(time), time), (1/2)*Derivative(base(time), time)*height)',
-                                                         'Cube, with the side changing: Eq(Derivative(volume(time), time), Derivative(side(time), time)**3)',
-                                                         'Rectangle, with any side changing: Eq(Derivative(volume(time), time), Derivative(side(time), time)*width*height)'
-                                                         'Cylinder = V=pi*h*r^2',
-                                                         'Cone: (1/3)*pi*(r^2)*h')
-    self._addCustomFunc('Get all Derivatives equal to 0', 'out = getAllDiffsAt0(expr, interval=Interval(-oo, oo), solveVar=Symbol("x"))')
-    self._addCustomFunc('Find Local Extrema',             'print(findLocalExtrema(expr, solveVar=Symbol("x")))')
-    self._addCustomFunc('Find Local Extrema using Derivative', 'print(findLocalExtremaOverIntervalUsingDerivative(expr, solveVar=Symbol("x"), interval=Interval(-oo, oo), order=1))')
-    self._addCustomFunc('Find Local Extrema using Second Derivative', 'print(findLocalExtremaOverIntervalUsingSecondDerivative(expr, solveVar=Symbol("x"), interval=Interval(-oo, oo)))')
-    self._addCustomFunc('Find Absolute Extrema',          'print(findAbsExtremaOverInterval(expr, solveVar=Symbol("x"), interval=Interval(-oo, oo)))')
-    self._addCustomFunc('Get Time when Instant Velocity equals Average Velocity', 'out = getWhenDiffEqualToAverageChange(expr, solveVar=Symbol("t"))')
-    self._addCustomFunc('Mean Value Theorem',             'out = meanValueTheorem(expr, solveVar=Symbol("x"), interval=Interval(-oo, oo))')
-    self._addCustomFunc('Mean Value Theorem -- Raw',      'c = Symbol("c")\n'
-                                                          'interval = Interval(, )\n'
-                                                          'f = Function("f")\n'
-                                                          'equ = Eq(Derivative(f(c)), (f(interval.end) - f(interval.start)) / (interval.end - interval.start))\n'
-                                                          '# equ = equ.subs(f(interval.start), )\n'
-                                                          '# equ = equ.subs(f(interval.end), )\n'
-                                                          'out = equ.simplify()')
-    self._addCustomFunc('Get Concave Intervals',          'print(getConcaveIntervals(expr, solveVar=Symbol("x")))')
-    self._addCustomFunc('Get Max Area of Inscribed Rectangle', 'out = getMaxAreaOfInscribedRect(equation=expr)', 'Make sure equation has an x and a y in it')
-    self._addCustomFunc('Get Inflection Points', 'out = getInflectionPoints(expr, solveVar=Symbol("x"))')
-    # self._addCustomFunc('Sigma Balls',           'i = Dummy()\n'
-    #                                              'n = Symbol("n")\n'
-    #                                              'm = Symbol("m")\n'
-    #                                              'out = solve(Eq(Sum(, (i, 1, n), Sum(, (i, 1, m) + Sum(, (i, m+1, n)))',
-    #                                              'm is a number between 1 and n')
-    self._addCustomFunc('Approximate Area Under Curve',   'out = approxAreaUnderCurve(expr, Interval(from, to), rects=, rightPoint=True, solveVar=Symbol("x"))')
-    self._addCustomFunc('Find netSigned interval',        'print(netSignedInterval(expr, None))')
-    self._addCustomFunc('Get Riemann Sum',                'out = getRiemannSum(rational=6/6, x=6 + 6/6, expr=6 + 6/6 * ln(6 + 6/6), firstNum=6, solveVar=Symbol("x"))',
+    self._addCustomFunc('Basic Utilities',           'Deg to Rad',
+                        'out = degrees(expr)')
+    self._addCustomFunc('Basic Utilities',           'Rad to Deg',
+                        'out = radians(expr)')
+    self._addCustomFunc('Basic Utilities',           'Get the Function between 2 points',
+                        'out = getFunctionBetweenPoints((ax, ay), (bx, by))')
+    self._addCustomFunc('Basic Utilities',           'Get Quadrant of Angle',
+                        'out = getQuadrant(angle=expr, isRadians=True)')
+    self._addCustomFunc('Basic Utilities',           'Get Reference Angle',
+                        'out = getReferenceAngle(angle=expr, isRadians=True)')
+    self._addCustomFunc('Basic Utilities',           'Get Coterminal Angle',
+                        'out = getCoterminalAngleOverInterval(angle=expr, interval=Interval(0, 2*pi), isRadians=True)')
+    self._addCustomFunc('Basic Calculus',            'Get Continuous at',
+                        'out = isContinuousAt(expr, symbol=Symbol("x"), at=S.Reals)')
+    self._addCustomFunc('Basic Calculus',            'Get Equation of Tangent Line',
+                        'out = getTanSlopeEquation(expr, symbol=curSymbol, symbolVal=curValue)')
+    self._addCustomFunc('Basic Calculus',            'Get Slope of Tangent Line',
+                        'out = getTanSlope(expr, symbol=curSymbol, symbolVal=curValue)')
+    self._addCustomFunc('Basic Calculus',            'Get Equation of Normal Line',
+                        'out = getNormalSlopeEquation(expr, symbol=curSymbol, symbolVal=curValue)')
+    self._addCustomFunc('Basic Calculus',            'Find Average Rate of Change over Interval',
+                        'out = getAvgRateOfChange(func=func, interval=Interval(-oo, oo))')
+    self._addCustomFunc('Basic Calculus',            'Solve as Implicit Derivative',
+                        'out = idiff(eq=expr, y=y, x=x, n=1)', 'eq is the equation. Must equal 0 (use -, not Eq() or =)', 'n is the order of the derivative')
+    self._addCustomFunc('Solve For Specific Points', 'Get left/right at time',
+                        'print(leftOrRight(func=func, timeVal=curSymbol))')
+    self._addCustomFunc('Solve For Specific Points', 'Get times at veolcity',
+                        'out = timesAtHeight(expr, timeVar=curSymbol, height=0)')
+    self._addCustomFunc('Solve For Specific Points', 'Get Velocity at height',
+                        'out = velocityAtHeight(expr, timeVar=curSymbol, height=0)')
+    self._addCustomFunc('Solve For Specific Points', 'Get acceleration at time',
+                        'out = accAtTime(expr, timeVar=curSymbol, time=curValue)')
+    self._addCustomFunc('Solve For Specific Points', 'Is speeding up at time',
+                        'print(isSpeedingUpAtTime(expr, timeVar=curSymbol, time=curValue))')
+    self._addCustomFunc('Solve For Specific Points', 'Get Time when Instant Velocity equals Average Velocity',
+                        'out = getWhenDiffEqualToAverageChange(expr, solveVar=Symbol("t"))')
+    self._addCustomFunc('Special Points',            'Get Critical Points',
+                        'out = getCriticalPoints(expr, var=curSymbol, order=1)')
+    self._addCustomFunc('Special Points',            'Get Critical Points over Interval',
+                        'out = getCriticalPointsOverInterval(expr, var=curSymbol, interval=Interval(-oo, oo), order=1)')
+    self._addCustomFunc('Special Points',            'Get Min and Max over Interval',
+                        'print(minMaxOverInterval(expr, var=curSymbol, interval=Interval(-oo, oo)))')
+    self._addCustomFunc('Special Points',            'Find Local Extrema',
+                        'print(findLocalExtrema(expr, solveVar=Symbol("x")))')
+    self._addCustomFunc('Special Points',            'Find Local Extrema using Derivative',
+                        'print(findLocalExtremaOverIntervalUsingDerivative(expr, solveVar=Symbol("x"), interval=Interval(-oo, oo), order=1))')
+    self._addCustomFunc('Special Points',            'Find Local Extrema using Second Derivative',
+                        'print(findLocalExtremaOverIntervalUsingSecondDerivative(expr, solveVar=Symbol("x"), interval=Interval(-oo, oo)))')
+    self._addCustomFunc('Special Points',            'Find Absolute Extrema',
+                        'print(findAbsExtremaOverInterval(expr, solveVar=Symbol("x"), interval=Interval(-oo, oo)))')
+    self._addCustomFunc('Special Points',            'Get Concave Intervals',
+                        'print(getConcaveIntervals(expr, solveVar=Symbol("x")))')
+    self._addCustomFunc('Special Points',            'Get Inflection Points',
+                        'out = getInflectionPoints(expr, solveVar=Symbol("x"))')
+    self._addCustomFunc('Special Points',            'Get Intersecting Points',
+                        'out = getIntersection(fx, gx, solveVar=Symbol("x"))')
+    self._addCustomFunc('Areas',                     'Get Max Area of Inscribed Rectangle',
+                        'out = getMaxAreaOfInscribedRect(equation=expr)', 'Make sure equation has an x and a y in it')
+    self._addCustomFunc('Areas',                     'Approximate Area Under Curve',
+                        'out = approxAreaUnderCurve(expr, Interval(from, to), rects=, rightPoint=True, solveVar=Symbol("x"))')
+    self._addCustomFunc('Areas',                     'Get Volume of a Revolved Curve (Disk Method)',
+                        'out = getVolumeOfSolidRevolution(expr, lowerbound, upperbound, solveVar=Symbol("x")).simplify()')
+    self._addCustomFunc('Areas',                     'Get Area Between Functions',
+                        'out = getAreaBetween(fx, gx, lowerbound=None, upperbound=None, solveVar=Symbol("x"))')
+    self._addCustomFunc('Areas',                     'Get Cross Sectional Volume',
+                        'out = getCrossSectionalVolume(baseFunction=expr, crossSectionalAreaEquation=Symbol("s")**2, randomlyDouble=False, quadrant=None)')
+    self._addCustomFunc('Areas',                     'Get Volume of a Rotated Region',
+                        'out = getVolumeOfARotatedRegionBetweenCurves(fx=expr, bounds=Interval(), gx=0, axis="x").simplify()')
+    self._addCustomFunc('Areas',                     'Get Volume of a Rotated Region Using Shell Method',
+                        'out = getVolumeOfARotatedRegionUsingAShell(boundingEqu=expr, limit, rotateAroundLine, secondBoundingEqu=0, secondLimit=None, areaEquation=parse_expr("2*pi*r*h"), axis="x", makeAbs=False, swapSides=False).simplify()')
+    self._addCustomFunc('Physics',                     'Get the Amount of Work Done',
+                        'out = integral(expr_newtons, start_meters, end_meters, var=None).simplify()')
+    self._addCustomFunc('Physics',                     'Hooke\'s law (Work to move a spring)',
+                        'out = integral((newtons / meters) * x, start_meters, end_meters, var=x).simplify()')
+    self._addCustomFunc('Physics',                     'Get Natural Spring Length from 2 Force Measurements',
+                        'out = calculateNaturalStringLengthFrom2Measurements(joules1, start1, end1, joules2, start2, end2).evalf()')
+    self._addCustomFunc('Physics',                     'Pulling a Cable up a building',
+                        'out = integral(x * (net_mass / length_meters) * 9.8, 0, length_meters, var=x).simplify()')
+    self._addCustomFunc('Explanations',              'Solve Related Rate',
+                        "out = solveRelatedRate(equation=expr, changeExpr=, solveVar=Symbol('x'))",
+                        "changeExpr is the amount its changing",
+                        "equation must be an Eq() statement of type Eq(<stuff>, <stuff involving solveVar>)")
+    self._addCustomFunc('Explanations',              'Solve Related Rate -- instructions',
+                        "# Put one of these in the box, then fill the variables with what you know (rate of change of volume is Derivative(v,t), current value, ect.)",
+                        'For a Triangle, with the base changing: Eq(Derivative(volume(time), time), (1/2)*Derivative(base(time), time)*height)',
+                        'Cube, with the side changing: Eq(Derivative(volume(time), time), Derivative(side(time), time)**3)',
+                        'Rectangle, with any side changing: Eq(Derivative(volume(time), time), Derivative(side(time), time)*width*height)'
+                        'Cylinder = V=pi*h*r^2',
+                        'Cone: (1/3)*pi*(r^2)*h')
+    self._addCustomFunc('Explanations',              'Mean Value Theorem',
+                        'out = meanValueTheorem(expr, solveVar=Symbol("x"), interval=Interval(-oo, oo))')
+    self._addCustomFunc('Explanations',              'Mean Value Theorem -- Raw',
+                        'c = Symbol("c")\n'
+                        'interval = Interval(, )\n'
+                        'f = Function("f")\n'
+                        'equ = Eq(Derivative(f(c)), (f(interval.end) - f(interval.start)) / (interval.end - interval.start))\n'
+                        '# equ = equ.subs(f(interval.start), )\n'
+                        '# equ = equ.subs(f(interval.end), )\n'
+                        'out = equ.simplify()')
+    self._addCustomFunc('Explanations',              'Get Riemann Sum',
+                        'out = getRiemannSum(rational=6/6, x=6 + 6/6, expr=6 + 6/6 * ln(6 + 6/6), firstNum=6, solveVar=Symbol("x"))',
                         'R_n = rational * Sum(x * func(x)), where x is in the form of firstNum + <something>, and expr is in the form x * func(x)')
-    # self._addCustomFunc('Get the area between 2 curves',  'out = Integral(f(x) - g(x), (x, lowerbound, upperbound))')
-    self._addCustomFunc('Get Volume of a Revolved Curve', 'out = getVolumeOfSolidRevolution(expr, lowerbound, upperbound, solveVar=Symbol("x")).simplify()')
-    self._addCustomFunc('Get Intersecting Points',        'out = getIntersection(fx, gx, solveVar=Symbol("x"))')
-    self._addCustomFunc('Get Area Between Functions',     'out = getAreaBetween(fx, gx, lowerbound=None, upperBound=None, solveVar=Symbol("x"))')
-    # self._addCustomFunc('', '')
+    self._addCustomFunc('Misc.',                     'Intermediate Value Theorem',
+                        'out = leastPossibleVal(func=func, interval=Interval(, ))')
+    self._addCustomFunc('Misc.',                     'Get all Derivatives equal to 0',
+                        'out = getAllDiffsAt0(expr, interval=Interval(-oo, oo), solveVar=Symbol("x"))')
+    self._addCustomFunc('Misc.',                     'Find netSigned interval',
+                        'print(netSignedInterval(expr, None))')
 
-def _addCustomFunc(self, name, code, *comments):
-    self.menuCustomFunctions.addAction(name, lambda: self.runCustomFuncInCode(code, *comments))
+    # self._addCustomFunc('', '', '')
+
+def _addCustomFunc(self, catagory, name, code, *comments):
+    if catagory not in self._catagories.keys():
+        self._catagories[catagory] = self.menuCustomFunctions.addMenu(catagory)
+
+    self._catagories[catagory].addAction(name, lambda: self.runCustomFuncInCode(code, *comments))
 
 
 def addCommonEqus(self):
+    self.menuCommonEquations.addAction('Definition of a Derivative',     lambda: self.equationInput.setPlainText('Limit((f(x+h) - f(x)) / h, h, 0)'))
+    # self.menuCommonEquations.addAction('Definition of an Integral',      lambda: self.equationInput.setPlainText(''))
     self.menuCommonEquations.addAction('Volume of a Cylinder',           lambda: self.equationInput.setPlainText('π * height * radius^2'))
     self.menuCommonEquations.addAction('Volume of a Cone',               lambda: self.equationInput.setPlainText('(1/3) * π * height * radius^2'))
     self.menuCommonEquations.addAction('Volume of a Prism',              lambda: self.equationInput.setPlainText('base * height'))
     self.menuCommonEquations.addAction('Volume of a Sphere',             lambda: self.equationInput.setPlainText('(4/3) * π * radius^3'))
     self.menuCommonEquations.addAction('Circumfrence of a Circle',       lambda: self.equationInput.setPlainText('2 * π * radius'))
     self.menuCommonEquations.addAction('Area of a Circle',               lambda: self.equationInput.setPlainText('π * radius^2'))
+    self.menuCommonEquations.addAction('Function of a Circle',           lambda: self.equationInput.setPlainText('x^2 + y^2 = radius^2'))
     self.menuCommonEquations.addAction('Area of a Traingle',             lambda: self.equationInput.setPlainText('(base * height) / 2'))
     self.menuCommonEquations.addAction('Lateral Surface Area of a Cone', lambda: self.equationInput.setPlainText('π * radius * slantHeight'))
     self.menuCommonEquations.addAction('Surface Area of a Sphere',       lambda: self.equationInput.setPlainText('4 * radius^2'))
@@ -165,7 +222,6 @@ def getFunctionBetweenPoints(a, b):
     solvedSlope = debug(ensureNotIterable(solve(equ1, slope)))
     solvedOffset = debug(ensureNotIterable(equ2.subs(solvedSlope, slope), offset))
     return Eq(Symbol('y'), solvedOffset * Symbol('x') + solvedSlope)
-
 
 
 @confidence(80)
@@ -356,9 +412,6 @@ def getCriticalPointsOverInterval(expr, var, interval, order=1):
     if isBetween(b, interval.start, interval.end):
         ans.append(b)
     return ans
-
-
-# def isWithinInterval
 
 
 @confidence('sorta')
@@ -747,8 +800,16 @@ def getConcaveIntervals(expr, solveVar, includeFirstIntervalTests=True):
 def assumePositive(expr):
     # if isinstance(expr, Iterable):
     for i in expr:
-        if i < 0:
-            del i
+        try:
+            if i < 0:
+                del i
+        except:
+            # try:
+            if i.evalf() < 0:
+                del i
+            # except:
+                # return sorted(expr)
+
     return expr
     # else:
         # return abs(expr)
@@ -836,7 +897,6 @@ def getRiemannSum(rational, x, expr, firstNum, solveVar=Symbol('x')):
     printVar('upper', upper)
     return Integral((expr * func(expr)).subs(expr, solveVar), (solveVar, firstNum, upper))
 
-
 # def relatedRateWordProblem():
     # maxFencing = 148
     # maxFencingEqu = 4x+y
@@ -857,6 +917,11 @@ def getRiemannSum(rational, x, expr, firstNum, solveVar=Symbol('x')):
     # print('x:', x.subs(y, solvedy))
     # print('y:', solvedy)
 
+# self._addCustomFunc('Sigma Balls',           'i = Dummy()\n'
+    #                                              'n = Symbol("n")\n'
+    #                                              'm = Symbol("m")\n'
+    #                                              'out = solve(Eq(Sum(, (i, 1, n), Sum(, (i, 1, m) + Sum(, (i, m+1, n)))',
+    #                                              'm is a number between 1 and n')
 
 @confidence(-5)
 def solveEquals(*eqs, solveFor=None):
@@ -931,15 +996,15 @@ def getVolumeOfSolidRevolution(expr, lowerbound, upperbound, solveVar=Symbol('x'
     return i
 
 
-@confidence(0)
-def getAreaBetween(fx, gx, lowerbound=None, upperBound=None, solveVar=Symbol("x")):
+@confidence(50)
+def getAreaBetween(fx, gx, lowerbound=None, upperbound=None, solveVar=Symbol("x")):
     if bool(lowerbound) != bool(upperbound):
         raise TypeError
 
     if lowerbound:
-        return Integral(fx - gx, (solveVar, lowerbound, upperbound))
+        return Integral(fx - gx, (solveVar, lowerbound, upperbound)).simplify()
     else:
-        return Integral(fx - gx, (solveVar, *sorted(list(getIntersection(fx, gx, solveVar)))))
+        return Integral(fx - gx, (solveVar, *sorted(list(getIntersection(fx, gx, solveVar))))).simplify()
 
 
 
@@ -956,17 +1021,192 @@ def getAreaBetween(fx, gx, lowerbound=None, upperBound=None, solveVar=Symbol("x"
     # print('y:', solvedy)
 
 
+@confidence(45)
+def getCrossSectionalVolume(baseFunction, crossSectionalAreaEquation, randomlyDouble=False, quadrant=None):
+    def getLimits(xInts):
+        xInts = list(xInts)
+        if quadrant:
+            if quadrant.lower() == 'first':
+                return [0, max(xInts)]
+            elif quadrant.lower() == 'second':
+                return [min(xInts), 0]
+            elif quadrant.lower() == 'third':
+                todo('third quadrant')
+            elif quadrant.lower() == 'fourth':
+                return [max(xInts), 0]
+            else:
+                raise TypeError("Unrecognized quadrant. Please use first, second, third, or fourth.")
+        else:
+            return sorted(xInts)
 
-if True:
+    debug(baseFunction)
+    debug(crossSectionalAreaEquation)
+    x, y, area, radius = symbols('x, y, area, radius')
+    solvedY = MappingList(solve(baseFunction, y))
+    if randomlyDouble:
+        solvedY *= 2
+
+    crossSectionAtoms = crossSectionalAreaEquation.atoms(Symbol)
+    assert(len(crossSectionAtoms) == 1)
+    # Put solvedY into the crossSectionalAreaEquation
+    possibleCrossSectionalEquations = []
+    for i in solvedY:
+        possibleCrossSectionalEquations.append(crossSectionalAreaEquation.subs(list(crossSectionAtoms)[0], i))
+
+    xIntercepts = []
+    for i in possibleCrossSectionalEquations:
+        xIntercepts.append(solve(Eq(i, 0), x))
+
+    # xIntercepts = ensureNotIterable(xIntercepts)
+
+    printVar('solved Y', solvedY)
+    printVar('possibleCrossSectionalEquations', MappingList(possibleCrossSectionalEquations).simplify())
+    printVar('xintercepts', xIntercepts)
+    if len(xIntercepts) == 1:
+        xIntercepts = xIntercepts[0]
+    printVar('Integral bounds', getLimits(xIntercepts))
+
+    # xIntercepts = solve(Eq(crossSectionalAreaEquation, 0), x)
+    if (len(xIntercepts) > 2):
+        raise UserWarning(f"There are more than 2 xIntercepts somehow ({xIntercepts})")
+
+    return ensureNotIterable(set(assumePositive([debug(Integral(cs, (x, *getLimits(xIntercepts)))).simplify() for cs in possibleCrossSectionalEquations])))
+
+
+@confidence(80)
+def getVolumeOfARotatedRegionBetweenCurves(fx, bounds:Interval, gx=0, axis='x'):
+    # find the volume generated when the region between cuves is rotated around axis
+    # flip x and y (f(x) becomes solve the equation for x) if its rotated around y-axis, othersize leave as is
+    # use disk method
+    # find volume under cuve of (curves) when rotated around axis
+    # The disk method is just the washer method where g(x) is constant (0?)
+
+    assertValue(axis, 'x', 'y')
+    assert(len(fx.atoms(Symbol)) <= 1)
+
+    x, y = symbols('x y')
+    var = ensureNotIterable(fx.atoms(Symbol))
+    otherVar = x if var == y else y
+
+    if axis == 'y':
+        fx = ensureNotIterable(solve(fx - otherVar, otherVar))
+        fx = fx.subs(ensureNotIterable(var), x)
+        printVar('flipped equation', fx)
+
+    return Integral(pi * (fx**2 - gx**2), (var, bounds.start, bounds.end))
+
+
+@confidence(40)
+def getVolumeOfARotatedRegionUsingAShell(boundingEqu, limit, rotateAroundLine, secondBoundingEqu=0, secondLimit=None, areaEquation=parse_expr('2*pi*r*h'), axis='x', makeAbs=False, swapSides=False):
+    assertValue(axis, 'x', 'y')
+    boundingEqu = sympify(boundingEqu)
+    secondBoundingEqu = sympify(secondBoundingEqu)
+    limit = sympify(limit)
+    secondLimit = sympify(secondLimit)
+    rotateAroundLine = sympify(rotateAroundLine)
+    areaEquation = sympify(areaEquation)
+    assert(len(boundingEqu.atoms(Symbol)) <= 1)
+    assert(len(secondBoundingEqu.atoms(Symbol)) <= 1)
+    assert(len(limit.atoms(Symbol)) == 0)
+    if secondLimit is not None:
+        assert(len(secondLimit.atoms(Symbol)) == 0)
+
+    vy, uy = sorted((boundingEqu, secondBoundingEqu), key=lambda x: x.subs(ensureNotIterable(x.atoms(Symbol)), limit).evalf()) # , reverse=flipEqations)
+    var = ensureNotIterable(vy.atoms(Symbol))
+    if isiterable(var) and not len(var):
+        var = ensureNotIterable(uy.atoms(Symbol))
+
+    x, y = symbols('x y')
+    otherVar = x if var == y else y
+
+    debug(var)
+
+    # vy(d)
+    # uy = vy.subs(var, upperLimit)
+    # using assumePositive is an assumption
+    if secondLimit is None:
+        secondLimit = ensureNotIterable(solve(Eq(vy, uy), var), None)
+
+    if secondLimit is None:
+        raise Exception('vy = uy seems to not have any solutions...')
+    # debug(limit)
+    # debug(secondLimit)
+    # if secondLimit is
+    lowerLimit, upperLimit = sorted((limit, secondLimit))
+    c = lowerLimit
+    d = upperLimit
+    k = rotateAroundLine
+    radius = r = abs(var - k) if makeAbs else var - k
+    height = h = (vy - uy) if swapSides else uy - vy
+    Ay = areaEquation
+
+    thingToIntegrate = areaEquation.subs(    Symbol('r'), radius)
+    thingToIntegrate = thingToIntegrate.subs(Symbol('h'), height)
+
+    printVar('upperLimit (d)', d)
+    printVar('lowerLimit (c)', c)
+    printVar('rotateAroundLine (k)', k)
+    printVar('radius (r)', r)
+    printVar('height (h)', h)
+    printVar('Equation To integrate', thingToIntegrate)
+    printVar('leftBoundEquation (v(y))',  vy)
+    printVar('rightBoundEquation (u(y))', uy)
+
+    if axis == 'y':
+        todo('add rotation around the y axis')
+    #     vy = ensureNotIterable(solve(vy - otherVar, otherVar))
+    #     vy = vy.subs(ensureNotIterable(var), x)
+    #     printVar('flipped equation', vy)
+
+    return Integral(thingToIntegrate, (var, lowerLimit, upperLimit))
+
+
+def workDone(expr_newtons, start_meters, end_meters):
+    return integrate(expr_newtons, start_meters, end_meters)
+
+
+def integral(expr, lower, upper, var=None):
+    expr = sympify(expr)
+    vars = expr.atoms(Symbol)
+    if len(vars) == 0:
+        if var is not None:
+            if verbose(): print('You specified a variable when you didn\'t have to...')
+        return Integral(expr, (Dummy(), lower, upper))
+    elif len(vars) == 1:
+        v = vars.pop()
+        assert(v == var or var is None)
+        return Integral(expr, (v, lower, upper))
+    else:
+        if var is None:
+            raise TypeError(f'Can\'t integrate. Too many variables. Variables: {vars}, Expression: {expr}')
+        else:
+            return Integral(expr, (var, lower, upper))
+
+
+@confidence(60)
+def calculateNaturalStringLengthFrom2Measurements(joules1, start1, end1, joules2, start2, end2):
+    length, k, x = symbols('length k x')
+    # debug(integral(k * x, start1 - length, end1 - length, x).doit().simplify())
+    solvedK = ensureNotIterable(solve(Eq(integral(k * x, start1 - length, end1 - length, x).doit(), joules1), k))
+    printVar('k', solvedK)
+    return ensureNotIterable(solve(Eq(integral(solvedK * x, start2 - length, end2 - length, x).doit(), joules2), length)).simplify()
+
+
+if False:
     out = None
     expr = parse_expr(' (x**2)/10 + 1 ')
     curSymbol = solveVar = x = Symbol('x')
     interval = Interval(-oo, oo)
+    x, y, s = symbols('x, y, s')
 
+    # out = getVolumeOfARotatedRegionUsingAShell(3, (3*sqrt(y))/2, 0, -3/Integer(2), areaEquation=parse_expr('2*pi*r*h'), axis='x')
+    out = calculateNaturalStringLengthFrom2Measurements(9, 1, 3, 9, 3, 8).evalf()
 
+    # preview(out)
+    # import clipboard
+    # clipboard.copy(latex(out))
 
-
-
+    # out = getCrossSectionalVolume(x**2 + y**2 - 11**2, s**2, randomlyDouble=True)
 
     # debug(solveEquals(a, p))
     # debug(something)
@@ -980,13 +1220,10 @@ if True:
 
     # list(thing.args)[1]
 
-
-
     # debug(per)
     # debug(area)
     # debug(x)
     # debug(y)
-
 
     # h, p = symbols('h, p', cls=Function)
     # p = Function('p')

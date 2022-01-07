@@ -277,6 +277,8 @@ def sanatizeLatex(self, latex):
     latex = re.sub('\$', '', latex)
     latex = re.sub('\\dfrac', '\\frac', latex)
     latex = re.sub(r'\\displaystyle', '', latex)
+    # latex = re.sub(r'\\ ', '', latex)
+    latex = re.sub(r'\\ dx', 'dx', latex)
     return latex
 
 
