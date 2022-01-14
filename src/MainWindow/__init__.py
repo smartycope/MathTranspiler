@@ -14,7 +14,7 @@ from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
                           QRectF, Qt, QThread, QTimer)
 from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtWidgets import (QDialog, QFileDialog, QLabel, QLineEdit,
-                             QMainWindow, QTableWidgetItem, QWidget)
+                             QMainWindow, QTableWidgetItem, QWidget, QCompleter)
 from sympy import *
 from sympy import abc
 from sympy.abc import *
@@ -25,6 +25,10 @@ from sympy.parsing.sympy_parser import (convert_xor, implicit_multiplication,
                                         implicit_multiplication_application,
                                         lambda_notation, parse_expr,
                                         standard_transformations)
+from sympy.physics.units import *
+import sympy.physics.units as _units
+# from sympy.physics.units import Quantity
+from sympy.physics.units.prefixes import Prefix
 # from sympy.plotting import plot
 # from sympy.printing.latex import latex
 # from sympy.printing.mathematica import mathematica_code
@@ -35,11 +39,23 @@ from sympy.parsing.sympy_parser import (convert_xor, implicit_multiplication,
 # from sympy.solvers.inequalities import solve_rational_inequalities
 from Variable import Variable
 
-# from ._file import *
-# from ._private import *
-# from ._slots import *
-# from ._update import *
+from sympy.core.numbers import One
+# Hacking One so I don't have to make it a unit (cause I'm lazy)
+One.name = 'one'
+One.abbrev = '1'
+One.scale_factor = 1
 
+# Because Cope.ROOT stopped working and I use it to find ui files
+ROOT = dirname(dirname(dirname(__file__)))
+
+_quantityStrings = filter(lambda u: type(getattr(_units, u)) is Quantity, dir(_units))
+_prefixStrings   = filter(lambda u: type(getattr(_units, u)) is Prefix,   dir(_units))
+
+_quantities = list(set(map(lambda i: getattr(_units, i), _quantityStrings)))
+_prefixes   = list(set(map(lambda i: getattr(_units, i), _prefixStrings))) + [One()] # Because we want one in the middle
+
+_quantities.sort(key=lambda i: str(i))
+_prefixes.sort(key=lambda i: i.scale_factor, reverse=True)
 
 class Main(QMainWindow):
     from ._file import (_load, _save, _saveAs, exportAsLatex,
@@ -48,24 +64,34 @@ class Main(QMainWindow):
                            fixEquationString, getIcon, setError, detectLatex,
                            printToCodeOutput, resetError, resetEverything,
                            resetIcon, resetOuput, resetTab, runCustomFuncInCode,
-                           _convertLatex, sanatizeOutput)
+                           _convertLatex, sanatizeOutput, resetTheSolutionUnit)
     from ._slots import (doPiecewise, notes, onCurrentVariableChanged,
                          onIntDiff, onLimitButtonPressed, onResetVars,
                          onNewRelationWanted, onPreviewCurVar, #onUpdateVars,
                          onPreviewSolution, onTabChanged, onVarNameChanged,
                          onVarValueChanged, _plot, resetCode, resetCurVar,
                          runCode, connectEverything, onConvertLatex,
-                         onVarTypeChanged, onGetSumPressed, doOpenTrigSolver)
+                         onVarTypeChanged, onGetSumPressed, doOpenTrigSolver,
+                         onVarUnitChanged, onOpenUnitSolver)
     from ._update import (updateCode, updateEquation, updateImplicitMult,
                           updateIntDiff, updateLimit, updatePiecewise,
                           updateSolution, updateVarInfo, updateVars,
                           updateVarValue, updateSubbedExpr, updateSum)
-    from ._customFuncs import addCustomFuncs, _addCustomFunc, addCommonEqus
+                          #fillVarUnit) #changeVarUnit, updateUnitSystem)
+    from ._customActions import (addCustomFuncs, _addCustomFunc, addCommonEqus,
+                                 _addCommonEqu, _addUnit, addUnits, _addConstant, addConstants)
 
     varTypes = (Symbol, Derivative, Function, FunctionCall, Integral)
     varTypeMap = {0: Symbol, 1: Function, 2: Derivative, 3: Integral}
     funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
     functionVar = Symbol('x')
+    µ = micro
+    customUnits = []
+    allUnits    = [One()] + _quantities
+    allPrefixes = _prefixes
+    # This line of code was *awesome*
+    # allUnits    = [One()] + sorted(list(set(map(lambda i: getattr(_units, i), filter(lambda u: type(getattr(_units, u)) in Quantity, dir(_units))))), key=lambda i: str(i))
+    # allPrefixes = [One()] + sorted(list(set(map(lambda i: getattr(_units, i), filter(lambda u: type(getattr(_units, u)) in Prefix,   dir(_units))))), key=lambda i: str(i))
     codeTabIndex = 1
     errorTabIndex = 2
     defaultDir = join(ROOT, 'Equations')
@@ -79,6 +105,7 @@ class Main(QMainWindow):
     trans = baseTrans
     varCount = 0
     windowStartingPos = (3000, 0)
+    sciNotSigFigs = 4
 
     def __init__(self):
         super(Main, self).__init__()
@@ -91,11 +118,38 @@ class Main(QMainWindow):
         if self.implicitMult.isChecked():
             self.trans += (implicit_multiplication,)
 
+        # Set the dropdown box completers (Based)
+        self.unitBox.setCompleter(QCompleter([str(i.name) for i in self.allUnits]))
+        self.solutionUnitBox.setCompleter(QCompleter([str(i.name) for i in self.allUnits]))
+        self.prefixBox.setCompleter(QCompleter([str(i.name) for i in self.allPrefixes]))
+
+        # Fill the dropdown boxes
+        self.unitBox.addItems([str(i.name) for i in self.allUnits])
+        self.solutionUnitBox.addItems([str(i.name) for i in self.allUnits])
+        self.prefixBox.addItems([f"{i.name} ({i.abbrev})" for i in self.allPrefixes])
+
+        # Set tooltips
+        for cnt, prefix in enumerate(self.allPrefixes):
+            self.prefixBox.setItemData(cnt, str(prefix.scale_factor), Qt.ItemDataRole.ToolTipRole)
+
+        for cnt, unit in enumerate(self.allUnits):
+            self.unitBox.setItemData(cnt, str(unit.abbrev), Qt.ItemDataRole.ToolTipRole)
+
+        # One isn't at the top of the prefix box
+        self.prefixBox.setCurrentIndex(self.prefixBox.findText('one (1)'))
+
         self._catagories = {}
+        self._commonEquCatagories = {}
+        self._unitCatagories = {}
+        self._constantCatagories = {}
+
+        self.blockVarUnitSignal = False
 
         self.connectEverything()
         self.addCustomFuncs()
         self.addCommonEqus()
+        self.addUnits()
+        self.addConstants()
 
         self.lastTab = 0
         self.blockVarList = False

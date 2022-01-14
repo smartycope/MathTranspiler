@@ -15,83 +15,16 @@ from sys import argv
 import sympy
 from sympy.core.sympify import SympifyError
 
-# displayAllPaths()
-
-# radians = lambda x: (x * (pi / 180)).simplify()
-# degrees = lambda x: (x * (180 / pi)).simplify()
-
-
-@confidence(80)
-def isWithinInterval(val, interval):
-    return isBetween(val, interval.start, interval.end, not interval.left_open, not interval.right_open)
-
-
-
-@confidence('fairly')
-def getCoterminalAngleOverInterval(angle, interval=Interval(0, 2*pi), isRadians=True):
-    r = 2*pi if isRadians else 360
-    if angle < 0:
-        return angle + r
-    elif angle > r:
-        return angle - r
-    else:
-        return angle
-
-
-    # answers = []
-    # i = 2*pi if isRadians else 360
-    # while True:
-    #     testAngle = (angle + i).simplify()
-    #     if isWithinInterval(testAngle, interval):
-    #         answers.append(testAngle)
-
-    #     testAngle = (angle - i).simplify()
-    #     if isWithinInterval(testAngle, interval):
-    #         answers.append(testAngle)
-
-    #     i += 2*pi if isRadians else 360
-    #     if not isWithinInterval(i, interval):
-    #         break
-
-    # return ensureNotIterable(answers)
-
 
 class TriangleSolver(QDialog):
-    transformations = standard_transformations + (convert_xor, lambda_notation, implicit_multiplication)
-    lines  = {'someLine', 'yoMama', 'leftBase', 'rightBase', 'fullBase', 'height'}
-    angles = {'leftAngle', 'rightAngle', 'fullAngle', 'theta', 'notTheta'}
-
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         uic.loadUi(join(ROOT, "ui/trigInput.ui"), self)
 
         self.values = {
-            'fullAngle': None,
-            'fullBase': None,
-            'height': None,
-            'leftAngle': None,
-            'leftBase': None,
-            'notTheta': None,
-            'rightAngle': None,
-            'rightBase': None,
-            'someLine': None,
-            'theta': None,
-            'yoMama': None,
-            'squareAngle': pi/2
         }
 
         self.userChanged = {
-            'fullAngle': False,
-            'fullBase': False,
-            'height': False,
-            'leftAngle': False,
-            'leftBase': False,
-            'notTheta': False,
-            'rightAngle': False,
-            'rightBase': False,
-            'someLine': False,
-            'theta': False,
-            'yoMama': False,
         }
 
         self.fullAngleBox.textEdited.connect(  lambda: self.boxChanged("fullAngle"))
@@ -295,9 +228,6 @@ class TriangleSolver(QDialog):
 #     win = TriangleSolver()
 #     win.show()
 #     app.exec()
-
-
-
 
 
 

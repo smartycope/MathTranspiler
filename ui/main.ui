@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>767</width>
-    <height>1000</height>
+    <width>889</width>
+    <height>768</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1366</width>
+    <height>768</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Main</string>
@@ -19,7 +25,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>762</width>
+      <width>885</width>
       <height>1021</height>
      </rect>
     </property>
@@ -308,12 +314,27 @@
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="spacing">
+              <number>1</number>
+             </property>
              <item>
               <widget class="QComboBox" name="varType">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
                  <width>90</width>
                  <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>150</width>
+                 <height>16777215</height>
                 </size>
                </property>
                <property name="currentIndex">
@@ -351,7 +372,7 @@
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>388</width>
+                 <width>209</width>
                  <height>0</height>
                 </size>
                </property>
@@ -369,6 +390,47 @@
                </property>
                <property name="placeholderText">
                 <string>Variable Value</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="prefixBox">
+               <property name="minimumSize">
+                <size>
+                 <width>85</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+               <property name="currentText">
+                <string/>
+               </property>
+               <property name="currentIndex">
+                <number>-1</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="unitBox">
+               <property name="minimumSize">
+                <size>
+                 <width>210</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="editable">
+                <bool>true</bool>
+               </property>
+               <property name="currentText">
+                <string>one</string>
                </property>
               </widget>
              </item>
@@ -406,11 +468,51 @@
       </layout>
      </item>
      <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Result:</string>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Result in units of</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="solutionUnitBox">
+         <property name="minimumSize">
+          <size>
+           <width>225</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="currentText">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QTabWidget" name="output">
@@ -426,8 +528,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>751</width>
-           <height>511</height>
+           <width>881</width>
+           <height>261</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -490,15 +592,24 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>751</width>
-           <height>511</height>
+           <width>871</width>
+           <height>261</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
+            </property>
             <item>
              <widget class="QPlainTextEdit" name="codeInput">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="sizeIncrement">
                <size>
                 <width>0</width>
@@ -509,7 +620,10 @@
                <cursorShape>IBeamCursor</cursorShape>
               </property>
               <property name="toolTip">
-               <string/>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;expr&amp;quot; is the current expression. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;solution&amp;quot; is the current solution. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;curVar&amp;quot; is the currently selected Variable. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;curSymbol&amp;quot; is the currently selected variable's symbol. Read-only&lt;/p&gt;&lt;p&gt;&amp;quot;curValue&amp;quot; is the currently selected variable's value. Recommended. Read-only.&lt;/p&gt;&lt;p&gt;&amp;quot;print&amp;quot; prints to the output box&lt;/p&gt;&lt;p&gt;&amp;quot;show&amp;quot; outputs the latex of the Sympy expression&lt;/p&gt;&lt;p&gt;Set &amp;quot;out&amp;quot; to a Sympy expression to automatically print and show it&lt;/p&gt;&lt;p&gt;Errors are directed to the error tab. All common sympy functions and constants should be available. Press the &amp;quot;Execute&amp;quot; button to execute.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="toolTipDuration">
+               <number>5</number>
               </property>
               <property name="verticalScrollBarPolicy">
                <enum>Qt::ScrollBarAlwaysOn</enum>
@@ -544,10 +658,16 @@
           </item>
           <item>
            <widget class="QTextBrowser" name="codeOutput">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>175</height>
+              <height>65</height>
              </size>
             </property>
             <property name="sizeIncrement">
@@ -588,7 +708,7 @@ p, li { white-space: pre-wrap; }
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>70</height>
+              <height>80</height>
              </size>
             </property>
             <property name="text">
@@ -620,8 +740,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>20</y>
-           <width>751</width>
-           <height>491</height>
+           <width>871</width>
+           <height>241</height>
           </rect>
          </property>
          <property name="sizeIncrement">
@@ -702,8 +822,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>767</width>
-     <height>23</height>
+     <width>889</width>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -772,6 +892,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="makePiecewise"/>
     <addaction name="runCodeAction"/>
     <addaction name="openTrigSolver"/>
+    <addaction name="openUnitSolver"/>
     <addaction name="separator"/>
     <addaction name="openNotes"/>
    </widget>
@@ -786,6 +907,8 @@ p, li { white-space: pre-wrap; }
     <addaction name="dontSimplify"/>
     <addaction name="printSolution"/>
     <addaction name="prettySolution"/>
+    <addaction name="useSciNot"/>
+    <addaction name="resetSolutionUnit"/>
     <addaction name="separator"/>
     <addaction name="previewSolution"/>
     <addaction name="previewCurVar"/>
@@ -800,12 +923,24 @@ p, li { white-space: pre-wrap; }
      <string>Common Equations</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuUnits">
+    <property name="title">
+     <string>Units</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuConstants">
+    <property name="title">
+     <string>Constants</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
    <addaction name="menuOptions"/>
    <addaction name="menuTools"/>
    <addaction name="menuCustomFunctions"/>
    <addaction name="menuCommonEquations"/>
+   <addaction name="menuUnits"/>
+   <addaction name="menuConstants"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="save">
@@ -1171,6 +1306,101 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>Print Errors</string>
+   </property>
+  </action>
+  <action name="actionCurrent_I">
+   <property name="text">
+    <string>I</string>
+   </property>
+   <property name="toolTip">
+    <string>Current</string>
+   </property>
+  </action>
+  <action name="actionV">
+   <property name="text">
+    <string>V</string>
+   </property>
+   <property name="toolTip">
+    <string>Voltage</string>
+   </property>
+  </action>
+  <action name="actionA">
+   <property name="text">
+    <string>A</string>
+   </property>
+   <property name="toolTip">
+    <string>Amps</string>
+   </property>
+  </action>
+  <action name="actiont">
+   <property name="text">
+    <string>t</string>
+   </property>
+   <property name="toolTip">
+    <string>Time</string>
+   </property>
+  </action>
+  <action name="useSciNot">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Format Solution in Scientific Notation</string>
+   </property>
+  </action>
+  <action name="actionDimentionless">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Dimentionless (Math)</string>
+   </property>
+  </action>
+  <action name="actionPhysics">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Physics</string>
+   </property>
+  </action>
+  <action name="actionElectronics">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Electronics</string>
+   </property>
+  </action>
+  <action name="actionAstrophysics">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Astrophysics</string>
+   </property>
+  </action>
+  <action name="actiond">
+   <property name="text">
+    <string>d</string>
+   </property>
+  </action>
+  <action name="actiond_2">
+   <property name="text">
+    <string>d</string>
+   </property>
+  </action>
+  <action name="resetSolutionUnit">
+   <property name="text">
+    <string>Reset Solution Unit</string>
+   </property>
+  </action>
+  <action name="openUnitSolver">
+   <property name="text">
+    <string>Unit Solver</string>
    </property>
   </action>
  </widget>

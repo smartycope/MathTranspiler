@@ -33,8 +33,11 @@ from sympy.printing.preview import preview
 from sympy.printing.pycode import pycode
 from sympy.sets.conditionset import ConditionSet
 from sympy.solvers.inequalities import solve_rational_inequalities
+from sympy.physics.units import Quantity
+from sympy.physics.units.prefixes import Prefix
 from sympy import S
 from Variable import Variable
+import scinot
 
 def updateEquation(self):
     self.loading = True
@@ -112,10 +115,11 @@ def updateVarInfo(self):
 # *Fills* the variable setter box when the current variable is changed
 def updateVarValue(self):
     ans = ''
+    # _value instead of value because we don't want to get a unit too
     if self.currentVar and type(self.currentVar.value) is Lambda:
-        value = self.currentVar.value.expr
+        value = self.currentVar._value.expr
     elif self.currentVar:
-        value = self.currentVar.value
+        value = self.currentVar._value
     else:
         return
 
@@ -147,6 +151,9 @@ def updateVarValue(self):
 
     self.varSetter.setText(ans)
     self.varOrderSetter.setValue(self.currentVar.substitutionOrder)
+    # Sets the unitbox to the current unit
+    self.unitBox.setCurrentIndex(self.unitBox.findText(str(self.currentVar.unit.name)))
+    self.prefixBox.setCurrentIndex(self.prefixBox.findText(str(self.currentVar.prefix.name)))
 
 
 def updateVars(self):
@@ -179,6 +186,10 @@ def updateVars(self):
             # funcs = funcs.union((type(func),))
         # atoms = atoms.union(funcs)
 
+        # Remove any unit from atoms (we only want to touch those internally)
+        atoms = set(filter(lambda a: type(a) not in (Quantity, Prefix), atoms))
+        # debug(atoms)
+
         return atoms
 
     def resetVarBox():
@@ -194,7 +205,6 @@ def updateVars(self):
         # self.expr = self.expr.expand().simplify()
 
     atoms = getAtoms()
-    # debug(atoms)
 
     #* Get all the things in what we've just parsed that aren't already in self.vars and add them
     curSymbols = set([v.symbol for v in self.vars])
@@ -209,7 +219,6 @@ def updateVars(self):
 
     #* MOVED to calculateSolution() in private
     #* Make sure our expression is updated with the new values
-    # debug(self.vars)
     self.updateSubbedExpr()
 
     resetVarBox()
@@ -240,10 +249,14 @@ def updateSolution(self):
     if self.prettySolution.isChecked():
         ans = pretty(self.solvedExpr)
     else:
-        ans = str(self.solvedExpr)
+        if self.useSciNot.isChecked():
+            ans = scinot.format(self.solvedExpr, self.sciNotSigFigs)
+        else:
+            ans = str(self.solvedExpr)
 
     ans = self.sanatizeOutput(ans)
 
+    # Joes mortuary: you stab em', we bag em'
     if self.printSolution.isChecked():
         print(ans)
 
@@ -379,7 +392,6 @@ def updateSum(self, count, var, val, addToMainEquation):
         self.varSetter.returnPressed.emit()
 
 
-
 def updateImplicitMult(self):
     if self.implicitMult.isChecked():
         self.trans = self.baseTrans + (implicit_multiplication,)
@@ -387,3 +399,41 @@ def updateImplicitMult(self):
         self.trans = self.baseTrans
     self.implicitMulLabel.setText(f'Implicit Multiplication is {"On" if self.implicitMult.isChecked() else "Off"}')
     self.updateEquation()
+
+
+# def updateUnitSystem(self, to):
+    # self.unitSystem = to
+    # if to == 'Dimentionless':
+    #     self.actionPhysics.setChecked(False)
+    #     self.actionElectronics.setChecked(False)
+    #     self.actionAstrophysics.setChecked(False)
+    # elif to == 'Physics':
+    #     self.actionElectronics.setChecked(False)
+    #     self.actionAstrophysics.setChecked(False)
+    #     self.actionDimentionless.setChecked(False)
+    # elif to == 'Astrophysics':
+    #     self.actionPhysics.setChecked(False)
+    #     self.actionElectronics.setChecked(False)
+    #     self.actionDimentionless.setChecked(False)
+    # elif to == 'Electronics':
+    #     self.actionPhysics.setChecked(False)
+    #     self.actionAstrophysics.setChecked(False)
+    #     self.actionDimentionless.setChecked(False)
+    # else:
+    #     raise Exception(f"Unknown unit system {to}")
+
+
+    # for i in self.getAvailableUnits():
+    #     self.convertSolutionToUnit.addAction(str(i)).triggered.connect(self.updateEquation)
+
+    # self.unitBox.addItems([str(i) for i in self.getAvailableUnits()])
+
+
+# def fillVarUnit(self):
+#     self.unitBox.setCurrentText(str(self.currentVar.unit.name))
+
+# def fillVarPrefix(self):
+#     self.prefixBox.setCurrentText(str(self.currentVar.prefix.name))
+
+# def changeVarUnit(self):
+    # pass

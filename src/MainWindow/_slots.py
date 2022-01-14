@@ -31,6 +31,10 @@ from sympy.printing.preview import preview
 from sympy.printing.pycode import pycode
 from sympy.sets.conditionset import ConditionSet
 from sympy.solvers.inequalities import solve_rational_inequalities
+from sympy.physics.units import *
+import sympy.physics.units as units
+from sympy.physics.units import Quantity
+from sympy.physics.units.prefixes import Prefix
 from Variable import Variable
 
 from ._customFuncs import *
@@ -71,6 +75,11 @@ def connectEverything(self):
     self.varList.editTextChanged.connect(self.onVarNameChanged)
     self.varSetter.returnPressed.connect(self.onVarValueChanged)
     self.varType.currentIndexChanged.connect(self.onVarTypeChanged)
+    # self.unitBox.currentIndexChanged.connect(self.onVarUnitChanged)
+    self.unitBox.currentIndexChanged.connect(self.onVarValueChanged)
+    self.solutionUnitBox.currentIndexChanged.connect(self.updateEquation)
+    self.prefixBox.currentIndexChanged.connect(self.onVarValueChanged)
+    # QCompleter is the best!
 
     #* Actions
     self.throwError.triggered.connect(self.updateEquation)
@@ -81,6 +90,7 @@ def connectEverything(self):
     self.getSum.triggered.connect(self.onGetSumPressed)
     self.dontSimplify.triggered.connect(self.updateEquation)
     self.prettySolution.triggered.connect(self.updateEquation)
+    self.useSciNot.triggered.connect(self.updateEquation)
     self.doEval.triggered.connect(self.updateEquation)
     self.resetButton.triggered.connect(self.resetEverything)
     self.previewSolution.triggered.connect(self.onPreviewSolution)
@@ -89,11 +99,17 @@ def connectEverything(self):
     self.makePiecewise.triggered.connect(self.doPiecewise)
     # self.getContinuous.triggered.connect(self.onGetContinuous)
     self.getIntDiff.triggered.connect(self.onIntDiff)
+    self.openUnitSolver.triggered.connect(self.onOpenUnitSolver)
     self.openNotes.triggered.connect(self.notes)
     self.convertLatex.triggered.connect(self.onConvertLatex)
     self.convertVarLatex.triggered.connect(lambda: self.onConvertLatex(True))
     self.resetVars.triggered.connect(self.onResetVars)
     self.openTrigSolver.triggered.connect(self.doOpenTrigSolver)
+    self.resetSolutionUnit.triggered.connect(self.resetTheSolutionUnit)
+    # self.actionDimentionless.triggered.connect(lambda: self.updateUnitSystem("Dimentionless"))
+    # self.actionPhysics.triggered.connect(lambda: self.updateUnitSystem("Physics"))
+    # self.actionAstrophysics.triggered.connect(lambda: self.updateUnitSystem("Astrophysics"))
+    # self.actionElectronics.triggered.connect(lambda: self.updateUnitSystem("Electronics"))
     # self.updateVars.triggered.connect(self.onUpdateVars)
 
     #* All the latex buttons
@@ -171,6 +187,8 @@ def onVarValueChanged(self):
             self.vars[self.varIndex].valueChanged = True
             self.vars[self.varIndex].relationship = self.relation.currentText()
             self.vars[self.varIndex].substitutionOrder = self.varOrderSetter.value()
+            self.vars[self.varIndex].unit = self.allUnits[self.unitBox.currentIndex()]
+            self.vars[self.varIndex].prefix = self.allPrefixes[self.prefixBox.currentIndex()]
             self.updateEquation()
             self.varPng.setIcon(self.getIcon(val))
         except Exception as err:
@@ -181,6 +199,26 @@ def onVarValueChanged(self):
 
 def onVarTypeChanged(self, index):
     self.vars[self.varIndex].type = self.varTypeMap[index]
+
+
+def onVarUnitChanged(self, index):
+    if index < 0 or self.varIndex < 0:
+        return
+    # self.vars[self.varIndex].unit = self.allUnits[index]
+    self.onVarValueChanged()
+
+
+# def onSolutionUnitChanged(self, index):
+    # self.allUnits[self.unitBox.currentIndex()]
+
+
+# def onUnitSearch(self, text):
+    # return
+    # self.blockVarUnitSignal = True
+    # self.unitBox.clear()
+    # self.currentUnits = list(map(lambda u: debug(str(u.name)), filter(lambda unit: debug(text in str(unit.name)), self.allUnits)))
+    # self.unitBox.addItems(self.currentUnits)
+    # self.blockVarUnitSignal = False
 
 
 def onLimitButtonPressed(self):
@@ -277,6 +315,10 @@ def doOpenTrigSolver(self):
     TriangleSolver(self)
 
 
+def onOpenUnitSolver(self):
+    pass
+
+
 def onPreviewSolution(self):
     preview(self.solvedExpr, output='png')
 
@@ -288,6 +330,7 @@ def onPreviewCurVar(self):
 def resetCurVar(self):
     self.vars[self.varIndex] = Variable(self.currentVar.symbol)
     self.varSetter.setText('')
+    self.unitBox.setCurrentIndex(self.unitBox.findText('one'))
     self.updateEquation()
 
 
@@ -295,6 +338,7 @@ def onResetVars(self):
     self.vars = []
     # self.updateVars()
     self.varSetter.setText('Undefined')
+    self.unitBox.setCurrentIndex(self.unitBox.findText('one'))
     self.updateEquation()
 
 
