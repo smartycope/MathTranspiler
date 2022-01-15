@@ -140,10 +140,15 @@ def updateVarValue(self):
             func = solve if self.useSolve.isChecked() else solveset
             sol = func(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
                 # sol = solveset(self.subbedExpr, self.currentVar.symbol, domain=S.Reals)
-
             self.varPng.setIcon(self.getIcon(sol))
             self.varPng.pressed.connect(lambda: clip.copy(latex(sol)))
-            ans = pretty(sol) if self.prettySolution.isChecked() else str(sol)
+            if self.useSciNot.isChecked():
+                try:
+                    ans = scinot.format(ensureNotIterable(sol), self.sciNotSigFigs)
+                except ValueError:
+                    ans = pretty(sol) if self.prettySolution.isChecked() else str(sol)
+            else:
+                ans = pretty(sol) if self.prettySolution.isChecked() else str(sol)
         else:
             ans = 'Undefined'
             self.varPng.setIcon(self.getIcon(EmptySet))
@@ -153,7 +158,7 @@ def updateVarValue(self):
     self.varOrderSetter.setValue(self.currentVar.substitutionOrder)
     # Sets the unitbox to the current unit
     self.unitBox.setCurrentIndex(self.unitBox.findText(str(self.currentVar.unit.name)))
-    self.prefixBox.setCurrentIndex(self.prefixBox.findText(str(self.currentVar.prefix.name)))
+    self.prefixBox.setCurrentIndex(self.prefixBox.findText(f'{self.currentVar.prefix.name} ({self.currentVar.prefix.abbrev})'))
 
 
 def updateVars(self):
@@ -187,7 +192,9 @@ def updateVars(self):
         # atoms = atoms.union(funcs)
 
         # Remove any unit from atoms (we only want to touch those internally)
-        atoms = set(filter(lambda a: type(a) not in (Quantity, Prefix), atoms))
+        atoms = filter(lambda a: type(a) not in (Quantity, Prefix), atoms)
+        # atoms = filter(lambda a: type(a) not in (Quantity, Prefix), atoms)
+        atoms = set(atoms)
         # debug(atoms)
 
         return atoms
@@ -209,8 +216,8 @@ def updateVars(self):
     #* Get all the things in what we've just parsed that aren't already in self.vars and add them
     curSymbols = set([v.symbol for v in self.vars])
     for s in atoms.difference(curSymbols):
-        # self.vars.append(Variable(s, order=len(self.vars)+1))
-        self.vars.append(Variable(s))
+        # If it's likely a unit, fill it with that first
+        self.vars.append(self.initializeVariable(s))
 
     #* Now get all the things in self.vars that aren't in the thing we just parsed and delete them
     if not self.rememberVarNames.isChecked():
@@ -250,7 +257,10 @@ def updateSolution(self):
         ans = pretty(self.solvedExpr)
     else:
         if self.useSciNot.isChecked():
-            ans = scinot.format(self.solvedExpr, self.sciNotSigFigs)
+            try:
+                ans = scinot.format(self.solvedExpr, self.sciNotSigFigs)
+            except ValueError:
+                ans = str(self.solvedExpr)
         else:
             ans = str(self.solvedExpr)
 

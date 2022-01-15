@@ -32,7 +32,9 @@ from sympy.printing.mathml import mathml
 from sympy.printing.preview import preview
 from sympy.printing.pycode import pycode
 from sympy.sets.conditionset import ConditionSet
+from sympy.physics.units import *
 from sympy.physics.units import convert_to
+from sympy.physics.units.prefixes import Prefix
 from sympy.core.numbers import One
 # from sympy.solvers.inequalities import solve_rational_inequalities
 from sympy.solvers.inequalities import *
@@ -80,7 +82,7 @@ def resetEverything(self):
     self.loading = False
     self.codeLoading = False
     self.unitBox.setCurrentIndex(self.unitBox.findText('one'))
-    self.prefixBox.setCurrentIndex(self.prefixBox.findText('one'))
+    self.prefixBox.setCurrentIndex(self.prefixBox.findText('one (1)'))
     # self.codeInput.setPlainText('')
 
 
@@ -124,6 +126,17 @@ def setError(self, err, where):
             raise err
 
         self.output.setCurrentIndex(self.errorTabIndex)
+
+
+def initializeVariable(self, symbol):
+    if str(symbol) in self.autofillCustom.keys():
+        return self.autofillCustom[str(symbol)]
+    elif str(symbol) in self.autofillPrefixes.keys():
+        return self.autofillPrefixes[str(symbol)]
+    elif str(symbol) in self.autofillUnits.keys():
+        return self.autofillUnits[str(symbol)]
+    else:
+        return Variable(symbol)
 
 
 def calculateSolution(self):

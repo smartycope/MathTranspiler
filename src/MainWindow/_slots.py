@@ -39,7 +39,7 @@ from Variable import Variable
 
 from ._customFuncs import *
 from trigAutoSolver import TriangleSolver
-
+ROOT = join(dirname(__file__), '../../')
 
 def connectEverything(self):
     #* File Connections

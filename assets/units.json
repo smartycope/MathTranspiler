@@ -1,0 +1,81 @@
+[
+
+    {
+        "catagory": "Electronics",
+        "name": "Current",
+        "symbol": "I/E",
+        "equations": [
+            "sqrt(power / resistance)",
+            "power / voltage",
+            "voltage / resistance"
+        ]
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Voltage",
+        "symbol": "V",
+        "equations": [
+            "sqrt(power*resistance)",
+            "power / current",
+            "current * resistance"
+        ]
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Resistance",
+        "symbol": "R",
+        "equations": [
+            "(voltage^2) / power",
+            "power / (current^2)", "voltage / current",
+            "resistivity * (wireLength / crossSectionalArea)"
+        ]
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Resisivity",
+        "symbol": "ρ",
+        "equations": []
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Conductance",
+        "symbol": "Siemens",
+        "equations": [
+            "1/resistance"
+        ]
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Cross-Sectional Wire Area",
+        "symbol": "A",
+        "equations": []
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Wire Length",
+        "symbol": "ℓ",
+        "equations": []
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Amps",
+        "symbol": "A",
+        "equations": []
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Power",
+        "symbol":   "P",
+        "equations": [
+            "voltage * current",
+            "resistance * (current^2)",
+            "(volts^2) / resistance"
+        ]
+    },
+    {
+        "catagory": "Physics",
+        "name": "Time",
+        "symbol": "t",
+        "equations": []
+    }
+]

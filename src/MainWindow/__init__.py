@@ -52,10 +52,12 @@ _quantityStrings = filter(lambda u: type(getattr(_units, u)) is Quantity, dir(_u
 _prefixStrings   = filter(lambda u: type(getattr(_units, u)) is Prefix,   dir(_units))
 
 _quantities = list(set(map(lambda i: getattr(_units, i), _quantityStrings)))
-_prefixes   = list(set(map(lambda i: getattr(_units, i), _prefixStrings))) + [One()] # Because we want one in the middle
+_prefixes   = list(set(map(lambda i: getattr(_units, i), _prefixStrings)))
 
-_quantities.sort(key=lambda i: str(i))
-_prefixes.sort(key=lambda i: i.scale_factor, reverse=True)
+customUnits = [
+    Quantity('m/s', abbrev='m/s', dimension=length/time, scale_factor=meter/second)
+    # Quantity('m/s', abbrev='m/s', dimension=meters/second)
+]
 
 class Main(QMainWindow):
     from ._file import (_load, _save, _saveAs, exportAsLatex,
@@ -64,7 +66,8 @@ class Main(QMainWindow):
                            fixEquationString, getIcon, setError, detectLatex,
                            printToCodeOutput, resetError, resetEverything,
                            resetIcon, resetOuput, resetTab, runCustomFuncInCode,
-                           _convertLatex, sanatizeOutput, resetTheSolutionUnit)
+                           _convertLatex, sanatizeOutput, resetTheSolutionUnit,
+                           initializeVariable)
     from ._slots import (doPiecewise, notes, onCurrentVariableChanged,
                          onIntDiff, onLimitButtonPressed, onResetVars,
                          onNewRelationWanted, onPreviewCurVar, #onUpdateVars,
@@ -78,17 +81,14 @@ class Main(QMainWindow):
                           updateSolution, updateVarInfo, updateVars,
                           updateVarValue, updateSubbedExpr, updateSum)
                           #fillVarUnit) #changeVarUnit, updateUnitSystem)
-    from ._customActions import (addCustomFuncs, _addCustomFunc, addCommonEqus,
-                                 _addCommonEqu, _addUnit, addUnits, _addConstant, addConstants)
+    from ._customActions import (addCustomFuncs, addCommonEqus, addUnits, addConstants)
 
     varTypes = (Symbol, Derivative, Function, FunctionCall, Integral)
     varTypeMap = {0: Symbol, 1: Function, 2: Derivative, 3: Integral}
     funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
     functionVar = Symbol('x')
-    µ = micro
-    customUnits = []
-    allUnits    = [One()] + _quantities
-    allPrefixes = _prefixes
+    allUnits    = [One()] + sorted(_quantities + customUnits, key=lambda i: str(i.name))
+    allPrefixes = sorted([One()] + _prefixes, key=lambda i: i.scale_factor, reverse=True)
     # This line of code was *awesome*
     # allUnits    = [One()] + sorted(list(set(map(lambda i: getattr(_units, i), filter(lambda u: type(getattr(_units, u)) in Quantity, dir(_units))))), key=lambda i: str(i))
     # allPrefixes = [One()] + sorted(list(set(map(lambda i: getattr(_units, i), filter(lambda u: type(getattr(_units, u)) in Prefix,   dir(_units))))), key=lambda i: str(i))
@@ -117,6 +117,16 @@ class Main(QMainWindow):
         self.inputAlertIcon = self.errorIcon = QIcon(join(ROOT, "assets/red!.png"))
         if self.implicitMult.isChecked():
             self.trans += (implicit_multiplication,)
+
+
+        # Construct dicts of string: Variable of things we want to have as defualt
+        self.autofillUnits    =   dict(zip([str(i.name)   for i in self.allUnits], [Variable(i, value=1, unit=i, _type=Quantity) for i in self.allUnits]))
+        self.autofillUnits.update(dict(zip([str(i.abbrev) for i in self.allUnits], [Variable(i, value=1, unit=i, _type=Quantity) for i in self.allUnits])))
+        self.autofillPrefixes =      dict(zip([str(i.name)   for i in self.allPrefixes], [Variable(i, value=1, prefix=i, _type=Prefix) for i in self.allPrefixes]))
+        self.autofillPrefixes.update(dict(zip([str(i.abbrev) for i in self.allPrefixes], [Variable(i, value=1, prefix=i, _type=Prefix) for i in self.allPrefixes])))
+        self.autofillCustom = {
+            'µ': Variable(micro, value=1, prefix=micro, _type=Prefix)
+        }
 
         # Set the dropdown box completers (Based)
         self.unitBox.setCompleter(QCompleter([str(i.name) for i in self.allUnits]))

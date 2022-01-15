@@ -11,7 +11,7 @@ class Variable:
     def __init__(self, symbol: sym.Basic, name='', value=None, order=50, unit=One(), prefix=One(), _type=None):
         self.symbol = symbol
         self.name = str(symbol) if not len(name) else name
-        self._value = (symbol if not value else value)
+        self._value = (symbol if value is None else value)
         self.valueChanged = False
         self.relationship = '=='
         self.type = type(symbol) if _type is None else _type
@@ -24,7 +24,7 @@ class Variable:
 
     @property
     def value(self):
-        return self._value * (self.unit * self.prefix)
+        return (self.unit * self.prefix.scale_factor) * self._value
 
     @value.setter
     def value(self, to):

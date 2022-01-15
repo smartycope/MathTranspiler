@@ -1,0 +1,103 @@
+[
+    {
+        "name": "Volume of a Cylinder",
+        "catagory": "Volume and Area",
+        "definition": "π * height * radius^2"
+    },
+    {
+        "name": "Volume of a Cone",
+        "catagory": "Volume and Area",
+        "definition": "(1/3) * π * height * radius^2"
+    },
+    {
+        "name": "Volume of a Prism",
+        "catagory": "Volume and Area",
+        "definition": "base * height"
+    },
+    {
+        "name": "Volume of a Sphere",
+        "catagory": "Volume and Area",
+        "definition": "(4/3) * π * radius^3"
+    },
+    {
+        "name": "Circumfrence of a Circle",
+        "catagory": "Volume and Area",
+        "definition": "2 * π * radius"
+    },
+    {
+        "name": "Area of a Circle",
+        "catagory": "Volume and Area",
+        "definition": "π * radius^2"
+    },
+    {
+        "name": "Area of a Traingle",
+        "catagory": "Volume and Area",
+        "definition": "(base * height) / 2"
+    },
+    {
+        "name": "Surface Area of a Sphere",
+        "catagory": "Volume and Area",
+        "definition": "4 * radius^2"
+    },
+    {
+        "name": "Lateral Surface Area of a Cone",
+        "catagory": "Volume and Area",
+        "definition": "π * radius * slantHeight"
+    },
+    {
+        "name": "Area Between 2 Functions",
+        "catagory": "Volume and Area",
+        "definition": "Integral(f(x) - g(x), (x, lowerbound, upperbound))"
+    },
+    {
+        "name": "Definition of a Derivative",
+        "catagory": "Math Formulae",
+        "definition": "Limit((f(x+h) - f(x)) / h, h, 0)"
+    },
+    {
+        "name": "Pythagorean Theorem",
+        "catagory": "Math Formulae",
+        "definition": "c = sqrt(a^2 + b^2)"
+    },
+    {
+        "name": "Slope Function",
+        "catagory": "Math Formulae",
+        "definition": "y = a*x + b"
+    },
+    {
+        "name": "Resistance of a Wire",
+        "catagory": "Electronics",
+        "definition":  "Resistance = resistivity * (length / crossSectionalArea)"
+    },
+    {
+        "name": "Charge or Something",
+        "catagory": "Electronics",
+        "definition": "Charge(time) = Integral(time, time_0, current(time)"
+    },
+    {
+        "name": "Function of a Circle",
+        "catagory": "Misc",
+        "definition":  "x^2 + y^2 = radius^2"
+    },
+    {
+        "name": "Get Velocity with a Constant Acceleration",
+        "catagory": "Physics",
+        "definition":  "velocity == velocity_0 + (constantAcceleration * time)"
+    },
+    {
+        "name": "x Position given a Constant Acceleration",
+        "catagory": "Physics",
+        "definition":  "x == x_0 + (1/2) * (velocity - velocity_0) * time"
+    },
+    {
+        "name": "x Position given a Constant Acceleration 2",
+        "catagory": "Physics",
+        "definition":  "x == x_0 + (velocity_0 * time) + ((1/2) * constantAcceleration * (time^2))"
+    },
+    {
+        "name": "Velocity^2 given a Constant Acceleration",
+        "catagory": "Physics",
+        "definition":  "velocity^2 == (velocity_0^2) + 2 * constantAcceleration * (x - x_0)"
+    }
+
+]

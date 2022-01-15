@@ -1,0 +1,24 @@
+[
+    {
+        "catagory": "Electronics",
+        "name": "Coloumb",
+        "definition":"1.602176634×10^-19"
+    },
+    {
+        "catagory": "Physics",
+        "name": "Displacement",
+        "definition":"Displacement = x(final) – x(initial).",
+        "tooltip": "𝚫s"
+    },
+    {
+        "catagory": "Physics",
+        "name": "Interval of Time",
+        "definition":"",
+        "tooltip": "𝚫t"
+    },
+    {
+        "catagory": "Physics",
+        "name": "Instantaneous Velocity",
+        "definition":"The slope of the tangent line at a point on a graph of position and time"
+    }
+]

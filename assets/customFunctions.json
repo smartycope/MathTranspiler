@@ -1,0 +1,258 @@
+[
+    {
+        "catagory": "Basic Utilities",
+        "name": "Deg to Rad",
+        "string": "out = degrees(expr)"
+    },
+    {
+        "catagory": "Basic Utilities",
+        "name": "Rad to Deg",
+        "string": "out = radians(expr)"
+    },
+    {
+        "catagory": "Basic Utilities",
+        "name": "Get the Function between 2 points",
+        "string": "out = getFunctionBetweenPoints((ax, ay), (bx, by))"
+    },
+    {
+        "catagory": "Basic Utilities",
+        "name": "Get Quadrant of Angle",
+        "string": "out = getQuadrant(angle=expr, isRadians=True)"
+    },
+    {
+        "catagory": "Basic Utilities",
+        "name": "Get Reference Angle",
+        "string": "out = getReferenceAngle(angle=expr, isRadians=True)"
+    },
+    {
+        "catagory": "Basic Utilities",
+        "name": "Get Coterminal Angle",
+        "string": "out = getCoterminalAngleOverInterval(angle=expr, interval=Interval(0, 2*pi), isRadians=True)"
+    },
+    {
+        "catagory": "Basic Calculus",
+        "name": "Get Continuous at",
+        "string": "out = isContinuousAt(expr, symbol=Symbol('x'), at=S.Reals)"
+    },
+    {
+        "catagory": "Basic Calculus",
+        "name": "Get Equation of Tangent Line",
+        "string": "out = getTanSlopeEquation(expr, symbol=curSymbol, symbolVal=curValue)"
+    },
+    {
+        "catagory": "Basic Calculus",
+        "name": "Get Slope of Tangent Line",
+        "string": "out = getTanSlope(expr, symbol=curSymbol, symbolVal=curValue)"
+    },
+    {
+        "catagory": "Basic Calculus",
+        "name": "Get Equation of Normal Line",
+        "string": "out = getNormalSlopeEquation(expr, symbol=curSymbol, symbolVal=curValue)"
+    },
+    {
+        "catagory": "Basic Calculus",
+        "name": "Find Average Rate of Change over Interval",
+        "string": "out = getAvgRateOfChange(func=func, interval=Interval(-oo, oo))"
+    },
+    {
+        "catagory": "Basic Calculus",
+        "name": "Solve as Implicit Derivative",
+        "string": "out = idiff(eq=expr, y=y, x=x, n=1)",
+        "comments": [
+            "eq is the equation. Must equal 0 (use -, not Eq() or =)",
+            "n is the order of the derivative"
+        ]
+    },
+    {
+        "catagory": "Solve For Specific Points",
+        "name": "Get left/right at time",
+        "string": "print(leftOrRight(func=func, timeVal=curSymbol))"
+    },
+    {
+        "catagory": "Solve For Specific Points",
+        "name": "Get times at veolcity",
+        "string": "out = timesAtHeight(expr, timeVar=curSymbol, height=0)"
+    },
+    {
+        "catagory": "Solve For Specific Points",
+        "name": "Get Velocity at height",
+        "string": "out = velocityAtHeight(expr, timeVar=curSymbol, height=0)"
+    },
+    {
+        "catagory": "Solve For Specific Points",
+        "name": "Get acceleration at time",
+        "string": "out = accAtTime(expr, timeVar=curSymbol, time=curValue)"
+    },
+    {
+        "catagory": "Solve For Specific Points",
+        "name": "Is speeding up at time",
+        "string": "print(isSpeedingUpAtTime(expr, timeVar=curSymbol, time=curValue))"
+    },
+    {
+        "catagory": "Solve For Specific Points",
+        "name": "Get Time when Instant Velocity equals Average Velocity",
+        "string": "out = getWhenDiffEqualToAverageChange(expr, solveVar=Symbol('t'))"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Get Critical Points",
+        "string": "out = getCriticalPoints(expr, var=curSymbol, order=1)"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Get Critical Points over Interval",
+        "string": "out = getCriticalPointsOverInterval(expr, var=curSymbol, interval=Interval(-oo, oo), order=1)"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Get Min and Max over Interval",
+        "string": "print(minMaxOverInterval(expr, var=curSymbol, interval=Interval(-oo, oo)))"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Find Local Extrema",
+        "string": "print(findLocalExtrema(expr, solveVar=Symbol('x')))"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Find Local Extrema using Derivative",
+        "string": "print(findLocalExtremaOverIntervalUsingDerivative(expr, solveVar=Symbol('x'), interval=Interval(-oo, oo), order=1))"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Find Local Extrema using Second Derivative",
+        "string": "print(findLocalExtremaOverIntervalUsingSecondDerivative(expr, solveVar=Symbol('x'), interval=Interval(-oo, oo)))"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Find Absolute Extrema",
+        "string": "print(findAbsExtremaOverInterval(expr, solveVar=Symbol('x'), interval=Interval(-oo, oo)))"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Get Concave Intervals",
+        "string": "print(getConcaveIntervals(expr, solveVar=Symbol('x')))"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Get Inflection Points",
+        "string": "out = getInflectionPoints(expr, solveVar=Symbol('x'))"
+    },
+    {
+        "catagory": "Special Points",
+        "name": "Get Intersecting Points",
+        "string": "out = getIntersection(fx, gx, solveVar=Symbol('x'))"
+    },
+    {
+        "catagory": "Areas",
+        "name": "Get Max Area of Inscribed Rectangle",
+        "string": "out = getMaxAreaOfInscribedRect(equation=expr)",
+        "comments": [
+            "Make sure equation has an x and a y in it"
+        ]
+    },
+    {
+        "catagory": "Areas",
+        "name": "Approximate Area Under Curve",
+        "string": "out = approxAreaUnderCurve(expr, Interval(from, to), rects=, rightPoint=True, solveVar=Symbol('x'))"
+    },
+    {
+        "catagory": "Areas",
+        "name": "Get Volume of a Revolved Curve (Disk Method)",
+        "string": "out = getVolumeOfSolidRevolution(expr, lowerbound, upperbound, solveVar=Symbol('x')).simplify()"
+    },
+    {
+        "catagory": "Areas",
+        "name": "Get Area Between Functions",
+        "string": "out = getAreaBetween(fx, gx, lowerbound=None, upperbound=None, solveVar=Symbol('x'))"
+    },
+    {
+        "catagory": "Areas",
+        "name": "Get Cross Sectional Volume",
+        "string": "out = getCrossSectionalVolume(baseFunction=expr, crossSectionalAreaEquation=Symbol('s')**2, randomlyDouble=False, quadrant=None)"
+    },
+    {
+        "catagory": "Areas",
+        "name": "Get Volume of a Rotated Region",
+        "string": "out = getVolumeOfARotatedRegionBetweenCurves(fx=expr, bounds=Interval(), gx=0, axis='x').simplify()"
+    },
+    {
+        "catagory": "Areas",
+        "name": "Get Volume of a Rotated Region Using Shell Method",
+        "string": "out = getVolumeOfARotatedRegionUsingAShell(boundingEqu=expr, limit, rotateAroundLine, secondBoundingEqu=0, secondLimit=None, areaEquation=parse_expr('2*pi*r*h'), axis='x', makeAbs=False, swapSides=False).simplify()"
+    },
+    {
+        "catagory": "Physics",
+        "name":   "Get the Amount of Work Done",
+        "string": "out = integral(expr_newtons, start_meters, end_meters, var=None).simplify()"
+    },
+    {
+        "catagory": "Physics",
+        "name":   "Hooke\"s law (Work to move a spring)",
+        "string": "out = integral((newtons / meters) * x, start_meters, end_meters, var=x).simplify()"
+    },
+    {
+        "catagory": "Physics",
+        "name":   "Get Natural Spring Length from 2 Force Measurements",
+        "string": "out = calculateNaturalStringLengthFrom2Measurements(joules1, start1, end1, joules2, start2, end2).evalf()"
+    },
+    {
+        "catagory": "Physics",
+        "name":   "Pulling a Cable up a building",
+        "string": "out = integral(x * (net_mass / length_meters) * 9.8, 0, length_meters, var=x).simplify()"
+    },
+    {
+        "catagory": "Explanations",
+        "name":  "Solve Related Rate",
+        "string": "out = solveRelatedRate(equation=expr, changeExpr=, solveVar=Symbol('x'))",
+        "comments": [
+            "changeExpr is the amount its changing",
+            "equation must be an Eq() statement of type Eq(<stuff>, <stuff involving solveVar>)"
+        ]
+    },
+    {
+        "catagory": "Explanations",
+        "name":  "Solve Related Rate -- instructions",
+        "string": "# Put one of these in the box, then fill the variables with what you know (rate of change of volume is Derivative(v,t), current value, ect.)",
+        "comments": [
+            "For a Triangle, with the base changing: Eq(Derivative(volume(time), time), (1/2)*Derivative(base(time), time)*height)",
+            "Cube, with the side changing: Eq(Derivative(volume(time), time), Derivative(side(time), time)**3)",
+            "Rectangle, with any side changing: Eq(Derivative(volume(time), time), Derivative(side(time), time)*width*height)",
+            "Cylinder = V=pi*h*r^2",
+            "Cone: (1/3)*pi*(r^2)*h"
+        ]
+    },
+    {
+        "catagory": "Explanations",
+        "name": "Mean Value Theorem",
+        "string": "out = meanValueTheorem(expr, solveVar=Symbol('x'), interval=Interval(-oo, oo))"
+    },
+    {
+        "catagory": "Explanations",
+        "name": "Mean Value Theorem -- Raw",
+        "string": "c = Symbol('c')\ninterval = Interval(, )\nf = Function('f')\nequ = Eq(Derivative(f(c)), (f(interval.end) - f(interval.start)) / (interval.end - interval.start))\nout = equ.simplify()"
+    },
+    {
+        "catagory": "Explanations",
+        "name": "Get Riemann Sum",
+        "string": "out = getRiemannSum(rational=6/6, x=6 + 6/6, expr=6 + 6/6 * ln(6 + 6/6), firstNum=6, solveVar=Symbol('x'))",
+        "comments": [
+            "R_n = rational * Sum(x * func(x)), where x is in the form of firstNum + <something>, and expr is in the form x * func(x)"
+        ]
+    },
+    {
+        "catagory": "Misc.",
+        "name": "Intermediate Value Theorem",
+        "string": "out = leastPossibleVal(func=func, interval=Interval(, ))"
+    },
+    {
+        "catagory": "Misc.",
+        "name": "Get all Derivatives equal to 0",
+        "string": "out = getAllDiffsAt0(expr, interval=Interval(-oo, oo), solveVar=Symbol('x'))"
+    },
+    {
+        "catagory": "Misc.",
+        "name": "Find netSigned interval",
+        "string": "print(netSignedInterval(expr, None))"
+    }
+]
