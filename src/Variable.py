@@ -1,26 +1,81 @@
+# This Python file uses the following encoding: utf-8
+import math
+import re
+import threading
+from io import BytesIO
+from os.path import dirname, join
+
+
+import clipboard as clip
+from Cope import *
+from EasyRegex import *
+from LoadingBar import LoadingBar, showLoading, showWithLoading
+from PyQt5 import uic
+from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
+                          QRectF, Qt, QThread, QTimer, QSize)
+from PyQt5.QtGui import QIcon, QImage, QPixmap
+from PyQt5.QtWidgets import (QDialog, QFileDialog, QLabel, QLineEdit, QMainWindow, QTableWidgetItem, QWidget, QCompleter, QComboBox, QHBoxLayout)
+# from PyQt5.QtWidgets import *
+from sympy import *
 import sympy as sym
+from sympy import abc
+from sympy.abc import *
+from sympy.calculus.util import continuous_domain
 from sympy.core.function import AppliedUndef, UndefinedFunction
+from sympy.parsing.latex import parse_latex
+from sympy.parsing.sympy_parser import (convert_xor, implicit_multiplication,
+                                        implicit_multiplication_application,
+                                        lambda_notation, parse_expr,
+                                        standard_transformations)
+from sympy.physics.units import *
+import sympy.physics.units as _units
+# from sympy.physics.units import Quantity
+from sympy.physics.units.prefixes import Prefix
+# from sympy.plotting import plot
+# from sympy.printing.latex import latex
+# from sympy.printing.mathematica import mathematica_code
+# from sympy.printing.mathml import mathml
+# from sympy.printing.preview import preview
+# from sympy.printing.pycode import pycode
+# from sympy.sets.conditionset import ConditionSet
+# from sympy.solvers.inequalities import solve_rational_inequalities
+
 from sympy.core.numbers import One
+from UnitSelector import UnitSelector
 One.name = 'one'
-# class _One(One):
-    # name='one'
 
 funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
 
 class Variable:
+    # Construct dicts of {string: Variable} of things we want to have as defualt
+    autofillUnits    =   dict(zip([str(i.name)   for i in UnitSelector.allUnits], [(i, 1, i, Quantity) for i in UnitSelector.allUnits]))
+    autofillUnits.update(dict(zip([str(i.abbrev) for i in UnitSelector.allUnits], [(i, 1, i, Quantity) for i in UnitSelector.allUnits])))
+    autofillPrefixes =      dict(zip([str(i.name)   for i in UnitSelector.allPrefixes], [(i, 1, i, Prefix) for i in UnitSelector.allPrefixes]))
+    autofillPrefixes.update(dict(zip([str(i.abbrev) for i in UnitSelector.allPrefixes], [(i, 1, i, Prefix) for i in UnitSelector.allPrefixes])))
+    autofillCustom = {
+        'µ': (micro, 1, micro, One(), Prefix)
+    }
+
     def __init__(self, symbol: sym.Basic, name='', value=None, order=50, unit=One(), prefix=One(), _type=None):
-        self.symbol = symbol
+        if str(symbol) in self.autofillCustom.keys():
+            self.symbol, self._value, self.unit, self.type = self.autofillCustom[str(symbol)]
+            self.prefix = prefix
+        elif str(symbol) in self.autofillPrefixes.keys():
+            self.symbol, self._value, self.prefix, self.type = self.autofillPrefixes[str(symbol)]
+            self.unit = unit
+        elif str(symbol) in self.autofillUnits.keys():
+            self.symbol, self._value, self.prefix, self.unit, self.type = self.autofillUnits[str(symbol)]
+        else:
+            self.symbol = symbol
+            self._value = (symbol if value is None else value)
+            self.type = type(symbol) if _type is None else _type
+            self.prefix = prefix
+            self.unit = unit
+
         self.name = str(symbol) if not len(name) else name
-        self._value = (symbol if value is None else value)
         self.valueChanged = False
         self.relationship = '=='
-        self.type = type(symbol) if _type is None else _type
         self.substitutionOrder = order
-        self.prefix = prefix
-        self.unit = unit
-
-    # def isFunc(self):
-        # return isinstance(self.symbol, funcTypes)
 
     @property
     def value(self):
@@ -31,12 +86,7 @@ class Variable:
         self._value = to
 
     def __str__(self):
-        # if isinstance(self.symbol, funcTypes):
-            # return (str(self.symbol) if not self.valueChanged else self.name) + '(x)'
-        # else:
-        # return str(self.symbol) if not self.valueChanged else self.name
         return self.name
-        # return repr(self)
 
     def __repr__(self):
         return f'Variable {type(self.symbol)} {self.symbol} = {{"{self.name}"={self.value}}}(changed={self.valueChanged})'

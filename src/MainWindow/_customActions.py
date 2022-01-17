@@ -30,7 +30,6 @@ def addCustomFuncs(self):
                 ihateeveryone = deepcopy(item['string'])
                 self._catagories[item['catagory']].addAction(item['name'], autism(self.runCustomFuncInCode, ihateeveryone)) # lambda: self.runCustomFuncInCode(ihateeveryone))
 
-
 def addCommonEqus(self):
     with open(commonEquFile, 'r') as f:
         for item in json.load(f):

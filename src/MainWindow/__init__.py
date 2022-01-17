@@ -38,6 +38,11 @@ from sympy.physics.units.prefixes import Prefix
 # from sympy.sets.conditionset import ConditionSet
 # from sympy.solvers.inequalities import solve_rational_inequalities
 from Variable import Variable
+from UnitSelector import UnitSelector
+from Equation import Equation
+from VarHandler import VarHandler
+from ErrorHandler import ErrorHandler
+from Expression import Expression
 
 from sympy.core.numbers import One
 # Hacking One so I don't have to make it a unit (cause I'm lazy)
@@ -48,52 +53,24 @@ One.scale_factor = 1
 # Because Cope.ROOT stopped working and I use it to find ui files
 ROOT = dirname(dirname(dirname(__file__)))
 
-_quantityStrings = filter(lambda u: type(getattr(_units, u)) is Quantity, dir(_units))
-_prefixStrings   = filter(lambda u: type(getattr(_units, u)) is Prefix,   dir(_units))
-
-_quantities = list(set(map(lambda i: getattr(_units, i), _quantityStrings)))
-_prefixes   = list(set(map(lambda i: getattr(_units, i), _prefixStrings)))
-
-customUnits = [
-    Quantity('m/s', abbrev='m/s', dimension=length/time, scale_factor=meter/second)
-    # Quantity('m/s', abbrev='m/s', dimension=meters/second)
-]
 
 class Main(QMainWindow):
     from ._file import (_load, _save, _saveAs, exportAsLatex,
                         exportAsMathmatica, exportAsMathML)
-    from ._private import (calculateSolution, sanatizeInput, sanatizeLatex,
-                           fixEquationString, getIcon, setError, detectLatex,
-                           printToCodeOutput, resetError, resetEverything,
+    from ._private import (printToCodeOutput,  resetEverything,
                            resetIcon, resetOuput, resetTab, runCustomFuncInCode,
-                           _convertLatex, sanatizeOutput, resetTheSolutionUnit,
-                           initializeVariable)
-    from ._slots import (doPiecewise, notes, onCurrentVariableChanged,
-                         onIntDiff, onLimitButtonPressed, onResetVars,
-                         onNewRelationWanted, onPreviewCurVar, #onUpdateVars,
-                         onPreviewSolution, onTabChanged, onVarNameChanged,
-                         onVarValueChanged, _plot, resetCode, resetCurVar,
-                         runCode, connectEverything, onConvertLatex,
-                         onVarTypeChanged, onGetSumPressed, doOpenTrigSolver,
-                         onVarUnitChanged, onOpenUnitSolver)
-    from ._update import (updateCode, updateEquation, updateImplicitMult,
-                          updateIntDiff, updateLimit, updatePiecewise,
-                          updateSolution, updateVarInfo, updateVars,
-                          updateVarValue, updateSubbedExpr, updateSum)
-                          #fillVarUnit) #changeVarUnit, updateUnitSystem)
+                           resetTheSolutionUnit)
+    from ._slots import (doPiecewise, notes, onPreviewCurVar,
+                         onIntDiff, onLimitButtonPressed,
+                         onPreviewSolution, onTabChanged,
+                         _plot, resetCode, runCode, connectEverything, onConvertLatex,
+                         onGetSumPressed, doOpenTrigSolver, onOpenUnitSolver)
+    from ._update import (updateCode, updateImplicitMult,
+                          updateIntDiff, updateLimit, updatePiecewise, updateSum)
     from ._customActions import (addCustomFuncs, addCommonEqus, addUnits, addConstants)
 
-    varTypes = (Symbol, Derivative, Function, FunctionCall, Integral)
-    varTypeMap = {0: Symbol, 1: Function, 2: Derivative, 3: Integral}
-    funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
     functionVar = Symbol('x')
-    allUnits    = [One()] + sorted(_quantities + customUnits, key=lambda i: str(i.name))
-    allPrefixes = sorted([One()] + _prefixes, key=lambda i: i.scale_factor, reverse=True)
-    # This line of code was *awesome*
-    # allUnits    = [One()] + sorted(list(set(map(lambda i: getattr(_units, i), filter(lambda u: type(getattr(_units, u)) in Quantity, dir(_units))))), key=lambda i: str(i))
-    # allPrefixes = [One()] + sorted(list(set(map(lambda i: getattr(_units, i), filter(lambda u: type(getattr(_units, u)) in Prefix,   dir(_units))))), key=lambda i: str(i))
     codeTabIndex = 1
-    errorTabIndex = 2
     defaultDir = join(ROOT, 'Equations')
     fileExtensions = 'Text Files (*.txt)'
     latexFileExtensions = 'TeX Document (*.tex, *.latex)'
@@ -101,11 +78,8 @@ class Main(QMainWindow):
     defaultExtension = ''
     defaultLatexExtension = ''
     defaultMathmlExtension = ''
-    baseTrans = standard_transformations + (convert_xor, lambda_notation)
-    trans = baseTrans
     varCount = 0
     windowStartingPos = (3000, 0)
-    sciNotSigFigs = 4
 
     def __init__(self):
         super(Main, self).__init__()
@@ -114,39 +88,8 @@ class Main(QMainWindow):
         self.setGeometry(*self.windowStartingPos, self.width(), self.height())
         self.setUpdatesEnabled(True)
 
-        self.inputAlertIcon = self.errorIcon = QIcon(join(ROOT, "assets/red!.png"))
         if self.implicitMult.isChecked():
             self.trans += (implicit_multiplication,)
-
-
-        # Construct dicts of string: Variable of things we want to have as defualt
-        self.autofillUnits    =   dict(zip([str(i.name)   for i in self.allUnits], [Variable(i, value=1, unit=i, _type=Quantity) for i in self.allUnits]))
-        self.autofillUnits.update(dict(zip([str(i.abbrev) for i in self.allUnits], [Variable(i, value=1, unit=i, _type=Quantity) for i in self.allUnits])))
-        self.autofillPrefixes =      dict(zip([str(i.name)   for i in self.allPrefixes], [Variable(i, value=1, prefix=i, _type=Prefix) for i in self.allPrefixes]))
-        self.autofillPrefixes.update(dict(zip([str(i.abbrev) for i in self.allPrefixes], [Variable(i, value=1, prefix=i, _type=Prefix) for i in self.allPrefixes])))
-        self.autofillCustom = {
-            'µ': Variable(micro, value=1, prefix=micro, _type=Prefix)
-        }
-
-        # Set the dropdown box completers (Based)
-        self.unitBox.setCompleter(QCompleter([str(i.name) for i in self.allUnits]))
-        self.solutionUnitBox.setCompleter(QCompleter([str(i.name) for i in self.allUnits]))
-        self.prefixBox.setCompleter(QCompleter([str(i.name) for i in self.allPrefixes]))
-
-        # Fill the dropdown boxes
-        self.unitBox.addItems([str(i.name) for i in self.allUnits])
-        self.solutionUnitBox.addItems([str(i.name) for i in self.allUnits])
-        self.prefixBox.addItems([f"{i.name} ({i.abbrev})" for i in self.allPrefixes])
-
-        # Set tooltips
-        for cnt, prefix in enumerate(self.allPrefixes):
-            self.prefixBox.setItemData(cnt, str(prefix.scale_factor), Qt.ItemDataRole.ToolTipRole)
-
-        for cnt, unit in enumerate(self.allUnits):
-            self.unitBox.setItemData(cnt, str(unit.abbrev), Qt.ItemDataRole.ToolTipRole)
-
-        # One isn't at the top of the prefix box
-        self.prefixBox.setCurrentIndex(self.prefixBox.findText('one (1)'))
 
         self._catagories = {}
         self._commonEquCatagories = {}
@@ -154,6 +97,15 @@ class Main(QMainWindow):
         self._constantCatagories = {}
 
         self.blockVarUnitSignal = False
+
+        # Set up the utility classes
+        self.errorHandler = ErrorHandler(self)
+        self.varExpr = Expression(self.varSetter, self.varPng)
+        self.solutionExpr = Expression(self.answerBox, self.solutionPng)
+        self.codeExpr = Expression(self.codeOutput, self.codePng)
+        self.varHandler = VarHandler(self, self.errorHandler, self.varList, self.varType, self.varExpr, self.varUnitSelector, self.varOrderSetter,
+                                     self.newRelationButton, self.setRelationButton, self.resetVarButton, self.relation)
+        self.equation = Equation(self, self.errorHandler, self.equationInput, self.equationPng, self.solutionExpr, self.varHandler, self.runCodeButton)
 
         self.connectEverything()
         self.addCustomFuncs()
@@ -187,34 +139,6 @@ class Main(QMainWindow):
         self._codeLoading = False
 
         # self.pngBox = QSvgWidget(self.svgBox)
-
-
-    @property
-    def varIndex(self):
-        return self.varList.currentIndex()
-
-    @varIndex.setter
-    def varIndex(self, value):
-        self.varList.setCurrentIndex(value)
-
-    @property
-    def currentVar(self):
-        try:
-            return self.vars[self.varIndex]
-        except IndexError:
-            try:
-                tmp = self.vars[0]
-                self.varIndex = 0
-                return tmp
-            except IndexError:
-                return None
-
-    @currentVar.setter
-    def currentVar(self, value):
-        try:
-            self.vars[self.varIndex] = value
-        except IndexError:
-            pass
 
     @property
     def loading(self):

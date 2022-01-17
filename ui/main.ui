@@ -394,44 +394,14 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="prefixBox">
+              <widget class="UnitSelector" name="varUnitSelector" native="true">
                <property name="minimumSize">
                 <size>
-                 <width>85</width>
-                 <height>0</height>
+                 <width>300</width>
+                 <height>35</height>
                 </size>
                </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="editable">
-                <bool>true</bool>
-               </property>
-               <property name="currentText">
-                <string/>
-               </property>
-               <property name="currentIndex">
-                <number>-1</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="unitBox">
-               <property name="minimumSize">
-                <size>
-                 <width>210</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="editable">
-                <bool>true</bool>
-               </property>
-               <property name="currentText">
-                <string>one</string>
-               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_9"/>
               </widget>
              </item>
             </layout>
@@ -477,19 +447,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QComboBox" name="solutionUnitBox">
+        <widget class="UnitSelector" name="solutionUnitSelector" native="true">
          <property name="minimumSize">
           <size>
-           <width>225</width>
-           <height>0</height>
+           <width>300</width>
+           <height>35</height>
           </size>
          </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-         <property name="currentText">
-          <string>1</string>
-         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_10"/>
         </widget>
        </item>
        <item>
@@ -876,6 +841,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="removeFx"/>
     <addaction name="useFixString"/>
     <addaction name="useLn"/>
+    <addaction name="getVarsFromVars"/>
     <addaction name="separator"/>
     <addaction name="convertLatex"/>
     <addaction name="convertVarLatex"/>
@@ -969,6 +935,9 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="throwError">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">
@@ -1403,12 +1372,29 @@ p, li { white-space: pre-wrap; }
     <string>Unit Solver</string>
    </property>
   </action>
+  <action name="getVarsFromVars">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Get Variables Only Defined by Other Variables</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>LoadingBar</class>
    <extends>QProgressBar</extends>
    <header location="global">LoadingBar</header>
+  </customwidget>
+  <customwidget>
+   <class>UnitSelector</class>
+   <extends>QWidget</extends>
+   <header location="global">UnitSelector</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

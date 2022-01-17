@@ -51,47 +51,37 @@ def connectEverything(self):
     self.exportMathmatica.triggered.connect(self.exportAsMathmatica)
 
     #* Copy Actions
-    self.copyLatex.triggered.connect(lambda: clip.copy(latex(self.solvedExpr)))
-    self.copyMathML.triggered.connect(lambda: clip.copy(mathml(self.solvedExpr)))
-    self.copyMathmatica.triggered.connect(lambda: clip.copy(mathematica_code(self.solvedExpr)))
-    self.copySolution.triggered.connect(lambda: clip.copy(str(self.solvedExpr)))
-    self.copyEquation.triggered.connect(lambda: clip.copy(self.equ))
+    self.copyLatex.triggered.connect(lambda: clip.copy(latex(self.equation.solvedExpr)))
+    self.copyMathML.triggered.connect(lambda: clip.copy(mathml(self.equation.solvedExpr)))
+    self.copyMathmatica.triggered.connect(lambda: clip.copy(mathematica_code(self.equation.solvedExpr)))
+    self.copySolution.triggered.connect(lambda: clip.copy(str(self.equation.solvedExpr)))
+    self.copyEquation.triggered.connect(lambda: clip.copy(self.equation.string))
     # self.copyCurVar.triggered.connect(lambda: clip.copy(self.varValueBox))
     self.copyCurVar.triggered.connect(lambda: clip.copy(todo('figure out current var copy to clipboard')))
 
     #* UI Buttons
-    self.solveButton.clicked.connect(self.updateEquation)
-    self.solveButton2.triggered.connect(self.updateEquation)
-    self.resetVarButton.pressed.connect(self.resetCurVar)
+    self.solveButton.clicked.connect(self.equation.update)
+    self.solveButton2.triggered.connect(self.equation.update)
     self.runCodeButton.pressed.connect(self.runCode)
     self.runCodeAction.triggered.connect(self.runCode)
-    self.setRelationButton.pressed.connect(self.onVarValueChanged)
-    self.newRelationButton.pressed.connect(self.onNewRelationWanted)
     self.resetCodeButton.pressed.connect(self.resetCode)
 
     #* Input widget connections
     self.output.currentChanged.connect(self.onTabChanged)
-    self.varList.currentIndexChanged.connect(self.onCurrentVariableChanged)
-    self.varList.editTextChanged.connect(self.onVarNameChanged)
-    self.varSetter.returnPressed.connect(self.onVarValueChanged)
-    self.varType.currentIndexChanged.connect(self.onVarTypeChanged)
-    # self.unitBox.currentIndexChanged.connect(self.onVarUnitChanged)
-    self.unitBox.currentIndexChanged.connect(self.onVarValueChanged)
-    self.solutionUnitBox.currentIndexChanged.connect(self.updateEquation)
-    self.prefixBox.currentIndexChanged.connect(self.onVarValueChanged)
+    self.solutionUnitSelector.prefixIndexChanged.connect(self.equation.update)
     # QCompleter is the best!
 
     #* Actions
-    self.throwError.triggered.connect(self.updateEquation)
-    self.doExpand.triggered.connect(self.updateEquation)
-    self.useSolve.triggered.connect(self.updateEquation)
+    self.throwError.triggered.connect(self.equation.update)
+    self.doExpand.triggered.connect(self.equation.update)
+    self.useSolve.triggered.connect(self.equation.update)
     self.plotButton.triggered.connect(self._plot)
     self.limitButton.triggered.connect(self.onLimitButtonPressed)
     self.getSum.triggered.connect(self.onGetSumPressed)
-    self.dontSimplify.triggered.connect(self.updateEquation)
-    self.prettySolution.triggered.connect(self.updateEquation)
-    self.useSciNot.triggered.connect(self.updateEquation)
-    self.doEval.triggered.connect(self.updateEquation)
+    self.dontSimplify.triggered.connect(self.equation.update)
+    self.prettySolution.triggered.connect(self.equation.update)
+    self.useSciNot.triggered.connect(self.equation.update)
+    self.doEval.triggered.connect(self.equation.update)
     self.resetButton.triggered.connect(self.resetEverything)
     self.previewSolution.triggered.connect(self.onPreviewSolution)
     self.previewCurVar.triggered.connect(self.onPreviewCurVar)
@@ -103,8 +93,8 @@ def connectEverything(self):
     self.openNotes.triggered.connect(self.notes)
     self.convertLatex.triggered.connect(self.onConvertLatex)
     self.convertVarLatex.triggered.connect(lambda: self.onConvertLatex(True))
-    self.resetVars.triggered.connect(self.onResetVars)
     self.openTrigSolver.triggered.connect(self.doOpenTrigSolver)
+    self.resetVars.triggered.connect(self.varHandler.reset)
     self.resetSolutionUnit.triggered.connect(self.resetTheSolutionUnit)
     # self.actionDimentionless.triggered.connect(lambda: self.updateUnitSystem("Dimentionless"))
     # self.actionPhysics.triggered.connect(lambda: self.updateUnitSystem("Physics"))
@@ -112,10 +102,9 @@ def connectEverything(self):
     # self.actionElectronics.triggered.connect(lambda: self.updateUnitSystem("Electronics"))
     # self.updateVars.triggered.connect(self.onUpdateVars)
 
-    #* All the latex buttons
-    self.equationPng.pressed.connect(lambda: clip.copy(latex(self.expr)))
-    self.solutionPng.pressed.connect(lambda: clip.copy(latex(self.solvedExpr)))
-    self.varPng.pressed.connect(lambda: clip.copy(latex(self.currentVar.value if self.currentVar is not None else '')))
+
+def onPreviewCurVar(self):
+    preview(solveset(self.equation.subbedExpr, self.varHandler.currentVar.symbol), output='png')
 
 
 def notes(self):
@@ -151,74 +140,8 @@ def onIntDiff(self):
 
 def onTabChanged(self):
     # Switch to the error tab, if there's an error, then switch back when there's not.
-    if self.output.currentIndex() != self.errorTabIndex:
+    if self.output.currentIndex() != self.errorHandler.errorTabIndex:
         self.lastTab = self.output.currentIndex()
-
-
-def onCurrentVariableChanged(self, varIndex):
-    if not self.blockVarList:
-        self.updateVarValue()
-        self.updateVarInfo()
-
-
-def onVarNameChanged(self):
-    # debug(showFunc=True)
-    if self.currentVar and not self.blockVarList:
-        self.vars[self.varIndex].name = self.varList.currentText()
-    # self.updateVarInfo()
-    self.updateSolution()
-    self.updateCode()
-
-
-# *Sets* the current variable value when enter is pressed
-def onVarValueChanged(self):
-    try:
-        val = parse_expr(self.varSetter.text(), transformations=self.trans)
-    except Exception as err:
-        debug('Failed to parse var value!')
-        self.setError(err, "Varaible Parser")
-    else:
-        try:
-            self.updateVars()
-            if type(self.currentVar.symbol) in self.funcTypes + (Function,):
-                self.vars[self.varIndex].value = Lambda(self.functionVar, val)
-            else:
-                self.vars[self.varIndex].value = val
-            self.vars[self.varIndex].valueChanged = True
-            self.vars[self.varIndex].relationship = self.relation.currentText()
-            self.vars[self.varIndex].substitutionOrder = self.varOrderSetter.value()
-            self.vars[self.varIndex].unit = self.allUnits[self.unitBox.currentIndex()]
-            self.vars[self.varIndex].prefix = self.allPrefixes[self.prefixBox.currentIndex()]
-            self.updateEquation()
-            self.varPng.setIcon(self.getIcon(val))
-        except Exception as err:
-            self.setError(err, "Setting Varaible")
-        else:
-            self.resetError()
-
-
-def onVarTypeChanged(self, index):
-    self.vars[self.varIndex].type = self.varTypeMap[index]
-
-
-def onVarUnitChanged(self, index):
-    if index < 0 or self.varIndex < 0:
-        return
-    # self.vars[self.varIndex].unit = self.allUnits[index]
-    self.onVarValueChanged()
-
-
-# def onSolutionUnitChanged(self, index):
-    # self.allUnits[self.unitBox.currentIndex()]
-
-
-# def onUnitSearch(self, text):
-    # return
-    # self.blockVarUnitSignal = True
-    # self.unitBox.clear()
-    # self.currentUnits = list(map(lambda u: debug(str(u.name)), filter(lambda unit: debug(text in str(unit.name)), self.allUnits)))
-    # self.unitBox.addItems(self.currentUnits)
-    # self.blockVarUnitSignal = False
 
 
 def onLimitButtonPressed(self):
@@ -259,17 +182,6 @@ def onGetSumPressed(self):
 
     inputWindow.accepted.connect(extractValues)
     inputWindow.show()
-
-
-def onNewRelationWanted(self):
-    self.varCount += 1
-    name = f'newVar{self.varCount}'
-    self.varList.addItem(name)
-    # var = Variable(name, order=len(self.vars)+1)
-    var = Variable(name)
-    var.valueChanged = True
-    var.value = EmptySet
-    self.vars.append(var)
 
 
 def _plot(self):
@@ -323,25 +235,6 @@ def onPreviewSolution(self):
     preview(self.solvedExpr, output='png')
 
 
-def onPreviewCurVar(self):
-    preview(solveset(self.subbedExpr, self.currentVar.symbol), output='png')
-
-
-def resetCurVar(self):
-    self.vars[self.varIndex] = Variable(self.currentVar.symbol)
-    self.varSetter.setText('')
-    self.unitBox.setCurrentIndex(self.unitBox.findText('one'))
-    self.updateEquation()
-
-
-def onResetVars(self):
-    self.vars = []
-    # self.updateVars()
-    self.varSetter.setText('Undefined')
-    self.unitBox.setCurrentIndex(self.unitBox.findText('one'))
-    self.updateEquation()
-
-
 def onConvertLatex(self, var=False):
     self.loading = True
     try:
@@ -363,7 +256,7 @@ def resetCode(self):
     self.codeOutput.setPlainText('')
     self.codePng.setIcon(QIcon())
     self.codeInput.setPlainText('')
-    self.resetError()
+    self.errorHandler.resetError()
 
 
 def runCode(self):
@@ -376,27 +269,24 @@ def runCode(self):
     try:
         func   = self.expr if type(self.expr) is Lambda else Lambda(Symbol('x'), self.expr)
     except Exception as err:
-        self.setError(err, 'Making the Current expression into a lambda')
+        self.errorHandler.setError(err, 'Making the Current expression into a lambda')
         return
     else:
-        self.resetError()
+        self.errorHandler.resetError()
 
     def show(e):
         self.codePng.setIcon(self.getIcon(e))
         self.codePng.pressed.connect(lambda: clip.copy(latex(e)))
 
-    subbedExpr = self.subbedExpr
-    subExpr    = subbedExpr
-    sub        = subbedExpr
-    curVar     = self.currentVar
-    solution   = self.solvedExpr
-    sol        = solution
+    subbedExpr = subExpr = sub = self.equation.subbedExpr
+    curVar     = self.varHandler.currentVar
+    solution   = sol = self.equation.solvedExpr
     input      = lambda *_: None
     print      = self.printToCodeOutput
     # show       = lambda e: self.codePng.setIcon(self.getIcon(e))
     out        = None
     # pi         = sym.pi
-    if self.currentVar:
+    if self.varHandler.currentVar:
         curSymbol = curVar.symbol
         curValue = curVar.value
     else:
@@ -422,9 +312,10 @@ def runCode(self):
             # print(latex(out))
             show(out)
     except Exception as err:
-        self.setError(err, "Custom Code")
-        self.codePng.setIcon(QIcon())
+        self.errorHandler.setError(err, "Custom Code")
+        # self.codePng.setIcon(QIcon())
+        self.codeExpr.reset()
     else:
-        self.resetError()
+        self.errorHandler.resetError()
 
     self.codeLoading = False
