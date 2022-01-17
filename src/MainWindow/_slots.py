@@ -96,6 +96,7 @@ def connectEverything(self):
     self.openTrigSolver.triggered.connect(self.doOpenTrigSolver)
     self.resetVars.triggered.connect(self.varHandler.reset)
     self.resetSolutionUnit.triggered.connect(self.resetTheSolutionUnit)
+    self.autoParseUnits.triggered.connect(self.updateAutoParseUnits)
     # self.actionDimentionless.triggered.connect(lambda: self.updateUnitSystem("Dimentionless"))
     # self.actionPhysics.triggered.connect(lambda: self.updateUnitSystem("Physics"))
     # self.actionAstrophysics.triggered.connect(lambda: self.updateUnitSystem("Astrophysics"))
@@ -118,7 +119,7 @@ def notes(self):
 
 def onIntDiff(self):
     if self.equ != self.equationInput.toPlainText():
-        self.updateEquation()
+        self.equation.update()
     inputWindow = QDialog()
     uic.loadUi(join(ROOT, "ui/diffIntegral.ui"), inputWindow)
     inputWindow.label_4.hide()
@@ -146,7 +147,7 @@ def onTabChanged(self):
 
 def onLimitButtonPressed(self):
     if self.equ != self.equationInput.toPlainText():
-        self.updateEquation()
+        self.equation.update()
     inputWindow = QDialog()
     uic.loadUi(join(ROOT, "ui/limitsInput.ui"), inputWindow)
 
@@ -170,7 +171,7 @@ def onLimitButtonPressed(self):
 
 def onGetSumPressed(self):
     if self.equ != self.equationInput.toPlainText():
-        self.updateEquation()
+        self.equation.update()
     inputWindow = QDialog()
     uic.loadUi(join(ROOT, "ui/sumInput.ui"), inputWindow)
 
@@ -195,7 +196,7 @@ def _plot(self):
 
 def doPiecewise(self):
     if self.equ != self.equationInput.toPlainText():
-        self.updateEquation()
+        self.equation.update()
     inputWindow = QDialog()
     uic.loadUi(join(ROOT, "ui/addPiecewise.ui"), inputWindow)
     inputWindow.table.setItem(0, 0, QTableWidgetItem(str(self.expr)))
@@ -248,7 +249,7 @@ def onConvertLatex(self, var=False):
         self.setError(err, "Latex Parser")
     else:
         self.resetError()
-    self.updateEquation()
+    self.equation.update()
     self.loading = False
 
 
@@ -319,3 +320,7 @@ def runCode(self):
         self.errorHandler.resetError()
 
     self.codeLoading = False
+
+
+def updateAutoParseUnits(self):
+    Variable.autoParseUnits = self.autoParseUnits.isChecked()

@@ -62,13 +62,14 @@ class Main(QMainWindow):
                            resetTheSolutionUnit)
     from ._slots import (doPiecewise, notes, onPreviewCurVar,
                          onIntDiff, onLimitButtonPressed,
-                         onPreviewSolution, onTabChanged,
+                         onPreviewSolution, onTabChanged, updateAutoParseUnits,
                          _plot, resetCode, runCode, connectEverything, onConvertLatex,
                          onGetSumPressed, doOpenTrigSolver, onOpenUnitSolver)
     from ._update import (updateCode, updateImplicitMult,
                           updateIntDiff, updateLimit, updatePiecewise, updateSum)
     from ._customActions import (addCustomFuncs, addCommonEqus, addUnits, addConstants)
-
+    baseTrans = standard_transformations + (convert_xor, lambda_notation)
+    trans = baseTrans
     functionVar = Symbol('x')
     codeTabIndex = 1
     defaultDir = join(ROOT, 'Equations')
@@ -98,14 +99,17 @@ class Main(QMainWindow):
 
         self.blockVarUnitSignal = False
 
+        # Make sure this is initially set up (it's updated, not called as needed)
+        Variable.autoParseUnits = self.autoParseUnits.isChecked()
+
         # Set up the utility classes
-        self.errorHandler = ErrorHandler(self)
+        self.errorHandler = ErrorHandler(self, self.implicitMulLabel)
         self.varExpr = Expression(self.varSetter, self.varPng)
         self.solutionExpr = Expression(self.answerBox, self.solutionPng)
         self.codeExpr = Expression(self.codeOutput, self.codePng)
-        self.varHandler = VarHandler(self, self.errorHandler, self.varList, self.varType, self.varExpr, self.varUnitSelector, self.varOrderSetter,
+        self.equation = Equation(self, self.errorHandler, self.equationInput, self.equationPng, self.solutionExpr, self.runCodeButton)
+        self.varHandler = VarHandler(self, self.equation, self.errorHandler, self.varList, self.varType, self.varExpr, self.varUnitSelector, self.varOrderSetter,
                                      self.newRelationButton, self.setRelationButton, self.resetVarButton, self.relation)
-        self.equation = Equation(self, self.errorHandler, self.equationInput, self.equationPng, self.solutionExpr, self.varHandler, self.runCodeButton)
 
         self.connectEverything()
         self.addCustomFuncs()

@@ -94,9 +94,7 @@ class UnitSelector(QWidget):
         for cnt, unit in enumerate(self.allUnits):
             self.unitBox.setItemData(cnt, str(unit.abbrev), Qt.ItemDataRole.ToolTipRole)
 
-        # One isn't at the top of the prefix box
-        # self.prefixBox.setCurrentIndex(self.prefixBox.findText(' one'))
-        self.unit = One()
+        self.reset()
 
 
     def reset(self):

@@ -105,7 +105,7 @@ def updatePiecewise(self, relations, addToMainEquation):
 
     if addToMainEquation:
         self.equationInput.setPlainText(result)
-        self.updateEquation()
+        self.equation.update()
     else:
         self.varValueBox = result
         # A small hack, make sure we accept the input so we don't overwrite it
@@ -116,7 +116,7 @@ def updateLimit(self, updateVar, updateVal, addToMainEquation, dir):
     if addToMainEquation:
         withLimit = f"Limit({self.expr}, {updateVar}, {updateVal}" + (f", '{dir}'" if dir else '') + ')'
         self.equationInput.setPlainText(withLimit)
-        self.updateEquation()
+        self.equation.update()
     else:
         withLimit = f"Limit({self.currentVar.value}, {updateVar}, {updateVal}" + (f", '{dir}'" if dir else '') + ')'
         self.varValueBox = withLimit
@@ -149,7 +149,7 @@ def updateIntDiff(self, diff, var, addToMainEquation, order, upperBound, lowerBo
 
     if addToMainEquation:
         self.equationInput.setPlainText(result)
-        self.updateEquation()
+        self.equation.update()
     else:
         self.varValueBox = result
         # A small hack, make sure we accept the input so we don't overwrite it
@@ -160,7 +160,7 @@ def updateSum(self, count, var, val, addToMainEquation):
     if addToMainEquation:
         withit = f"Sum({self.expr}, ({var}, {val}, {count}))"
         self.equationInput.setPlainText(withit)
-        self.updateEquation()
+        self.equation.update()
     else:
         withit = f"Sum({self.currentVar.value}, ({var}, {val}, {count}))"
         self.varValueBox = withit
@@ -173,5 +173,5 @@ def updateImplicitMult(self):
         self.trans = self.baseTrans + (implicit_multiplication,)
     else:
         self.trans = self.baseTrans
-    self.implicitMulLabel.setText(f'Implicit Multiplication is {"On" if self.implicitMult.isChecked() else "Off"}')
-    self.updateEquation()
+    self.errorHandler.implicitMulLabel.setText(f'Implicit Multiplication is {"On" if self.implicitMult.isChecked() else "Off"}')
+    self.equation.update()

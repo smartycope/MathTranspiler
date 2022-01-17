@@ -74,7 +74,7 @@ def resetEverything(self):
     # self.varList.setText('')
     self.varList.clear()
     self.varSetter.setText('')
-    self.updateEquation()
+    self.equation.update()
     self.onResetVars()
     self.varPng.setIcon(QIcon())
     self.solutionPng.setIcon(QIcon())
@@ -97,7 +97,7 @@ def resetIcon(self, tabIndex):
 
 def resetTheSolutionUnit(self):
     self.solutionUnitSelector.reset()
-    self.updateEquation()
+    self.equation.update()
 
 
 def resetOuput(self):
@@ -114,7 +114,7 @@ def printToCodeOutput(self, *args, sep=' ', end='\n'):
 
 def runCustomFuncInCode(self, funcString, *comments):
     if self.equ != self.equationInput.toPlainText():
-        self.updateEquation()
+        self.equation.update()
     self.codeInput.setPlainText(('# ' + ('\n# '.join(comments)) + '\n' if len(comments) else '') + funcString)
     self.runCodeButton.pressed.emit()
     self.output.setCurrentIndex(self.codeTabIndex)

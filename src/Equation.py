@@ -52,8 +52,6 @@ One.scale_factor = 1
 
 
 class Equation(Expression):
-    baseTrans = standard_transformations + (convert_xor, lambda_notation)
-    trans = baseTrans
     arrowRegex    = (er.group(anything() + matchMax()) + match('->') + er.group(anything() + matchMax())).compile()
     doubleEqRegex = (er.group(anything() + matchMax()) + match('==') + er.group(anything() + matchMax())).compile()
     eqRegex       = (er.group(anything() + matchMax()) + match('=')  + er.group(anything() + matchMax())).compile()
@@ -64,7 +62,7 @@ class Equation(Expression):
 
 
 
-    def __init__(self, constMainWindow, errorHandler, inputBox, latexButton, solutionExpression, varHandler, runCodeButton):
+    def __init__(self, constMainWindow, errorHandler, inputBox, latexButton, solutionExpression, runCodeButton):
         super().__init__(inputBox, latexButton)
         self.subbedExpr = EmptySet
         self.solvedExpr = EmptySet
@@ -75,11 +73,9 @@ class Equation(Expression):
         self.options = constMainWindow
         self.vars = []
         self.solutionExpression = solutionExpression
-        self.varHandler = varHandler
-        self.varHandler.updateEquation.connect(self.update)
         self.errorHandler = errorHandler
         self.runCodeButton = runCodeButton
-
+        self.setVars = Signal(vars)
 
     def update(self):
         self.options.loading = True
@@ -101,7 +97,7 @@ class Equation(Expression):
                 sanatizedEquation = self._fixEquationString(self.string) if self.options.useFixString.isChecked() else self._sanatizeInput(self.string)
 
             # Actually parse the expression (but don't solve it yet!)
-            self.plainExpr = parse_expr(sanatizedEquation, transformations=self.trans, evaluate=False)
+            self.plainExpr = parse_expr(sanatizedEquation, transformations=self.options.trans, evaluate=False)
 
             # See if we need to remove one side of the equation
             todo('make this smarter', False)
@@ -119,13 +115,13 @@ class Equation(Expression):
             # # This order matters
             self.updateVars()
             self._updateSubbedExpr()
-            self.varHandler.vars = self.vars
             self._calculateSolution()
             # # Yes, update it again, because we need to get the new vars in just the solution as well.
+            todo('see if theres any way to avoid calling this twice')
             self.updateVars()
             # self.updateCode()
             # Hand the variables off to varHandler
-            self.varHandler.setVars(self.vars)
+            self.setVars.emit(self.vars)
             # self.varHandler.updateVarInfo()
             # self.varHandler.updateVarValue()
             # Make sure the code box has updated values
@@ -220,6 +216,9 @@ class Equation(Expression):
             for s in curSymbols.difference(atoms):
                 del self.vars[getIndexWith(self.vars, lambda x: x.symbol == s)]
 
+        #* Double check that this is a set, and not a list (no duplicates)
+        # But varHandler wants a list, I guess
+        self.vars = list(set(self.vars))
 
 
     def _getAtoms(self):
@@ -340,6 +339,7 @@ class Equation(Expression):
         # eq = re.sub((match('e') + optional(ifPrecededBy(digit())) + ifNotFollowedBy(anyAlphaNum()) + ifNotPrecededBy(alpha())).str(), 'E', eq)
 
         return eq
+
 
     def _sanatizeOutput(self, solution:str):
         todo('check if log has multiple parameters before converting it', False)

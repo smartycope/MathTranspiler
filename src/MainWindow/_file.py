@@ -56,5 +56,5 @@ def _load(self):
     if len(file):
         with open(file, 'r') as f:
             self.equationInput.setPlainText(f.read())
-            self.updateEquation()
+            self.equation.update()
         self.lastSaveLoc = file

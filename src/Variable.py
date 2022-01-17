@@ -47,6 +47,7 @@ One.name = 'one'
 funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
 
 class Variable:
+    autoParseUnits = True
     # Construct dicts of {string: Variable} of things we want to have as defualt
     autofillUnits    =   dict(zip([str(i.name)   for i in UnitSelector.allUnits], [(i, 1, i, Quantity) for i in UnitSelector.allUnits]))
     autofillUnits.update(dict(zip([str(i.abbrev) for i in UnitSelector.allUnits], [(i, 1, i, Quantity) for i in UnitSelector.allUnits])))
@@ -60,20 +61,23 @@ class Variable:
         if str(symbol) in self.autofillCustom.keys():
             self.symbol, self._value, self.unit, self.type = self.autofillCustom[str(symbol)]
             self.prefix = prefix
+            self.valueChanged = True
         elif str(symbol) in self.autofillPrefixes.keys():
             self.symbol, self._value, self.prefix, self.type = self.autofillPrefixes[str(symbol)]
             self.unit = unit
+            self.valueChanged = True
         elif str(symbol) in self.autofillUnits.keys():
             self.symbol, self._value, self.prefix, self.unit, self.type = self.autofillUnits[str(symbol)]
+            self.valueChanged = True
         else:
             self.symbol = symbol
             self._value = (symbol if value is None else value)
             self.type = type(symbol) if _type is None else _type
             self.prefix = prefix
             self.unit = unit
+            self.valueChanged = False
 
         self.name = str(symbol) if not len(name) else name
-        self.valueChanged = False
         self.relationship = '=='
         self.substitutionOrder = order
 
@@ -90,3 +94,15 @@ class Variable:
 
     def __repr__(self):
         return f'Variable {type(self.symbol)} {self.symbol} = {{"{self.name}"={self.value}}}(changed={self.valueChanged})'
+
+    def __eq__(self, other):
+        return (
+            self.symbol == other.symbol and
+            self.name == other.name and
+            self.value == other.value and
+            self.prefix == other.prefix and
+            self.unit == other.unit
+        )
+
+    def __hash__(self):
+        return hash((self.symbol, self.name, self.value, self.prefix, self.unit))

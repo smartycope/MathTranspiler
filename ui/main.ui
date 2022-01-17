@@ -837,6 +837,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="printError"/>
     <addaction name="rememberVarNames"/>
     <addaction name="resetVars"/>
+    <addaction name="autoParseUnits"/>
     <addaction name="implicitMult"/>
     <addaction name="removeFx"/>
     <addaction name="useFixString"/>
@@ -938,7 +939,7 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Throw Errors</string>
@@ -1377,10 +1378,24 @@ p, li { white-space: pre-wrap; }
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Get Variables Only Defined by Other Variables</string>
+   </property>
+  </action>
+  <action name="autoParseUnits">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto-Parse units</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
    </property>
   </action>
  </widget>
