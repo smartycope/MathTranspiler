@@ -39,6 +39,7 @@ from Variable import Variable
 
 from ._customFuncs import *
 from trigAutoSolver import TriangleSolver
+from EquationSearch import EquationSearch
 ROOT = join(dirname(__file__), '../../')
 
 def connectEverything(self):
@@ -97,6 +98,7 @@ def connectEverything(self):
     self.resetVars.triggered.connect(self.varHandler.reset)
     self.resetSolutionUnit.triggered.connect(self.resetTheSolutionUnit)
     self.autoParseUnits.triggered.connect(self.updateAutoParseUnits)
+    self.openSearchForEquation.triggered.connect(self.searchForEquation)
     # self.actionDimentionless.triggered.connect(lambda: self.updateUnitSystem("Dimentionless"))
     # self.actionPhysics.triggered.connect(lambda: self.updateUnitSystem("Physics"))
     # self.actionAstrophysics.triggered.connect(lambda: self.updateUnitSystem("Astrophysics"))
@@ -226,6 +228,13 @@ def doPiecewise(self):
 
 def doOpenTrigSolver(self):
     TriangleSolver(self)
+
+
+def searchForEquation(self):
+    if self.equ != self.equationInput.toPlainText():
+        self.equation.update()
+    search = EquationSearch(self.updateEquationSearch, transformations=self.trans)
+    search.show()
 
 
 def onOpenUnitSolver(self):

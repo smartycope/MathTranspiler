@@ -46,6 +46,7 @@ One.name = 'one'
 
 funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
 
+# A driver is just a hardware library
 class Variable:
     autoParseUnits = True
     # Construct dicts of {string: Variable} of things we want to have as defualt
@@ -58,28 +59,64 @@ class Variable:
     }
 
     def __init__(self, symbol: sym.Basic, name='', value=None, order=50, unit=One(), prefix=One(), _type=None):
-        if str(symbol) in self.autofillCustom.keys():
-            self.symbol, self._value, self.unit, self.type = self.autofillCustom[str(symbol)]
-            self.prefix = prefix
-            self.valueChanged = True
-        elif str(symbol) in self.autofillPrefixes.keys():
-            self.symbol, self._value, self.prefix, self.type = self.autofillPrefixes[str(symbol)]
-            self.unit = unit
-            self.valueChanged = True
-        elif str(symbol) in self.autofillUnits.keys():
-            self.symbol, self._value, self.prefix, self.unit, self.type = self.autofillUnits[str(symbol)]
-            self.valueChanged = True
+        self.symbol = symbol
+        self.prefix = prefix
+        self.unit = unit
+        self.valueChanged = False
+
+        if self.autoParseUnits:
+            if str(symbol) in self.autofillCustom.keys():
+                self.symbol, self._value, self.prefix, self.unit, self.type = self.autofillUnits[str(symbol)]
+                self.valueChanged = True
+            elif str(symbol) in self.autofillPrefixes.keys():
+                self.symbol, self._value, self.prefix, self.type = self.autofillPrefixes[str(symbol)]
+                self.unit = unit
+                self.valueChanged = True
+            elif str(symbol) in self.autofillUnits.keys():
+                self.symbol, self._value, self.unit, self.type = self.autofillCustom[str(symbol)]
+                self.prefix = prefix
+                self.valueChanged = True
+            else:
+                self._value = (symbol if value is None else value)
+                self.type = type(symbol) if _type is None else _type
         else:
-            self.symbol = symbol
             self._value = (symbol if value is None else value)
             self.type = type(symbol) if _type is None else _type
-            self.prefix = prefix
-            self.unit = unit
-            self.valueChanged = False
 
         self.name = str(symbol) if not len(name) else name
         self.relationship = '=='
         self.substitutionOrder = order
+
+    def reset(self):
+        self.prefix = One()
+        self.unit = One()
+        self.valueChanged = False
+        self.type = type(self.symbol)
+        self._value = self.symbol
+        self.name = str(self.symbol)
+        self.relationship = '=='
+        self.substitutionOrder = 50
+
+        # if self.autoParseUnits:
+        #     if str(symbol) in self.autofillCustom.keys():
+        #         self.symbol, self._value, self.prefix, self.unit, self.type = self.autofillUnits[str(symbol)]
+        #         self.valueChanged = True
+        #     elif str(symbol) in self.autofillPrefixes.keys():
+        #         self.symbol, self._value, self.prefix, self.type = self.autofillPrefixes[str(symbol)]
+        #         self.unit = unit
+        #         self.valueChanged = True
+        #     elif str(symbol) in self.autofillUnits.keys():
+        #         self.symbol, self._value, self.unit, self.type = self.autofillCustom[str(symbol)]
+        #         self.prefix = prefix
+        #         self.valueChanged = True
+        #     else:
+        #         self._value = (symbol if value is None else value)
+        #         self.type = type(symbol) if _type is None else _type
+        # else:
+        #     self._value = (symbol if value is None else value)
+        #     self.type = type(symbol) if _type is None else _type
+
+
 
     @property
     def value(self):

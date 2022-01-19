@@ -13,7 +13,8 @@ from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
                           QRectF, Qt, QThread, QTimer, QSize)
 from PyQt5.QtGui import QIcon, QImage, QPixmap
-from PyQt5.QtWidgets import (QDialog, QFileDialog, QLabel, QLineEdit, QMainWindow, QTableWidgetItem, QWidget, QCompleter, QComboBox, QHBoxLayout)
+from PyQt5.QtWidgets import (QDialog, QFileDialog, QLabel, QLineEdit, QMainWindow,
+                             QTableWidgetItem, QWidget, QCompleter, QComboBox, QHBoxLayout)
 # from PyQt5.QtWidgets import *
 from sympy import *
 from sympy import abc
@@ -66,6 +67,7 @@ class UnitSelector(QWidget):
         self.setMinimumSize(QSize(300, 35))
 
         self.layout = QHBoxLayout(self)
+        self.layout.setSpacing(1)
 
         self.prefixBox = QComboBox(self)
         self.unitBox = QComboBox(self)

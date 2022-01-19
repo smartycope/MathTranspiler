@@ -175,3 +175,9 @@ def updateImplicitMult(self):
         self.trans = self.baseTrans
     self.errorHandler.implicitMulLabel.setText(f'Implicit Multiplication is {"On" if self.implicitMult.isChecked() else "Off"}')
     self.equation.update()
+
+
+def updateEquationSearch(self, equation):
+    self.varValueBox = equation
+    # A small hack, make sure we accept the input so we don't overwrite it
+    self.varSetter.returnPressed.emit()

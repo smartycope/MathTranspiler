@@ -218,7 +218,7 @@ class Equation(Expression):
 
         #* Double check that this is a set, and not a list (no duplicates)
         # But varHandler wants a list, I guess
-        self.vars = list(set(self.vars))
+        self.vars = sorted(list(set(self.vars)), key=lambda var: var.name)
 
 
     def _getAtoms(self):
@@ -261,7 +261,7 @@ class Equation(Expression):
     def _fixEquationString(self, eq:str):
         eq = self.sanatizeInput(eq)
 
-        if self.implicitMult.isChecked():
+        if self.options.implicitMult.isChecked():
             functionRegex = group(word()) + ifProceededBy(match('(') + stuff() + match(')'))
             eq = re.sub(functionRegex.str(), r"Function('\1')", eq)
 

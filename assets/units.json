@@ -5,9 +5,9 @@
         "name": "Current",
         "symbol": "I/E",
         "equations": [
-            "sqrt(power / resistance)",
-            "power / voltage",
-            "voltage / resistance"
+            "current == sqrt(power / resistance)",
+            "current == power / voltage",
+            "current == voltage / resistance"
         ]
     },
     {
@@ -15,9 +15,9 @@
         "name": "Voltage",
         "symbol": "V",
         "equations": [
-            "sqrt(power*resistance)",
-            "power / current",
-            "current * resistance"
+            "voltage == sqrt(power*resistance)",
+            "voltage == power / current",
+            "voltage == current * resistance"
         ]
     },
     {
@@ -25,9 +25,19 @@
         "name": "Resistance",
         "symbol": "R",
         "equations": [
-            "(voltage^2) / power",
-            "power / (current^2)", "voltage / current",
-            "resistivity * (wireLength / crossSectionalArea)"
+            "resistance == (voltage^2) / power",
+            "resistance == power / (current^2)", "voltage / current",
+            "resistance == resistivity * (wireLength / crossSectionalArea)"
+        ]
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Power",
+        "symbol":   "P",
+        "equations": [
+            "power == voltage * current",
+            "power == resistance * (current^2)",
+            "power == (volts^2) / resistance"
         ]
     },
     {
@@ -41,7 +51,7 @@
         "name": "Conductance",
         "symbol": "Siemens",
         "equations": [
-            "1/resistance"
+            "conductance == 1/resistance"
         ]
     },
     {
@@ -61,16 +71,6 @@
         "name": "Amps",
         "symbol": "A",
         "equations": []
-    },
-    {
-        "catagory": "Electronics",
-        "name": "Power",
-        "symbol":   "P",
-        "equations": [
-            "voltage * current",
-            "resistance * (current^2)",
-            "(volts^2) / resistance"
-        ]
     },
     {
         "catagory": "Physics",

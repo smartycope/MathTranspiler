@@ -57,27 +57,27 @@
     {
         "name": "Pythagorean Theorem",
         "catagory": "Math Formulae",
-        "definition": "c = sqrt(a^2 + b^2)"
+        "definition": "c == sqrt(a^2 + b^2)"
     },
     {
         "name": "Slope Function",
         "catagory": "Math Formulae",
-        "definition": "y = a*x + b"
+        "definition": "y == a*x + b"
     },
     {
         "name": "Resistance of a Wire",
         "catagory": "Electronics",
-        "definition":  "Resistance = resistivity * (length / crossSectionalArea)"
+        "definition":  "Resistance == resistivity * (length / crossSectionalArea)"
     },
     {
         "name": "Charge or Something",
         "catagory": "Electronics",
-        "definition": "Charge(time) = Integral(time, time_0, current(time)"
+        "definition": "Charge(time) == Integral(time, time_0, current(time)"
     },
     {
         "name": "Function of a Circle",
         "catagory": "Misc",
-        "definition":  "x^2 + y^2 = radius^2"
+        "definition":  "x^2 + y^2 == radius^2"
     },
     {
         "name": "Get Velocity with a Constant Acceleration",
@@ -98,6 +98,22 @@
         "name": "Velocity^2 given a Constant Acceleration",
         "catagory": "Physics",
         "definition":  "velocity^2 == (velocity_0^2) + 2 * constantAcceleration * (x - x_0)"
+    },
+    {
+        "name": null,
+        "catagory": "Mechanical",
+        "definition": "power == torque * speed"
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Kirchoff's current law",
+        "definition": "Sum(high=numBrachesConnectedToNode, low='n=1', nthCurrentEnteringNode) == 0",
+        "description": "The sum of the currents entering a node or closed loop is 0"
+    },
+    {
+        "catagory": "Electronics",
+        "name": "Kirchoff's voltage law",
+        "definition": "Sum(high=numBrachesInLoop, low='n=1', nthVoltage) == 0",
+        "description": "The sum of the voltages around a closed loop is 0"
     }
-
 ]

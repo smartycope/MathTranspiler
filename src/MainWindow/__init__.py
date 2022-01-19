@@ -52,7 +52,7 @@ One.scale_factor = 1
 
 # Because Cope.ROOT stopped working and I use it to find ui files
 ROOT = dirname(dirname(dirname(__file__)))
-
+hideAllTodos(True)
 
 class Main(QMainWindow):
     from ._file import (_load, _save, _saveAs, exportAsLatex,
@@ -61,11 +61,11 @@ class Main(QMainWindow):
                            resetIcon, resetOuput, resetTab, runCustomFuncInCode,
                            resetTheSolutionUnit)
     from ._slots import (doPiecewise, notes, onPreviewCurVar,
-                         onIntDiff, onLimitButtonPressed,
+                         onIntDiff, onLimitButtonPressed, searchForEquation,
                          onPreviewSolution, onTabChanged, updateAutoParseUnits,
                          _plot, resetCode, runCode, connectEverything, onConvertLatex,
                          onGetSumPressed, doOpenTrigSolver, onOpenUnitSolver)
-    from ._update import (updateCode, updateImplicitMult,
+    from ._update import (updateCode, updateImplicitMult, updateEquationSearch,
                           updateIntDiff, updateLimit, updatePiecewise, updateSum)
     from ._customActions import (addCustomFuncs, addCommonEqus, addUnits, addConstants)
     baseTrans = standard_transformations + (convert_xor, lambda_notation)
