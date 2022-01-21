@@ -1,15 +1,8 @@
 # This Python file uses the following encoding: utf-8
-import math
 import re
-import threading
-from io import BytesIO
-from os.path import dirname, join
 
-import clipboard as clip
 from Cope import *
 from EasyRegex import *
-from LoadingBar import LoadingBar, showLoading, showWithLoading
-from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
                           QRectF, Qt, QThread, QTimer)
 from PyQt5.QtGui import QIcon, QImage, QPixmap

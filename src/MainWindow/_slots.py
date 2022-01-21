@@ -263,8 +263,7 @@ def onConvertLatex(self, var=False):
 
 
 def resetCode(self):
-    self.codeOutput.setPlainText('')
-    self.codePng.setIcon(QIcon())
+    self.codeExpr.reset()
     self.codeInput.setPlainText('')
     self.errorHandler.resetError()
 
@@ -285,15 +284,13 @@ def runCode(self):
         self.errorHandler.resetError()
 
     def show(e):
-        self.codePng.setIcon(self.getIcon(e))
-        self.codePng.pressed.connect(lambda: clip.copy(latex(e)))
+        self.codeExpr.updateIcon(e)
 
     subbedExpr = subExpr = sub = self.equation.subbedExpr
     curVar     = self.varHandler.currentVar
     solution   = sol = self.equation.solvedExpr
     input      = lambda *_: None
     print      = self.printToCodeOutput
-    # show       = lambda e: self.codePng.setIcon(self.getIcon(e))
     out        = None
     # pi         = sym.pi
     if self.varHandler.currentVar:
@@ -323,7 +320,6 @@ def runCode(self):
             show(out)
     except Exception as err:
         self.errorHandler.setError(err, "Custom Code")
-        # self.codePng.setIcon(QIcon())
         self.codeExpr.reset()
     else:
         self.errorHandler.resetError()

@@ -33,13 +33,14 @@ from sympy.solvers.inequalities import *
 from sympy.core.sympify import SympifyError
 from sympy.solvers.ode.systems import dsolve_system
 from sympy.logic.boolalg import Boolean
+from sympy.physics.vector.vector import *
 from random import randint, uniform
 from typing import Iterable
 
 seperate = lambda enabled=True: print('--------------------------------') if enabled else None
 
-degrees = lambda x: (x * (pi / 180)).simplify()
-radians = lambda x: (x * (180 / pi)).simplify()
+degrees = lambda x: (x * (180 / pi)).simplify()
+radians = lambda x: (x * (pi / 180)).simplify()
 printVar = lambda name, var, enabled=True: print(f'{name.title()}: {var}') if enabled else None
 isPositive = isPos = lambda x: x > 0
 isNegative = isNeg = lambda x: x < 0
@@ -1052,6 +1053,29 @@ def calculateNaturalStringLengthFrom2Measurements(joules1, start1, end1, joules2
     solvedK = ensureNotIterable(solve(Eq(integral(k * x, start1 - length, end1 - length, x).doit(), joules1), k))
     printVar('k', solvedK)
     return ensureNotIterable(solve(Eq(integral(solvedK * x, start2 - length, end2 - length, x).doit(), joules2), length)).simplify()
+
+
+def cartesian2Polar(x, y, useRadians=True, giveAsVectorType=True):
+    r = sqrt(x**2 + y**2).simplify()
+    theta = (atan2(y, x) if useRadians else degrees(atan2(y, x))).simplify()
+
+    if giveAsVectorType:
+        raise NotImplementedError()
+        # return Vector()
+    else:
+        return FiniteSet(r, theta)
+
+
+def polar2Cartesian(r, theta, useRadians=True):
+    if not useRadians:
+        theta = radians(theta)
+
+    return FiniteSet(r * cos(theta).simplify(), r * sin(theta).simplify())
+
+
+def getComponentsOfVector(r, theta, useRadians=True):
+    todo()
+    raise NotImplementedError()
 
 
 if False:

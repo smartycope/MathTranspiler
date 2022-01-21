@@ -59,6 +59,7 @@ todo('update the button box before the hard calculations so we can make sure its
 todo('multithread the hard parts eventually', False)
 todo('make ctrl+R move the focus to the input box', False)
 todo('make the math latex button bigger', False)
+todo('fix all the paths so they stop calling ROOT, cause ROOT is broken.')
 # todo sort the custom funcs into drop down groups
 
 # todo('update code box tooltip', False)

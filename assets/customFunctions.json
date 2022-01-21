@@ -254,5 +254,15 @@
         "catagory": "Misc.",
         "name": "Find netSigned interval",
         "string": "print(netSignedInterval(expr, None))"
+    },
+    {
+        "catagory":"Physics",
+        "name": "Convert Cartesian To Polar Coordinates",
+        "string": "out = cartesian2Polar(x=, y=, useRadians=False, giveAsVectorType=False).evalf()"
+    },
+    {
+        "catagory":"Physics",
+        "name": "Convert Polar To Cartesian Coordinates",
+        "string": "out = polar2Cartesian(r=, theta=, useRadians=False).evalf()"
     }
 ]
