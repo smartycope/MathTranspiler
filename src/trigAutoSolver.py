@@ -138,7 +138,11 @@ class TriangleSolver(QDialog):
     @staticmethod
     def round(value, to):
         """ I'm tired of all those annoying trailing 0's """
-        ans = round(value, to)
+        try:
+            ans = round(value, to)
+        except:
+            return value
+
         try:
             if value == int(value) or ans == int(value):
                 return int(value)
