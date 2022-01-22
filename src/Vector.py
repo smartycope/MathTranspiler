@@ -105,8 +105,6 @@ class Vector:
     # i, j, k, x, y, z
 
 
-
-
 class MagVector(Vector):
     def __init__(self, r, θ, 𝜙=0, radians=True):
         """ All angles are assumed to be measured from the positive x-axis. Please normalize angles to that before inputting them
@@ -255,24 +253,33 @@ def addHeadToTail(startVector, endVector):
 # Theta is the angle measured from the x axis towards the y axis
 
 
-class UnitVector(Vector):
+class Vector:
     def __init__(self, i, j=0, k=0):
         self.i, self.j, self.k = self.x, self.y, self.z = sympify((i, j, k))
 
     @staticmethod
     def fromrθ(r, θ, 𝜙=0, radians=True):
         r, theta, phi = sympify((r, θ, 𝜙))
-        return UnitVector(r*cos(phi)*sin(theta),
+        # This is what I looked up, but it doesn't seem right...
+        return Vector(r*cos(phi)*sin(theta),
                           r*cos(phi)*cos(theta),
                           r*sin(phi)
-                         ).simplify()
+                     ).simplify()
 
+    @depricated
     def asrθ(self, evaluate=False):
-        r = sqrt(self.x**2 + self.y**2, self.z**2)
-        theta = atan(self.y/abs(self.x))
+        v = self.evalf() if evaluate else self
+        r = sqrt(v.x**2 + v.y**2, v.z**2)
+        theta = atan(v.y/abs(v.x))
+        # I thought through this, it's not proved
         # Throwing in an abs here because why not
-        phi = atan(self.z/abs(self.x))
-        return MagVector(r, theta, phi)
+        phi = atan(v.z/abs(v.x))
+        return (r, theta, phi)
+
+    @depricated
+    def asxy(self, evaluate=False):
+        thing = self.evalf() if evaluate else self
+        return (thing.x, thing.y, thing.z)
 
     def split(self):
         """ Returns an interable of Vectors that are added together to get this vector """
@@ -284,49 +291,53 @@ class UnitVector(Vector):
         return (x, y, z)
 
     def simplify(self):
-        return UnitVector(self.i.simplify(), self.j.simplify(), self.k.simplify())
+        return Vector(self.i.simplify(), self.j.simplify(), self.k.simplify())
 
     def evalf(self):
-        return UnitVector(self.i.evalf(), self.j.evalf(), self.k.evalf())
+        return Vector(self.i.evalf(), self.j.evalf(), self.k.evalf())
 
     def __str__(self):
-        return f"UnitVector(i/x={self.i}, j/y={self.j}, k/z={self.k})"
+        return f"Vector(i/x={self.i}, j/y={self.j}, k/z={self.k}, θ={self.θ}, 𝜙={self.𝜙})"
 
     def __add__(self, other):
         #* Don't know what this is, but it seems useful?
         # newTheta = atan()
         # newr = sqrt((self.r**2) + (other.r**2) + (2*self.r*other.r*cos(newTheta)))
         # return UnitVector(newr, newTheta)
-        return UnitVector(self.x+other.x, self.y+other.y, self.z+other.z)
+        return Vector(self.x+other.x, self.y+other.y, self.z+other.z)
 
     def __sub__(self, other):
         return self + -other
 
+    def __mul__(self, other):
+        from typing import SupportsInt
+        if SupportsInt(other):
+            return Vector(self.i * other, self.j * other, self.k * other)
+
     def __invert__(self):
-        todo(blocking=True)
-        # return Vector(self.r, self.θ - pi, False)
+        return Vector(-self.i, -self.k, -self.k)
+        return Vector.fromrθ(self.r, self.θ - pi, self.phi - pi)
 
     def __eq__(self, other):
         return self.i == other.i and self.j == other.j and self.k == other.k
 
-
     @property
     def r(self):
-        todo('this only works in 2 dimentions')
-        return sqrt(self.i**2 + self.j**2).simplify()
+        return sqrt(self.x**2 + self.y**2, self.z**2)
 
     @property
     def θ(self):
-        debug('note that uses atan2, not atan')
-        return atan2(self.j, self.i).simplify()
+        return atan(self.y/abs(self.x)).simplify()
+        return atan2(self.y, self.x).simplify()
     @property
     def theta(self):
         return self.θ
 
     @property
     def 𝜙(self):
-        debug('note that uses atan2, not atan')
+        return atan(self.z/abs(self.x)).simplify()
         return atan2(self.z, self.x).simplify()
+    @property
     def phi(self):
         return self.𝜙
 
