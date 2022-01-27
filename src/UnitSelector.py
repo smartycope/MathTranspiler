@@ -45,6 +45,9 @@ One.name = 'one'
 One.abbrev = ''
 One.scale_factor = 1
 
+todo('prefixes dont work still')
+todo("somehow make just switching variables not update the equation (maybe don't update the equation if currentVar doesn't have the changed variable set?)")
+
 
 _quantityStrings = filter(lambda u: type(getattr(_units, u)) is Quantity, dir(_units))
 _prefixStrings   = filter(lambda u: type(getattr(_units, u)) is Prefix,   dir(_units))

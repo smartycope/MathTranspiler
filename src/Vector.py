@@ -1,332 +1,103 @@
 from sympy import *
+# My own personal globally useful functions
 from Cope import *
-
-
-
-@reprise
-class Vector:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def fromxy(x, y, z=0):
-        x, y, z = sympify((x, y, z))
-        r = sqrt(x**2 + y**2).simplify()
-        theta = atan2(y, x).simplify()
-        return MagVector(r, theta)
-
-
-    @staticmethod
-    def fromrθ(r, θ, radians=True):
-        r, theta = sympify((r, θ))
-        todo('this only works in 2 dimentions')
-        return UnitVector(self.r * cos(self.theta).simplify(), self.r * sin(self.theta).simplify(), 0)
-
-    def asrθ(self, evaluate=False):
-        raise NotImplementedError()
-
-    def asxy(self, evaluate=False):
-        raise NotImplementedError()
-
-    def split(self):
-        raise NotImplementedError()
-
-    def simplify(self):
-        return Vector.fromxy(self.x.simplify(), self.y.simplify(), self.z.simplify())
-
-    def evalf(self):
-        return Vector.fromxy(self.x.evalf(), self.y.evalf(), self.z.evalf())
-
-    def __add__(self, other):
-        ax, ay, az = self.asxy()
-        bx, by, bz = other.asxy()
-        newx, newy, newz = (ax+bx, ay+by, az+bz)
-        return Vector.fromxy(newx, newy, newz)
-
-        # This is not correct. How does pythagorean theorem work in 3 dimentions?
-        newr = sqrt(newx**2 + newy**2)
-        # This is what is says
-        newTheta = atan(newy/abs(newx))
-        # This is what I suspect might be accurate
-        # newTheta = atan2(newy, newx)
-
-        #* Don't know what this is, but it seems useful?
-        # newTheta = atan()
-        # newr = sqrt((self.r**2) + (other.r**2) + (2*self.r*other.r*cos(newTheta)))
-        return Vector.fromrθ(newr, newθ)
-
-        #* Head to tail method
-
-    def __sub__(self, other):
-        return self + -other
-
-    def __invert__(self):
-        return Vector.fromrθ(self.r, self.θ - pi)
-
-    def __eq__(self, other):
-        raise NotImplementedError()
-
-
-    @property
-    def θ(self):
-        return self._θ
-
-    @θ.setter
-    def θ(self, θ):
-        self._θ = θ
-        self._degθ = deg(θ)
-
-    @property
-    def theta(self):
-        return self._θ
-
-    @theta.setter
-    def theta(self, theta):
-        self.θ = theta
-
-    @property
-    def degθ(self):
-        return self._degθ
-
-    @degθ.setter
-    def degθ(self, θ):
-        self._θ = rad(θ)
-        self._degθ = θ
-
-    @property
-    def degTheta(self):
-        return self._degθ
-
-    @degTheta.setter
-    def degTheta(self, theta):
-        self.degθ = theta
-
-    # @property
-    # i, j, k, x, y, z
-
-
-class MagVector(Vector):
-    def __init__(self, r, θ, 𝜙=0, radians=True):
-        """ All angles are assumed to be measured from the positive x-axis. Please normalize angles to that before inputting them
-            Theta is always stored interally in radians
-        """
-        r, θ, 𝜙 = sympify((r, θ, 𝜙))
-        self.r = r
-        self._θ = θ if radians else rad(θ)
-        self._degθ = θ if not radians else deg(θ)
-        self._𝜙 = 𝜙
-        self._deg𝜙 = 𝜙 if not radians else deg(𝜙)
-
-    @staticmethod
-    def fromxy(x, y, z=0):
-        x, y, z = sympify((x, y, z))
-        r = sqrt(x**2 + y**2).simplify()
-        theta = atan2(y, x).simplify()
-        return MagVector(r, theta)
-
-    def asxy(self, evaluate=False):
-        if evaluate:
-            return [self.r * cos(self.theta).evalf(), self.r * sin(self.theta).evalf(), 0]
-        else:
-            return [self.r * cos(self.theta).simplify(), self.r * sin(self.theta).simplify(), 0]
-
-    def split(self):
-        """ Returns an interable of Vectors that are added together to get this vector """
-        # I think this is how this works?...
-        x, y, z = self.asxy()
-        x = MagVector(x, 0,  False)
-        y = MagVector(y, 90, False)
-        # ??? No idea how this works
-        z = MagVector(z, Symbol('zAngle'), False)
-        return (x, y, z)
-
-    def simplify(self):
-        return MagVector(self.r.simplify(), self.theta.simplify())
-
-    def evalf(self):
-        return MagVector(self.r.evalf(), self.theta.evalf())
-
-    def __str__(self):
-        return f"MagVector(r={self.r}, θ={self.θ}, θ°={self.degθ.evalf()})"
-
-    def __add__(self, other):
-        ax, ay, az = self.asxy()
-        bx, by, bz = other.asxy()
-        newx, newy, newz = (ax+bx, ay+by, az+bz)
-        # This is not correct. How does pythagorean theorem work in 3 dimentions?
-        newr = sqrt(newx**2 + newy**2)
-        # This is what is says
-        newTheta = atan(newy/abs(newx))
-        # This is what I suspect might be accurate
-        # newTheta = atan2(newy, newx)
-
-        #* Don't know what this is, but it seems useful?
-        # newTheta = atan()
-        # newr = sqrt((self.r**2) + (other.r**2) + (2*self.r*other.r*cos(newTheta)))
-        return MagVector(newr, newTheta)
-
-        #* Head to tail method
-
-    def __sub__(self, other):
-        return self + -other
-
-    def __invert__(self):
-        return MagVector(self.r, self.θ - pi, False)
-
-    def __eq__(self, other):
-        return self.r == other.r and self.θ == other.θ
-
-
-    @property
-    def θ(self):
-        return self._θ
-    @θ.setter
-    def θ(self, θ):
-        self._θ = θ
-        self._degθ = deg(θ)
-
-    @property
-    def theta(self):
-        return self._θ
-    @theta.setter
-    def theta(self, theta):
-        self.θ = theta
-
-    @property
-    def degθ(self):
-        return self._degθ
-    @degθ.setter
-    def degθ(self, θ):
-        self._θ = rad(θ)
-        self._degθ = θ
-
-    @property
-    def degTheta(self):
-        return self._degθ
-    @degTheta.setter
-    def degTheta(self, theta):
-        self.degθ = theta
-
-    @property
-    def 𝜙(self):
-        return self._𝜙
-    @𝜙.setter
-    def 𝜙(self, 𝜙):
-        self._𝜙 = 𝜙
-        self._deg𝜙 = deg(𝜙)
-
-    @property
-    def phi(self):
-        return self._𝜙
-    @phi.setter
-    def phi(self, phi):
-        self.𝜙 = phi
-
-    @property
-    def deg𝜙(self):
-        return self._deg𝜙
-    @deg𝜙.setter
-    def deg𝜙(self, 𝜙):
-        self._𝜙 = rad(𝜙)
-        self._deg𝜙 = 𝜙
-
-    @property
-    def degPhi(self):
-        return self._deg𝜙
-    @degPhi.setter
-    def degPhi(self, phi):
-        self.deg𝜙 = phi
-
-
-def addHeadToTail(startVector, endVector):
-    """ startVector is pointing at endVector, endVector is pointing elsewhere. Order matters! """
-    a = startVector
-    b = endVector
-    r = sqrt((a.r**2) + (b.r**2)).simplify()
-    ax, ay = a.asxy()
-    bx, by = b.asxy()
-    endPoint = (ax+bx, ay+by)
-    theta = asin(endPoint[1] / r).simplify()
-    return MagVector(r, theta)
+from typing import SupportsInt
 
 # Phi is the angle measured from the y axis towards the z axis
 # Theta is the angle measured from the x axis towards the y axis
 
+ #* Don't know what this is, but it seems useful?
+# newr = sqrt((self.r**2) + (other.r**2) + (2*self.r*other.r*cos(newTheta)))
+# return Vector(newr, newTheta)
+
+# Sympy's Vector class sucks, it's all "ReferenceFrame" and "Reference Angle" and complicated stuff like that.
+# I just want one that will store values and equations for me, so I don't have to remember them all
+
+# ≈θ𝜙°Ω
 
 class Vector:
     def __init__(self, i, j=0, k=0):
         self.i, self.j, self.k = self.x, self.y, self.z = sympify((i, j, k))
 
+
+    # polar coordinates are 2d, spherical coordinates are 3d
+
     @staticmethod
+    @confidence(50)
     def fromrθ(r, θ, 𝜙=0, radians=True):
         r, theta, phi = sympify((r, θ, 𝜙))
-        # This is what I looked up, but it doesn't seem right...
-        return Vector(r*cos(phi)*sin(theta),
+        if phi == 0:
+            # This is what I looked up, but it doesn't seem right...
+            return Vector(r*cos(phi)*sin(theta),
                           r*cos(phi)*cos(theta),
-                          r*sin(phi)
-                     ).simplify()
+                          r*sin(phi)).simplify()
+        else:
+            return Vector(r*cos(theta),
+                          r*sin(theta),
+                          0).simplify()
+    fromrtheta = fromrθ
 
-    @depricated
-    def asrθ(self, evaluate=False):
-        v = self.evalf() if evaluate else self
-        r = sqrt(v.x**2 + v.y**2, v.z**2)
-        theta = atan(v.y/abs(v.x))
-        # I thought through this, it's not proved
-        # Throwing in an abs here because why not
-        phi = atan(v.z/abs(v.x))
-        return (r, theta, phi)
-
-    @depricated
-    def asxy(self, evaluate=False):
-        thing = self.evalf() if evaluate else self
-        return (thing.x, thing.y, thing.z)
-
+    @confidence(30)
     def split(self):
         """ Returns an interable of Vectors that are added together to get this vector """
         # I think this is how this works?...
-        x, y, z = self.asxy()
-        x = UnitVector(x, Symbol('i'), False)
-        y = UnitVector(y, Symbol('j'), False)
-        z = UnitVector(z, Symbol('k'), False)
+        x = UnitVector(self.x, Symbol('i'), False)
+        y = UnitVector(self.y, Symbol('j'), False)
+        z = UnitVector(self.z, Symbol('k'), False)
         return (x, y, z)
 
+    @confidence(99)
     def simplify(self):
+        # Just for convenience
         return Vector(self.i.simplify(), self.j.simplify(), self.k.simplify())
 
+    @confidence(99)
     def evalf(self):
+        # Just for convenience
         return Vector(self.i.evalf(), self.j.evalf(), self.k.evalf())
 
+    @confidence(90)
     def __str__(self):
-        return f"Vector(i/x={self.i}, j/y={self.j}, k/z={self.k}, θ={self.θ}, 𝜙={self.𝜙})"
+        # Because I want things to be *more* complicated than they already are
+        # return f"Vector(i/x={self.i}, j/y={self.j}, k/z={self.k}, r={self.r}, θ={self.θ}, 𝜙={self.𝜙})"
+        return f"""Vector( i/x={self.i}\n\tj/y={self.j}\n\tk/z={self.k}\n\tr={self.r}\n\tθ={self.θ}, θ°={self.degθ}\n\t𝜙={self.𝜙}, 𝜙°={self.deg𝜙}\n)"""
 
+    @confidence(65)
     def __add__(self, other):
-        #* Don't know what this is, but it seems useful?
-        # newTheta = atan()
-        # newr = sqrt((self.r**2) + (other.r**2) + (2*self.r*other.r*cos(newTheta)))
-        # return UnitVector(newr, newTheta)
+        # I'm confident that this way does what it's supposed to, I'm not confident that this is the way you're supposed to use by default
         return Vector(self.x+other.x, self.y+other.y, self.z+other.z)
 
+    @confidence(75)
     def __sub__(self, other):
         return self + -other
 
+    @confidence(85)
     def __mul__(self, other):
-        from typing import SupportsInt
+        # If it's an int or a float (I think this i show SupportsInt works??), then just multiply all the components by it
         if SupportsInt(other):
             return Vector(self.i * other, self.j * other, self.k * other)
+        else:
+            todo(blocking=True)
 
+    @confidence(50)
     def __invert__(self):
+        # I'm not sure which makes more sense
         return Vector(-self.i, -self.k, -self.k)
-        return Vector.fromrθ(self.r, self.θ - pi, self.phi - pi)
+        # return Vector.fromrθ(self.r, self.θ - pi, self.phi - pi)
 
+    @confidence(99)
     def __eq__(self, other):
         return self.i == other.i and self.j == other.j and self.k == other.k
 
     @property
+    @confidence(75)
     def r(self):
-        return sqrt(self.x**2 + self.y**2, self.z**2)
+        return sqrt(self.x**2 + self.y**2, self.z**2).simplify()
 
     @property
+    @confidence(30)
     def θ(self):
+        # This *seems* like an atan2 thing, but that's not what the book says.
         return atan(self.y/abs(self.x)).simplify()
         return atan2(self.y, self.x).simplify()
     @property
@@ -334,7 +105,11 @@ class Vector:
         return self.θ
 
     @property
+    @confidence(20)
     def 𝜙(self):
+        # I reasoned this out myself, which means I don't remember how it works, but I did at one point.
+        # abs(C) = sqrt(c_x^2 + C_y^2)
+        # atan(y/x)
         return atan(self.z/abs(self.x)).simplify()
         return atan2(self.z, self.x).simplify()
     @property
@@ -342,27 +117,31 @@ class Vector:
         return self.𝜙
 
     @property
+    @confidence(80)
     def deg𝜙(self):
-        return deg(self.𝜙)
+        return deg(self.𝜙).evalf()
     @property
     def degPhi(self):
-        return self.θ
+        # return self.θ
         return deg(self.𝜙)
 
     @property
+    @confidence(80)
     def degθ(self):
-        return deg(self.θ)
+        return deg(self.θ).evalf()
     @property
     def degTheta(self):
         return self.degθ
 
+@confidence(65)
+def addHeadToTail(startVector, endVector):
+    """ startVector is pointing at endVector, endVector is pointing elsewhere. Order matters! """
+    todo('this only works in 2 dimentions')
+    a, b = (startVector, endVector)
 
-
-print(MagVector(3.10, 25, radians=False).evalf().asxy())
-# print(UnitVector.fromrθ(3.1, 25))
-
-# A = UnitVector.fromrθ(3, 30, radians=False)
-# B = UnitVector.fromrθ(3, 0, radians=False)
-# print(A.evalf())
-# print(B.evalf())
-# print((A+B).evalf())
+    r = sqrt((a.r**2) + (b.r**2)).simplify()
+    endPoint = (a.x+b.x, a.y+b.y, a.x+b.z)
+    theta = asin(endPoint[1] / r).simplify()
+    # Don't know how phi fits into all this
+    phi = 0
+    return Vector.fromrθ(r, theta, phi)

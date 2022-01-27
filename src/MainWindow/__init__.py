@@ -82,6 +82,13 @@ class Main(QMainWindow):
     varCount = 0
     windowStartingPos = (3000, 0)
 
+    todo('reset isnt resetting the variables (and is throwing an error')
+    todo('also the reset vars button doesnt work')
+    todo('add a setting that optionally solves for the current variable to make switching between vars faster')
+    todo('make the var value box have undefined as a placeholder text instead of actual text')
+    todo('latex parsing is broken')
+    todo('get vars from vars is running all the time, and when it does run, it doesnt substitute the values correctly (at all)')
+
     def __init__(self):
         super(Main, self).__init__()
         uic.loadUi(join(ROOT, "ui/main.ui"), self)
