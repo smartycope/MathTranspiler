@@ -69,23 +69,19 @@ todo('fix all the paths so they stop calling ROOT, cause ROOT is broken.')
 
 def resetEverything(self):
     self.equationInput.setPlainText('')
-    self.vars = []
-    self.eqVars = []
-    self.resetOuput()
+    # self.vars = []
+    # self.eqVars = []
+    self.answerBox.setPlainText('')
+    self.codeOutput.setPlainText('')
+    self.errorHandler.resetError()
+    self.resetIcon(self.errorHandler.errorTabIndex)
     # self.varList.setText('')
-    self.varList.clear()
-    self.varSetter.setText('')
-    self.equation.update()
-    self.onResetVars()
-    self.varPng.setIcon(QIcon())
-    self.solutionPng.setIcon(QIcon())
-    self.equationPng.setIcon(QIcon())
-    self.codePng.setIcon(QIcon())
-    self.loading = False
+    # self.varList.clear()
+    # self.varSetter.setText('')
+    # self.equation.update()
+    self.varHandler.reset()
     self.codeLoading = False
-    self.unitBox.setCurrentIndex(self.unitBox.findText('one'))
-    self.prefixBox.setCurrentIndex(self.prefixBox.findText('one (1)'))
-    # self.codeInput.setPlainText('')
+    # self.varUnitSelector.reset()
 
 
 def resetTab(self):
@@ -99,12 +95,6 @@ def resetIcon(self, tabIndex):
 def resetTheSolutionUnit(self):
     self.solutionUnitSelector.reset()
     self.equation.update()
-
-
-def resetOuput(self):
-    self.answerBox.setPlainText('')
-    self.codeOutput.setPlainText('')
-    self.resetError()
 
 
 def printToCodeOutput(self, *args, sep=' ', end='\n'):

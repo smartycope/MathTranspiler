@@ -52,13 +52,13 @@ One.scale_factor = 1
 
 # Because Cope.ROOT stopped working and I use it to find ui files
 ROOT = dirname(dirname(dirname(__file__)))
-hideAllTodos(True)
+# hideAllTodos(True)
 
 class Main(QMainWindow):
     from ._file import (_load, _save, _saveAs, exportAsLatex,
                         exportAsMathmatica, exportAsMathML)
     from ._private import (printToCodeOutput,  resetEverything,
-                           resetIcon, resetOuput, resetTab, runCustomFuncInCode,
+                           resetIcon, resetTab, runCustomFuncInCode,
                            resetTheSolutionUnit)
     from ._slots import (doPiecewise, notes, onPreviewCurVar,
                          onIntDiff, onLimitButtonPressed, searchForEquation,
@@ -68,6 +68,7 @@ class Main(QMainWindow):
     from ._update import (updateCode, updateImplicitMult, updateEquationSearch,
                           updateIntDiff, updateLimit, updatePiecewise, updateSum)
     from ._customActions import (addCustomFuncs, addCommonEqus, addUnits, addConstants)
+
     baseTrans = standard_transformations + (convert_xor, lambda_notation)
     trans = baseTrans
     functionVar = Symbol('x')
@@ -86,7 +87,7 @@ class Main(QMainWindow):
     todo('also the reset vars button doesnt work')
     todo('add a setting that optionally solves for the current variable to make switching between vars faster')
     todo('make the var value box have undefined as a placeholder text instead of actual text')
-    todo('latex parsing is broken')
+    #// todo('latex parsing is broken')
     todo('get vars from vars is running all the time, and when it does run, it doesnt substitute the values correctly (at all)')
 
     def __init__(self):

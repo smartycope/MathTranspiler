@@ -115,5 +115,20 @@
         "name": "Kirchoff's voltage law",
         "definition": "Sum(high=numBrachesInLoop, low='n=1', nthVoltage) == 0",
         "description": "The sum of the voltages around a closed loop is 0"
+    },
+    {
+        "catagory": "Motion",
+        "name": "Vertical Velocity",
+        "definition": "velocity_y == velocity_y0 - gravity * time"
+    },
+    {
+        "catagory": "Motion",
+        "name": "Vertical Velocity at time",
+        "definition": "y == y_0 + velocity_y0 * time - (1/2)*gravity*(time**2)"
+    },
+    {
+        "catagory": "Motion",
+        "name": "Hybird Veritical Velocity",
+        "definition": "velocity_y == sqrt((velocity_y0^2) - 2 * gravity * (y-y_0))"
     }
 ]

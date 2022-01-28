@@ -65,9 +65,9 @@ class Expression:
     @text.setter
     def text(self, to):
         try:
-            return self.textWidget.setPlainText()
+            return self.textWidget.setPlainText(to)
         except AttributeError:
-            return self.textWidget.setText()
+            return self.textWidget.setText(to)
 
     # def update(self, expr=None):
         # self.updateIcon(expr)

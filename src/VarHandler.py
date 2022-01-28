@@ -184,7 +184,8 @@ class VarHandler:
         if allVars:
             self.vars = []
         else:
-            self.currentVar.reset()
+            if self.currentVar:
+                self.currentVar.reset()
         self.expression.textWidget.setText('Undefined')
         self.unitSelector.reset()
         self.expression.reset()

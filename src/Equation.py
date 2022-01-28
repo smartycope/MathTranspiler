@@ -365,4 +365,4 @@ class Equation(Expression):
 
     @staticmethod
     def _convertLatex(s):
-        return str(parse_latex(Equation.sanatizeLatex(s)))
+        return str(parse_latex(Equation._sanatizeLatex(s)))
