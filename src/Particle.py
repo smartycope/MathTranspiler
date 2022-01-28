@@ -18,8 +18,7 @@ class Particle2D:
         self.velocity = forceVector
         # self.initalVelocity = self.velocity
 
-    @untested
-    @confidence(50)
+    @confidence(75)
     def getAdjustedVelocity(self, time):
         # Negative, because we're subtracting all that stuff to get just x and y on the other side
         # Actually, just kidding, I don't think that's how it works?
@@ -27,26 +26,33 @@ class Particle2D:
         y = (self.position.y + (self.velocity.y * time) - ((1/2)*self.constYAccel * (time ** 2)))
         return Vector2D.fromxy(x, y)
 
-    @untested
+    @confidence(75)
     def getPositionAtTime(self, time:'seconds'):
         adj = self.getAdjustedVelocity(time, self.constXAccel, self.constYAccel)
         return (adj.x, adj.y)
 
     # def getFinalPosition(self, constXAccel=0, constYAccel=gravity):
 
+    @confidence(85)
     def getTimeToLanded(self):
         return MappingList(self.getTimesWhenYEquals(0)).evalf()
 
-    @confidence(50)
-    @untested
+    @confidence(85)
     def getTimesWhenYEquals(self, value):
         time = symbols('time')
         return solve(debug(Eq(self.position.y + (self.velocity.y * time) - ((1/2)*self.constYAccel * (time ** 2)), value)), time)
 
-    @confidence(20)
     @untested
     def getTimesWhenXEquals(self, value):
         return solve(Eq(self.position.y + (self.velocity.y * time) - ((1/2)*self.constYAccel * (time ** 2)), value), time)
+
+    @untested
+    def getXDisplacementWhenYEquals(self, value):
+        pass
+
+    @untested
+    def getYDisplacementWhenXEquals(self, value):
+        pass
 
 
 projectile = Particle2D(velocity=Vector2D(50, 40, False), position=Point2D(0, 75))

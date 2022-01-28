@@ -40,7 +40,9 @@ from sympy.physics.units.prefixes import Prefix
 from Variable import Variable
 from UnitSelector import UnitSelector
 
-
+todo('add a matrix input window')
+todo('reset equation does not reset back to the solution tab')
+todo("reset variables doesn't work")
 
 
 class Expression:
