@@ -45,6 +45,7 @@ from UnitSelector import UnitSelector
 One.name = 'one'
 
 funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
+todo('have actions reset the equation box (doesnt work right now')
 
 # A driver is just a hardware library
 class Variable:

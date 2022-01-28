@@ -55,3 +55,7 @@ debug(time)
 adj = projectile.getAdjustedVelocity(abs(time[0]))
 debug(round(adj.x, 3))
 debug(round(adj.y, 3))
+
+# ≈θ𝜙°Ω±𝛼𝚫𝜔
+# 𝜔 = average angular speed == 𝚫θ/𝚫t (θ in radians)
+# 𝛼 = angular acceleration  == 𝚫𝜔/𝚫t

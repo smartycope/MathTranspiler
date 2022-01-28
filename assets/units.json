@@ -48,7 +48,7 @@
     },
     {
         "catagory": "Electronics",
-        "name": "Conductance",
+            "name": "Conductance",
         "symbol": "Siemens",
         "equations": [
             "conductance == 1/resistance"

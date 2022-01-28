@@ -130,5 +130,17 @@
         "catagory": "Motion",
         "name": "Hybird Veritical Velocity",
         "definition": "velocity_y == sqrt((velocity_y0^2) - 2 * gravity * (y-y_0))"
+    },
+    {
+        "catagory": "Motion",
+        "name": "Average Angular Speed (𝜔)",
+        "definition": "avgAngSpeed = 𝚫angle/𝚫time",
+        "description": "angle is in radians"
+    },
+    {
+        "catagory": "Motion",
+        "name": "Angular Acceleration (𝛼)",
+        "definition": "angAccel = 𝚫avgAngSpeed/𝚫time",
+        "description": "𝛼"
     }
 ]
