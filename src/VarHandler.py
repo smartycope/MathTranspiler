@@ -155,10 +155,15 @@ class VarHandler:
             self.expression.updateIcon(value)
         else:
             self.dontUpdateEquation = False
-            #* Solve the equation if there's it's an equal relation
+            #* Solve the equation if there's it's an equals relation
             if type(self.equation.subbedExpr) is Eq:
                 func = solve if self.options.useSolve.isChecked() else solveset
                 sol = ensureNotIterable(func(self.equation.subbedExpr, self.currentVar.symbol, domain=Something.Reals))
+                if self.options.doEval.isChecked():
+                    if isiterable(sol):
+                        sol = MappingList(sol)
+                    sol = sol.evalf()
+
                 self.expression.updateIcon(sol)
                 if self.options.useSciNot.isChecked():
                     try:
@@ -176,7 +181,7 @@ class VarHandler:
         self.subOrderBox.setValue(self.currentVar.substitutionOrder)
         # Sets the unitbox to the current unit
         self.unitSelector.unit = self.currentVar.unit
-        self.unitSelector.prefix = debug(self.currentVar.prefix, 'setting prefix to')
+        self.unitSelector.prefix = self.currentVar.prefix
         self.dontUpdateEquation = False
 
 

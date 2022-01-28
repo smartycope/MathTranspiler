@@ -93,8 +93,9 @@ class Equation(Expression):
             if self._detectLatex(self.string):
                 self.string = self._convertLatex(self.string)
                 self.text = self.string
-            else:
-                sanatizedEquation = self._fixEquationString(self.string) if self.options.useFixString.isChecked() else self._sanatizeInput(self.string)
+                # sanatizedEquation = self.string
+            # else:
+            sanatizedEquation = self._fixEquationString(self.string) if self.options.useFixString.isChecked() else self._sanatizeInput(self.string)
 
             # Actually parse the expression (but don't solve it yet!)
             self.plainExpr = parse_expr(sanatizedEquation, transformations=self.options.trans, evaluate=False)
