@@ -43,7 +43,7 @@ from Expression import Expression
 import scinot
 from sympy import S as Something
 
-hideAllTodos(True)
+# hideAllTodos(True)
 todo('update all the json files and replace = with ==')
 
 class VarHandler:
@@ -64,10 +64,13 @@ class VarHandler:
 
         self.varSelector.currentIndexChanged.connect(self.switchVar)
         self.varSelector.editTextChanged.connect(self._onVarNameChanged)
+        # When enter is pressed in the variable value box
         self.expression.textWidget.returnPressed.connect(self.setCurrentVar)
         # self.varType.currentIndexChanged.connect(self._onVarTypeChanged)
-        self.unitSelector.unitIndexChanged.connect(self.setCurrentVar)
-        self.unitSelector.prefixIndexChanged.connect(self.setCurrentVar)
+        # self.unitSelector.unitIndexChanged.connect(self.setCurrentVar)
+        self.unitSelector.unitIndexChanged.connect(self.updateUnit)
+        # self.unitSelector.prefixIndexChanged.connect(self.setCurrentVar)
+        self.unitSelector.prefixIndexChanged.connect(self.updatePrefix)
         self.resetButton.pressed.connect(self.reset)
         self.setButton.pressed.connect(self.setCurrentVar)
         self.newButton.pressed.connect(self._onNewRelationWanted)
@@ -76,7 +79,7 @@ class VarHandler:
 
         self.vars = []
         self.dontUpdatevarSelector = False
-        self.dontUpdateEquation = False
+        # self.dontUpdateEquation = False
 
 
     def resetVarSelector(self):
@@ -84,7 +87,7 @@ class VarHandler:
         lastVarIndex = self.varIndex
         self.dontUpdatevarSelector = True
         self.varSelector.clear()
-        self.varSelector.addItems([str(v) for v in self.vars])
+        self.varSelector.addItems([str(v) for v in debug(self.vars)])
         self.varIndex = lastVarIndex if lastVarIndex > 0 else 0
         self.dontUpdatevarSelector = False
 
@@ -92,7 +95,7 @@ class VarHandler:
     def setVars(self, vars):
         self.vars = vars
         self.resetVarSelector()
-        self.dontUpdateEquation = True
+        # self.dontUpdateEquation = True
         # self.setCurrentVar()
         self.switchVar()
 
@@ -121,11 +124,11 @@ class VarHandler:
                 self.currentVar.unit = self.unitSelector.unit
                 self.currentVar.prefix = self.unitSelector.prefix
                 self.expression.updateIcon(val)
-                if self.dontUpdateEquation:
-                    self.dontUpdateEquation = False
+                # if self.dontUpdateEquation:
+                    # self.dontUpdateEquation = False
                 # elif self.options.getVarsFromVars.isChecked():
-                else:
-                    self.equation.update()
+                # else:
+                self.equation.update()
             except Exception as err:
                 self.errorHandler.setError(err, "Setting Varaible")
             else:
@@ -138,7 +141,7 @@ class VarHandler:
         if self.dontUpdatevarSelector:
             return
 
-        self.dontUpdateEquation = True
+        # self.dontUpdateEquation = True
         # self.reset()
         ans = ''
         # _value instead of value because we don't want to get the unit and prefix too
@@ -154,47 +157,60 @@ class VarHandler:
             self.relationSelector.setCurrentText(self.currentVar.relationship)
             self.expression.updateIcon(value)
         else:
-            self.dontUpdateEquation = False
-            #* Solve the equation if there's it's an equals relation
-            if type(self.equation.subbedExpr) is Eq:
-                func = solve if self.options.useSolve.isChecked() else solveset
-                sol = ensureNotIterable(func(self.equation.subbedExpr, self.currentVar.symbol, domain=Something.Reals))
-                if self.options.doEval.isChecked():
-                    if isiterable(sol):
-                        sol = MappingList(sol)
-                    sol = sol.evalf()
-
-                self.expression.updateIcon(sol)
-                if self.options.useSciNot.isChecked():
-                    try:
-                        ans = scinot.format(ensureNotIterable(sol), self.sciNotSigFigs)
-                    except ValueError:
-                        ans = pretty(sol) if self.options.prettySolution.isChecked() else str(sol)
-                else:
-                    ans = pretty(sol) if self.options.prettySolution.isChecked() else str(sol)
-            else:
-                self.dontUpdateEquation = True
-                ans = 'Undefined'
-                self.reset()
-                # self.expression.reset()
+            # self.dontUpdateEquation = True
+            ans = 'Undefined'
+            self.reset(update=False)
+            # self.expression.reset()
         self.expression.textWidget.setText(ans)
         self.subOrderBox.setValue(self.currentVar.substitutionOrder)
         # Sets the unitbox to the current unit
         self.unitSelector.unit = self.currentVar.unit
         self.unitSelector.prefix = self.currentVar.prefix
-        self.dontUpdateEquation = False
+        # self.dontUpdateEquation = False
 
+    def solveVar(self):
+        # self.dontUpdateEquation = True
+        #* Only solve the equation if it's an equals relation
+        if type(self.equation.subbedExpr) is Eq:
+            func = solve if self.options.useSolve.isChecked() else solveset
+            sol = ensureNotIterable(func(self.equation.subbedExpr, self.currentVar.symbol, domain=Something.Reals))
+            if self.options.doEval.isChecked():
+                if isiterable(sol):
+                    sol = MappingList(sol)
+                sol = sol.evalf()
 
-    def reset(self, allVars=False):
+            self.expression.updateIcon(sol)
+            if self.options.useSciNot.isChecked():
+                try:
+                    ans = scinot.format(ensureNotIterable(sol), self.sciNotSigFigs)
+                except ValueError:
+                    ans = pretty(sol) if self.options.prettySolution.isChecked() else str(sol)
+            else:
+                ans = pretty(sol) if self.options.prettySolution.isChecked() else str(sol)
+
+        # self.dontUpdateEquation = False
+
+    def updateUnit(self, _):
+        self.currentVar.unit   = self.unitSelector.unit
+
+    def updatePrefix(self, _):
+        self.currentVar.prefix = self.unitSelector.prefix
+
+    def reset(self, allVars=False, update=True):
         if allVars:
             self.vars = []
         else:
             if self.currentVar:
                 self.currentVar.reset()
+        self.dontUpdatevarSelector = True
+        self.varSelector.clear()
+        self.dontUpdatevarSelector = False
         self.expression.textWidget.setText('Undefined')
+        # self.dontUpdateEquation = True
         self.unitSelector.reset()
         self.expression.reset()
-        if not self.dontUpdateEquation:
+        # if not self.dontUpdateEquation:
+        if update:
             self.equation.update()
 
 
@@ -206,7 +222,7 @@ class VarHandler:
         if self.currentVar and not self.dontUpdatevarSelector:
             # self.vars[self.varIndex].name = self.varSelector.currentText()
             self.currentVar.name = self.varSelector.currentText()
-            self.equation.update()
+            # self.equation.update()
 
 
     def _onNewRelationWanted(self):
@@ -225,7 +241,8 @@ class VarHandler:
         self.currentVar = Variable(self.currentVar.symbol)
         self.expression.textWidget.setText('')
         self.unitSelector.reset()
-        self.equation.update()
+        # This should already be handled by reset
+        # self.equation.update()
 
     @depricated
     def updateVarInfo(self):
@@ -265,7 +282,7 @@ class VarHandler:
         except IndexError:
             # If we can't find the asked for var, then just set it to the top
             try:
-                debug(self.varIndex, f'couldnt get the var with index from vars of: {self.vars}')
+                debug(self.varIndex, f'couldnt get the var with index from vars of: {self.vars}', color=Colors.ERROR)
                 tmp = self.vars[0]
                 self.varIndex = 0
                 return tmp
@@ -279,4 +296,4 @@ class VarHandler:
             # debug(self.vars[self.varIndex], repr=True)
             self.vars[self.varIndex] = value
         except IndexError:
-            debug(self.varIndex, 'couldnt set the var with index')
+            debug(self.varIndex, 'couldnt set the var with index', color=Colors.ERROR)

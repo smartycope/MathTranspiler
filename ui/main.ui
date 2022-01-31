@@ -889,6 +889,7 @@ p, li { white-space: pre-wrap; }
     <addaction name="doExpand"/>
     <addaction name="useSolve"/>
     <addaction name="doEval"/>
+    <addaction name="solveCurVar"/>
     <addaction name="separator"/>
     <addaction name="dontSimplify"/>
     <addaction name="printSolution"/>
@@ -1420,6 +1421,14 @@ p, li { white-space: pre-wrap; }
   <action name="openSearchForEquation">
    <property name="text">
     <string>Search for Equation...</string>
+   </property>
+  </action>
+  <action name="solveCurVar">
+   <property name="text">
+    <string>Solve for the Current Variable</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
  </widget>

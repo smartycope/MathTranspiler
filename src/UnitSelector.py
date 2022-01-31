@@ -101,7 +101,7 @@ class UnitSelector(QWidget):
 
         self.reset()
 
-
+    @debug
     def reset(self):
         self.unit = One()
         self.prefix = One()

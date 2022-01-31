@@ -99,6 +99,7 @@ def connectEverything(self):
     self.resetSolutionUnit.triggered.connect(self.resetTheSolutionUnit)
     self.autoParseUnits.triggered.connect(self.updateAutoParseUnits)
     self.openSearchForEquation.triggered.connect(self.searchForEquation)
+    self.solveCurVar.triggered.connect(self.varHandler.solveVar)
     # self.actionDimentionless.triggered.connect(lambda: self.updateUnitSystem("Dimentionless"))
     # self.actionPhysics.triggered.connect(lambda: self.updateUnitSystem("Physics"))
     # self.actionAstrophysics.triggered.connect(lambda: self.updateUnitSystem("Astrophysics"))
