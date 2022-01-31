@@ -30,7 +30,9 @@ class Vector2D:
     @staticmethod
     @confidence(75)
     def fromxy(x, y):
-        return Vector2D(sqrt(x**2 + y**2), atan(y/x))
+        # can't divide by 0 when x is 0
+        # return Vector2D(sqrt(x**2 + y**2), atan(y/x))
+        return Vector2D(sqrt(x**2 + y**2), atan2(y,x))
 
     @staticmethod
     @confidence(-1)
@@ -101,6 +103,9 @@ class Vector2D:
     @confidence(90)
     def __eq__(self, other):
         return self.r == other.r and self.θ == other.θ
+
+    def __hash__(self):
+        return hash((self.r, self._θ))
 
     @property
     def θ(self):
