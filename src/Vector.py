@@ -9,7 +9,7 @@ from typing import SupportsInt
 
 # Sympy's Vector class sucks, it's all "ReferenceFrame" and "Reference Angle" and complicated stuff like that.
 # I just want one that will store values and equations for me, so I don't have to remember them all, cause I have a crap memory
-
+@reprise
 class Vector2D:
     def __init__(self, r=0, θ=0, radians=True):
         """ All angles are assumed to be measured from the positive x-axis. Please normalize angles to that before inputting them
@@ -34,10 +34,10 @@ class Vector2D:
         # return Vector2D(sqrt(x**2 + y**2), atan(y/x))
         return Vector2D(sqrt(x**2 + y**2), atan2(y,x))
 
-    @staticmethod
-    @confidence(-1)
-    def addTailToTail(v1, v2):
-        pass
+    # @staticmethod
+    # @confidence(-1)
+    # def addTailToTail(v1, v2):
+    #     pass
 
     @staticmethod
     @confidence(65)
@@ -46,11 +46,9 @@ class Vector2D:
         a = startVector
         b = endVector
         r = sqrt((a.r**2) + (b.r**2)).simplify()
-        ax, ay = a.asxy()
-        bx, by = b.asxy()
-        endPoint = (ax+bx, ay+by)
+        endPoint = (a.x+b.x, a.y+b.y)
         theta = asin(endPoint[1] / r).simplify()
-        return MagVector(r, theta)
+        return Vector2D(r, theta)
 
     @confidence(75)
     def split(self):
@@ -84,7 +82,8 @@ class Vector2D:
     # This assumes tail-tail adding
     @confidence(80)
     def __add__(self, other):
-        return self.addTailToTail(self, other)
+        # return self.addTailToTail(self, other)
+        return self.addHeadToTail(self, other)
 
     @confidence(90)
     def __sub__(self, other):
