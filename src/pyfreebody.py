@@ -16,12 +16,52 @@ from math import pi as PI
 from Cope import debug
 
 ARROW_WIDTH = 5
-INCLINED_PLANE_WIDTH = 2
 LENGTH_MULTIPLIER = 2
 PUT_VALUE_IN_MIDDLE = True
 USE_FULL_NAMES = True
 SIG_FIGS = 3
 UNKNOWN_VECTOR_LEN = 50
+BACKGROUND_COLOR = (200,200,200)
+REQUIRE_CUSTOM_FONT = False
+
+size = 600
+ARROW_HEAD_SIZE = 15
+cw = 400 * 0.1
+center = size / 2
+rectW = size * 0.4
+
+black = (0,0,0)
+white = (225,225,225)
+
+# Check if the font file is in home
+home = os.path.expanduser("~")
+
+possibleLocations = (
+    home+"/pyfreebody.ttf",
+    home+"/.pyfreebody/pyfreebody.ttf",
+    # You have matplotlib installed?
+    home+"/.local/lib/python3.9/site-packages/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf",
+    # How bout pygame?
+    home+"/.local/lib/python3.9/site-packages/pygame/examples/data/sans.ttf",
+)
+
+fontPath = None
+for p in possibleLocations:
+    if os.path.exists(p):
+        fontPath = p
+        break
+
+if fontPath is None:
+    if REQUIRE_CUSTOM_FONT:
+        raise UserWarning("Couldn't find a pyfreebody.ttf file anywhere. Try running the command "
+                          '"mkdir ~/.pyfreebody && curl -L https://github.com/danalves24com/pyfreebody/raw/main/SourceCodePro-Regular.ttf -o ~/.pyfreebody/pyfreebody.ttf"')
+    else:
+        font = ImageFont.FreeTypeFont()
+        fontTag = ImageFont.FreeTypeFont()
+else:
+    font = ImageFont.truetype(fontPath, 20)
+    fontTag = ImageFont.truetype(fontPath, 12)
+
 
 def isnumber(obj):
     # return isinstance(obj, (int, float))
@@ -76,31 +116,25 @@ class Freebody:
         self.body.forces.append(Force(name, magnitude, v))
 
     def diagram(self):
-        img  = Image.new( mode = "RGB", size = (size, size), color = (225,225,225))
+        img  = Image.new(mode="RGB", size=(size, size), color=BACKGROUND_COLOR)
         canvas = ImageDraw.Draw(img)
-        # sm = 0
-        # for force in self.body.forces:
-        #     sm+=force.magnitude
-
         sm = sum(map(lambda f: f.magnitude, self.body.forces))
 
-        # print(self.body.forces)
         for cnt, force in enumerate(self.body.forces):
             color = randomColor()
+            # Adjust the length of the line
             force.prop = force.magnitude / (sm * 100)
-            # print(force.prop)
-            CreatArrow(canvas, force, color)
+            CreateArrow(canvas, force, color)
             ForceLegend(canvas, force, cnt, color)
 
         if(self.system.sysType == SystemType.basic):
-
             canvas.rectangle(((center*0.8, center*0.8), (center*1.2, center*1.2)),
-                             outline = black)
+                             outline=black, fill=white)
 
-            canvas.ellipse(((center*0.96, center*0.96), (center*1.04, center*1.04)),
-                           outline = black, fill = black)
+            # The ellipse is stupid
+            # canvas.ellipse(((center*0.96, center*0.96), (center*1.04, center*1.04)),
+            #                outline = black, fill = black)
 
-        #    img.show()
         # BROKEN FOR THETA  >= PI/5
         elif(self.system.sysType == SystemType.inclinedPlane):
             theta = self.system.incline
@@ -108,15 +142,15 @@ class Freebody:
             rvw = center * 0.4
 
             vertices = makeRectangle(rvw, rvw, theta, offset=(center, center))
-            verticesPlane = makeRectangle(INCLINED_PLANE_WIDTH, size*1.2, theta, offset=(center, center+rvw/1.9))
+            verticesPlane = makeRectangle(10, size*1.2, theta, offset=(center, center+rvw/1.9))
 
             canvas.polygon(vertices, fill=white, outline = black)
             canvas.polygon(verticesPlane, fill = 0)
 
-        masstxt  = str(self.body.mass) + "kg"
-        mtsw, mtsh = canvas.textsize(masstxt, font = font)
-        canvas.text((center-(mtsw/2), center+(mtsh/2)), masstxt, fill = black, font = font)
-        canvas.text((10,size-30), str(self.body.name), fill = black, font = font)
+        masstxt  = str(self.body.mass) + ("kg" if isnumber(self.body.mass) else '')
+        mtsw, mtsh = canvas.textsize(masstxt, font=font)
+        canvas.text((center-(mtsw/2), center+(mtsh/2)), masstxt, fill = black, font=font)
+        canvas.text((10,size-30), str(self.body.name), fill = black, font=font)
 
         return img
 
@@ -133,36 +167,6 @@ class Freebody:
             return path
 
 
-
-size = 600
-arrowHeadSize = 15
-cw = 400 * 0.1
-center = size / 2
-rectW = size * 0.4
-
-black = (0,0,0)
-white = (225,225,225)
-
-# Check if the font file is in home
-home = os.path.expanduser("~")
-
-possibleLocations = (
-    home+"/pyfreebody.ttf",
-    home+"/.pyfreebody/pyfreebody.ttf"
-)
-fontPath = None
-for p in possibleLocations:
-    if os.path.exists(p):
-        fontPath = p
-        break
-
-if fontPath is None:
-    raise UserWarning("Couldn't find a pyfreebody.ttf file anywhere. Try running the command "
-                      '"mkdir ~/.pyfreebody && curl -L https://github.com/danalves24com/pyfreebody/raw/main/SourceCodePro-Regular.ttf -o ~/.pyfreebody/pyfreebody.ttf"')
-    exit(0)
-
-font = ImageFont.truetype(fontPath, 20)
-fontTag = ImageFont.truetype(fontPath, 12)
 
 def makeRectangle(l, w, theta, offset=(0,0)):
     c, s = cos(theta), sin(theta)
@@ -192,24 +196,27 @@ def tagCordinates(arrowCords):
 
 # faulty
 def ArrowHeadCordinates(arrowCords):
+    debug(arrowCords)
     x, y = arrowCords[1][0], arrowCords[1][1]
-    dx = arrowHeadSize * cos(pi/4)
-    dy = (2 * arrowHeadSize * sin(pi/4))/2
-    # print(dx, dy)
-    # print(x, y)
+    dx = ARROW_HEAD_SIZE * cos(pi/4)
+    dy = (2 * ARROW_HEAD_SIZE * sin(pi/4))/2
+    debug(x)
+    debug(y)
+    debug(dx)
+    debug(dy)
     return (
         (x-dx, y + dy),
         (x+dx, y - dy),
-        (x-arrowHeadSize, y + arrowHeadSize)
+        (x-ARROW_HEAD_SIZE, y + ARROW_HEAD_SIZE)
     )
 
 def ForceLegend(canvas, force, i, color):
     mag = str(round(force.magnitude, SIG_FIGS)) + 'N' if isnumber(force.magnitude) else str(force.magnitude)
 
     text = f"{'Force' if force.name == '' else force.name} = {mag}"
-    canvas.text((5,5+i*20), text, fill = color, font = font)
+    canvas.text((5,5+i*20), text, fill=color, font=font)
 
-def CreatArrow(canvas, force, color):
+def CreateArrow(canvas, force, color):
     mag = str(round(force.magnitude, SIG_FIGS)) + 'N' if isnumber(force.magnitude) else str(force.magnitude)
 
     arrowBase = ArrowCordinates(force)
@@ -221,5 +228,6 @@ def CreatArrow(canvas, force, color):
         label = f"{name} = {mag}"
     else:
         label = "F" + name
-    canvas.text(tagCordinates(arrowBase), label, font=fontTag, fill = black)
-    #canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
+    canvas.text(tagCordinates(arrowBase), label, fill=black, font=fontTag)
+    # Make it an arrow, not just a line
+    canvas.polygon(ArrowHeadCordinates(arrowBase), fill=color)

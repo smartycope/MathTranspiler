@@ -8,6 +8,7 @@ from clipboard import copy
 try:
     from pyfreebody import Freebody, Direction, SystemType
 except ImportError:
+    print("Importing system pyfreebody instead of the local pyfreebody")
     from pyfreebody.pyfreebody import Freebody, Direction, SystemType
 
 # confidence is just a function decorator that I wrote that warns you when you call a function you're not sure will work
@@ -27,10 +28,10 @@ class Particle2D:
         self.name = name
         # Because Gravity is in meters/s^2, not Newtons
         gravityForce = gravity * self.mass
-        self.addForce(gravityForce, "Gravity")
+        self.addForce(round(gravityForce, 3), "Gravity")
         self.constAccel = self.forces[0]
         if includeNormal:
-            normal = Vector2D(gravityForce.r, incline + pi/2)
+            normal = Vector2D(round(gravityForce.r, 3), incline + pi/2)
             self.addForce(normal, "Normal")
 
     def copyDiagram(self, name=None):

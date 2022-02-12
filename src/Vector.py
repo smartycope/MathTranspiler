@@ -110,6 +110,9 @@ class Vector2D:
     def __hash__(self):
         return hash((self.r, self._θ))
 
+    def __round__(self, prec=3):
+        return Vector2D(round(self.r, prec), round(self.theta, prec))
+
     @property
     def θ(self):
         return self._θ
