@@ -1,34 +1,74 @@
 from Cope import *
 from sympy import *
-from Vector import Vector2D
+from Vector import Vector2D, EARTH_GRAVITY
+from clipboard import copy
+# Just using this to export nice looking free-body diagrams
+from pyfreebody.pyfreebody import Freebody, Direction, SystemType
 
 # confidence is just a function decorator that I wrote that warns you when you call a function you're not sure will work
-#   (it's half just for the programmer anyway)
 # MappingList is one of my own classes that lets you treat a list of things as a single unit (i.e. MappingList([1, 2, 3]) + 3 -> [4, 5, 6])
 
 class Particle2D:
     # I'm too lazy to do it this way and use self.positionEquation.subs() all the time
     # I have deep, intense loathing for single letter variables ever since I tried to read 25 yr. old C code.
     positionEquation = parse_expr('Eq(finalPos, startingPos + (initialVelocity * time) - (1/2) * constAccel * time**2)')
-    def __init__(self, mass=1, position=Point2D(0, 0), velocity=Vector2D(), constXAccel=0, constYAccel=9.8):
+    def __init__(self, mass=1, pos=Point2D(0, 0), constAccel=EARTH_GRAVITY, onIncline:'radians'=0, name=''):
         self.mass = mass
-        self.position = position
-        self.velocity = velocity
-        # Negative, because we're subtracting all that stuff to get just x and y on the other side
-        # Actually, just kidding, I guess that's not how it works?
-        self.constXAccel = constXAccel
-        self.constYAccel = constYAccel
+        self.position = pos
+        self.forces = []
+        self.forceNames = []
+        self.constAccel = constAccel
+        self.incline = onIncline
 
-    def impulse(self, forceVector):
-        """ Erases whatever current velocity is around and adds a new velocity """
-        self.velocity = forceVector
-        # self.initalVelocity = self.velocity
+    def copyDiagram(self, name=None):
+        self.diagram(name).copy()
+
+    def showDiagram(self, name=None):
+        self.diagram(name).show()
+
+    def diagram(self, name=None, includeNormalForce=True, includeGravity=True, includeNet=True):
+        diagram = Freebody(name if name is not None else self.name, self.mass, SystemType.basic if self.incline == 0 else SystemType.inclinedPlane, self.incline)
+        # Assume constAccel is gravity if it's pointed down
+        if includeGravity:
+            diagram.addForce('Gravity' if self.constAccel.theta == 3*pi/2 else '', self.constAccel.r, self.constAccel.theta)
+        if includeNormalForce:
+            diagram.addForce('Normal'  if self.constAccel.theta == 3*pi/2 else '', self.constAccel.r, (-self.constAccel).theta)
+        if includeNet:
+            try:
+                diagram.addForce('Net', self.netForce().r, self.netForce().theta)
+            except UserWarning:
+                print(f"Can't add Net Force to diagram: symbolic variables still present")
+
+        for force, name in zip(self.forces, self.forceNames):
+            diagram.addForce(name, force.r, force.theta)
+        return diagram.diagram()
+
+    def netForce(self, name=None):
+        if not len(self.forces):
+            return Vector2D()
+        else:
+            # return sum(self.forces)
+            net = self.forces[0]
+            for i in self.forces[1:]:
+                net += i
+            return net
+
+    def addForce(self, force, name=''):
+        self.forces.append(force)
+        self.forceNames.append(name)
+
+    def velocity(self, time):
+        # If F=ma, and a=v/t, then v=F*t/m
+        return self.netForce() * (time / self.mass)
+
+    def acceleration(self):
+        return self.netForce() / self.mass
 
     @confidence(75)
     def getAdjustedVelocity(self, time):
-        x = self.position.x + (self.velocity.x * time) - (1/2)*self.constXAccel * (time ** 2)
-        y = self.position.y + (self.velocity.y * time) - (1/2)*self.constYAccel * (time ** 2)
-        # I HATE EVERYTHING AND EVERYONE
+        """ Gets the velocity at a specific time """
+        x = self.position.x + (self.velocity(time).x * time) - (1/2)*self.constAccel.x * (time ** 2)
+        y = self.position.y + (self.velocity(time).y * time) - (1/2)*self.constAccel.y * (time ** 2)
         # I JUST SPENT AN HOUR DEBUGGING AN EQUATION BECAUSE -100.000000000 != -100 AND STUPID FLOAT ERRORS AND YOU ALL SUCK
         x = round(float(x), 10)
         y = round(float(y), 10)
@@ -40,7 +80,7 @@ class Particle2D:
 
     @confidence(85)
     def getTimeToLanded(self):
-        return MappingList(self.getTimesWhenYEquals(0)).evalf()
+        return ensureNotIterable(MappingList(self.getTimesWhenYEquals(0))).evalf()
 
     @confidence(70)
     def getDisplacementToLanded(self):
@@ -49,12 +89,12 @@ class Particle2D:
     @confidence(85)
     def getTimesWhenYEquals(self, value):
         time = symbols('time')
-        return solve(Eq(self.position.y + (self.velocity.y * time) - ((1/2)*self.constYAccel * (time ** 2)), value), time)
+        return solve(Eq(self.position.y + (self.velocity.y * time) - ((1/2)*self.constAccel.y * (time ** 2)), value), time)
 
     @untested
     def getTimesWhenXEquals(self, value):
         time = symbols('time')
-        return solve(Eq(self.position.y + (self.velocity.y * time) - ((1/2)*self.constYAccel * (time ** 2)), value), time)
+        return solve(Eq(self.position.y + (self.velocity.y * time) - ((1/2)*self.constAccel.y * (time ** 2)), value), time)
 
     @confidence(70)
     def getXDisplacementWhenYEquals(self, value):
@@ -71,10 +111,12 @@ class Particle2D:
     def getYDisplacementWhenXEquals(self, value):
         pass
 
-
     @untested
     def getInitialVelocityFromDisplacement(self, finalPoint:Point2D):
         pass
+
+
+
 
 
 # ≈θ𝜙°Ω±𝛼𝚫𝜔𝛑

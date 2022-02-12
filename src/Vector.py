@@ -1,14 +1,14 @@
 from sympy import *
 # My own personal globally useful functions
 from Cope import *
-from typing import SupportsInt
-
 
 # Don't know what this is, but it seems useful?
 # newr = sqrt((self.r**2) + (other.r**2) + (2*self.r*other.r*cos(newTheta)))
 
 # Sympy's Vector class sucks, it's all "ReferenceFrame" and "Reference Angle" and complicated stuff like that.
 # I just want one that will store values and equations for me, so I don't have to remember them all, cause I have a crap memory
+
+
 @reprise
 class Vector2D:
     def __init__(self, r=0, θ=0, radians=True):
@@ -34,17 +34,10 @@ class Vector2D:
         # return Vector2D(sqrt(x**2 + y**2), atan(y/x))
         return Vector2D(sqrt(x**2 + y**2), atan2(y,x))
 
-    # @staticmethod
-    # @confidence(-1)
-    # def addTailToTail(v1, v2):
-    #     pass
-
     @staticmethod
     @confidence(65)
-    def addHeadToTail(startVector, endVector):
-        """ startVector is pointing at endVector, endVector is pointing elsewhere. Order matters! """
-        a = startVector
-        b = endVector
+    def addHeadToTail(a, b):
+        """ a is pointing at b, b is pointing elsewhere. Order matters! """
         r = sqrt((a.r**2) + (b.r**2)).simplify()
         endPoint = (a.x+b.x, a.y+b.y)
         theta = asin(endPoint[1] / r).simplify()
@@ -78,26 +71,37 @@ class Vector2D:
         except TypeError:
             return f"Vector2D(r={self.r.simplify()}, θ={self.θ.simplify()}, θ°={self.degθ.simplify()})"
 
-
-    # This assumes tail-tail adding
     @confidence(80)
     def __add__(self, other):
-        # return self.addTailToTail(self, other)
-        return self.addHeadToTail(self, other)
+        if isnumber(other):
+            return Vector2D(self.r + other, self.theta)
+        else:
+            return self.addHeadToTail(self, other)
+
+    @confidence(80)
+    def __sub__(self, other):
+        if isnumber(other):
+            return Vector2D(self.r - other, self.theta)
+        else:
+            return self + -other
+
+    @confidence(80)
+    def __mul__(self, other):
+        if isnumber(other):
+            return Vector2D(self.r * other, self.theta)
+        else:
+            todo('multiplying vectors', blocking=True)
+
+    @confidence(80)
+    def __div__(self, other):
+        if isnumber(other):
+            return Vector2D(self.r / other, self.theta)
+        else:
+            todo('dividing vectors', blocking=True)
 
     @confidence(90)
-    def __sub__(self, other):
-        return self + -other
-
-    @confidence(-1)
-    def __mul__(self, other):
-        if SupportsInt(other):
-            return Vector2D(self.i * other, self.j * other, self.k * other)
-
-    @confidence(0)
-    def __invert__(self):
-        return Vector(-self.i, -self.k, -self.k)
-        return Vector.fromrθ(self.r, self.θ - pi, self.phi - pi)
+    def __neg__(self):
+        return Vector2D(self.r, self.theta + (pi if self.theta < pi else -pi))
 
     @confidence(90)
     def __eq__(self, other):
@@ -157,3 +161,12 @@ class Vector2D:
     @j.setter
     def j(self, to):
         self.y = to
+
+
+DOWN = 3*pi/2
+UP   = pi/2
+LEFT = pi
+RIGHT= 0
+
+EARTH_GRAVITY = Vector2D(9.8, DOWN)
+GRAVITY = EARTH_GRAVITY
