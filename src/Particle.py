@@ -1,9 +1,14 @@
 from Cope import *
 from sympy import *
+import clipboard
+from io import StringIO, BytesIO
 from Vector import Vector2D, EARTH_GRAVITY
 from clipboard import copy
 # Just using this to export nice looking free-body diagrams
-from pyfreebody.pyfreebody import Freebody, Direction, SystemType
+try:
+    from pyfreebody import Freebody, Direction, SystemType
+except ImportError:
+    from pyfreebody.pyfreebody import Freebody, Direction, SystemType
 
 # confidence is just a function decorator that I wrote that warns you when you call a function you're not sure will work
 # MappingList is one of my own classes that lets you treat a list of things as a single unit (i.e. MappingList([1, 2, 3]) + 3 -> [4, 5, 6])
@@ -12,27 +17,37 @@ class Particle2D:
     # I'm too lazy to do it this way and use self.positionEquation.subs() all the time
     # I have deep, intense loathing for single letter variables ever since I tried to read 25 yr. old C code.
     positionEquation = parse_expr('Eq(finalPos, startingPos + (initialVelocity * time) - (1/2) * constAccel * time**2)')
-    def __init__(self, mass=1, pos=Point2D(0, 0), constAccel=EARTH_GRAVITY, onIncline:'radians'=0, name=''):
+    def __init__(self, mass=1, pos=Point2D(0, 0), gravity:Vector2D=EARTH_GRAVITY, includeNormal=False, incline:'radians'=0, name=''):
+        """ gravity must always be specified, even if it's just and empty Vector2D() """
         self.mass = mass
         self.position = pos
         self.forces = []
         self.forceNames = []
-        self.constAccel = constAccel
-        self.incline = onIncline
+        self.incline = incline
+        self.name = name
+        # Because Gravity is in meters/s^2, not Newtons
+        gravityForce = gravity * self.mass
+        self.addForce(gravityForce, "Gravity")
+        self.constAccel = self.forces[0]
+        if includeNormal:
+            normal = Vector2D(gravityForce.r, incline + pi/2)
+            self.addForce(normal, "Normal")
 
     def copyDiagram(self, name=None):
-        self.diagram(name).copy()
+        img = self.diagram(name)
+        clipboard.copy(img.tobytes().decode())
+
 
     def showDiagram(self, name=None):
         self.diagram(name).show()
 
-    def diagram(self, name=None, includeNormalForce=True, includeGravity=True, includeNet=True):
+    def diagram(self, name=None, includeNet=True):
         diagram = Freebody(name if name is not None else self.name, self.mass, SystemType.basic if self.incline == 0 else SystemType.inclinedPlane, self.incline)
         # Assume constAccel is gravity if it's pointed down
-        if includeGravity:
-            diagram.addForce('Gravity' if self.constAccel.theta == 3*pi/2 else '', self.constAccel.r, self.constAccel.theta)
-        if includeNormalForce:
-            diagram.addForce('Normal'  if self.constAccel.theta == 3*pi/2 else '', self.constAccel.r, (-self.constAccel).theta)
+        # if includeGravity:
+        #     diagram.addForce('Gravity' if self.constAccel.theta == 3*pi/2 else '', self.constAccel.r, self.constAccel.theta)
+        # if includeNormalForce:
+        #     diagram.addForce('Normal'  if self.constAccel.theta == 3*pi/2 else '', self.constAccel.r, (-self.constAccel).theta)
         if includeNet:
             try:
                 diagram.addForce('Net', self.netForce().r, self.netForce().theta)

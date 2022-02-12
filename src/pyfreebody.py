@@ -16,6 +16,7 @@ from math import pi as PI
 from Cope import debug
 
 ARROW_WIDTH = 5
+INCLINED_PLANE_WIDTH = 2
 LENGTH_MULTIPLIER = 2
 PUT_VALUE_IN_MIDDLE = True
 USE_FULL_NAMES = True
@@ -107,7 +108,7 @@ class Freebody:
             rvw = center * 0.4
 
             vertices = makeRectangle(rvw, rvw, theta, offset=(center, center))
-            verticesPlane = makeRectangle(10, size*1.2, theta, offset=(center, center+rvw/1.9))
+            verticesPlane = makeRectangle(INCLINED_PLANE_WIDTH, size*1.2, theta, offset=(center, center+rvw/1.9))
 
             canvas.polygon(vertices, fill=white, outline = black)
             canvas.polygon(verticesPlane, fill = 0)
@@ -130,6 +131,7 @@ class Freebody:
         else:
             img.save(path)
             return path
+
 
 
 size = 600
