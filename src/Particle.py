@@ -1,5 +1,7 @@
 from Cope import *
 from sympy import *
+from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtWidgets import QApplication
 import clipboard
 from io import StringIO, BytesIO
 from Vector import Vector2D, EARTH_GRAVITY
@@ -26,23 +28,21 @@ class Particle2D:
         self.forceNames = []
         self.incline = incline
         self.name = name
-        # Because Gravity is in meters/s^2, not Newtons
-        gravityForce = gravity * self.mass
-        self.addForce(round(gravityForce, 3), "Gravity")
-        self.constAccel = self.forces[0]
+        if gravity:
+            # Because Gravity is in meters/s^2, not Newtons
+            gravityForce = gravity * self.mass
+            self.addForce(round(gravityForce, 3), "Gravity")
+            self.constAccel = self.forces[0]
         if includeNormal:
             normal = Vector2D(round(gravityForce.r, 3), incline + pi/2)
             self.addForce(normal, "Normal")
-
-    def copyDiagram(self, name=None):
-        img = self.diagram(name)
-        clipboard.copy(img.tobytes().decode())
-
+        # Just for the clipboard
+        self.app = QApplication([])
 
     def showDiagram(self, name=None):
         self.diagram(name).show()
 
-    def diagram(self, name=None, includeNet=True):
+    def diagram(self, name=None, includeNet=True, copy=True):
         diagram = Freebody(name if name is not None else self.name, self.mass, SystemType.basic if self.incline == 0 else SystemType.inclinedPlane, self.incline)
         # Assume constAccel is gravity if it's pointed down
         # if includeGravity:
@@ -57,9 +57,24 @@ class Particle2D:
 
         for force, name in zip(self.forces, self.forceNames):
             diagram.addForce(name, force.r, force.theta)
+
+        if copy:
+            # diagram.copyDiagram()
+            self._copyDiagram(diagram)
         return diagram.diagram()
 
-    def netForce(self, name=None):
+    def _copyDiagram(self, diagram):
+        diagram.saveDiagram("/tmp/imageCopyDeamon.png")
+        # diagram.saveDiagram("/tmp/diagram.png")
+        return
+        # path = '/tmp/__diagram.png'
+        # self.app.clipboard().setPixmap(QPixmap(path))
+        # app.clipboard().setText('testing--it worked!')
+        # print('copied!')
+        # sleep(1)
+
+
+    def netForce(self):
         if not len(self.forces):
             return Vector2D()
         else:

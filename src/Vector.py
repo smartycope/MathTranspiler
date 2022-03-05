@@ -38,10 +38,48 @@ class Vector2D:
     @confidence(65)
     def addHeadToTail(a, b):
         """ a is pointing at b, b is pointing elsewhere. Order matters! """
-        r = sqrt((a.r**2) + (b.r**2)).simplify()
+        # a=a.normalized(); b=b.normalized()
+        # r = sqrt(negPow(a.r, 2) + negPow(b.r, 2)).simplify()
+        # tmp = negPow(a.r, 2) + negPow(b.r, 2)
+        # isneg = tmp < 0
+        # r = sqrt(abs(tmp)) * Integer(-1 if isneg else 1).simplify()
+        angBetween = abs(a.theta - b.theta)
+        # debug(a.theta)
+        # debug(b.theta)
+        # debug(angBetween)
+
+        # r = -debug(a.r + b.r)*cos(angBetween)
         endPoint = (a.x+b.x, a.y+b.y)
-        theta = asin(endPoint[1] / r).simplify()
-        return Vector2D(r, theta)
+        return Vector2D.fromxy(*endPoint)
+        # theta = asin(endPoint[1] / r)
+        # print('-----------')
+
+        # r = r = sqrt(a.r**2 + b.r**2 + 2*a.r*b.r*cos(angBetween))
+        # theta = atan2(b.r*sin(angBetween), a.r + b.r * cos(angBetween))
+
+
+        return Vector2D(r, theta).simplify()
+
+    def normalize(self):
+        """ Constrains the Vector to the upper quadrants and makes r negative if needed """
+        try:
+            if self.theta >= PI:
+                self.r *= -1
+            self.theta %= PI
+        except:
+            return
+
+    def normalized(self):
+        """ Inline version of normalize, i.e. makes and returns a normalized copy """
+        try:
+            if self.theta >= PI:
+                r = self.r * -1
+            else:
+                r = self.r
+            theta = self.theta % PI
+            return Vector2D(r, theta)
+        except:
+            return Vector2D(self.r, self.theta)
 
     @confidence(75)
     def split(self):
@@ -73,9 +111,9 @@ class Vector2D:
 
     @confidence(80)
     def __add__(self, other):
-        if isnumber(other):
+        if isnumber(other) or isinstance(other, (Expr, Symbol)):
             return Vector2D(self.r + other, self.theta)
-        else:
+        elif type(other) is Vector2D:
             return self.addHeadToTail(self, other)
 
     @confidence(80)
@@ -87,8 +125,9 @@ class Vector2D:
 
     @confidence(80)
     def __mul__(self, other):
-        if isnumber(other):
+        if isnumber(other) or isinstance(other, (Expr, Symbol)):
             return Vector2D(self.r * other, self.theta)
+        # elif type(other) is Vector2D:
         else:
             todo('multiplying vectors', blocking=True)
 
