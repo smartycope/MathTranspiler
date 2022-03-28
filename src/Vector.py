@@ -60,6 +60,17 @@ class Vector2D:
 
         return Vector2D(r, theta).simplify()
 
+    @staticmethod
+    def angleBetween(a, b):
+        mag = a.x * b.x + a.y * b.y
+        return acos(mag/(a.r * b.r))
+
+    @staticmethod
+    def dotProduct(a, b):
+        mag = a.x * b.x + a.y * b.y
+        theta = acos(mag/(a.r * b.r))
+        return Vector2D(mag, theta)
+
     def normalize(self):
         """ Constrains the Vector to the upper quadrants and makes r negative if needed """
         try:
@@ -85,9 +96,8 @@ class Vector2D:
     def split(self):
         """ Returns an interable of Vectors that are added together to get this vector """
         # I think this is how this works?...
-        x, y = self.asxy()
-        x = Vector2D(x, Symbol('i'), False)
-        y = Vector2D(y, Symbol('j'), False)
+        x = Vector2D(self.x, Symbol('i'), False)
+        y = Vector2D(self.y, Symbol('j'), False)
         return (x, y)
 
     @confidence(95)
@@ -150,7 +160,11 @@ class Vector2D:
         return hash((self.r, self._θ))
 
     def __round__(self, prec=3):
-        return Vector2D(round(self.r, prec), round(self.theta, prec))
+        try:
+            return Vector2D(round(self.r, prec), round(self.theta, prec))
+        except TypeError:
+            return Vector2D(self.r, self.theta)
+
 
     @property
     def θ(self):
@@ -212,3 +226,7 @@ RIGHT= 0
 
 EARTH_GRAVITY = Vector2D(9.8, DOWN)
 GRAVITY = EARTH_GRAVITY
+
+
+from sympy.physics.vector import *
+refFrame = ReferenceFrame('N')

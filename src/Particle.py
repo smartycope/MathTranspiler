@@ -34,7 +34,7 @@ class Particle2D:
             self.addForce(round(gravityForce, 3), "Gravity")
             self.constAccel = self.forces[0]
         if includeNormal:
-            normal = Vector2D(round(gravityForce.r, 3), incline + pi/2)
+            normal = Vector2D(round(gravityForce.r, 3) if isnumber(gravityForce.r) else gravityForce.r, incline + pi/2)
             self.addForce(normal, "Normal")
         # Just for the clipboard
         self.app = QApplication([])
