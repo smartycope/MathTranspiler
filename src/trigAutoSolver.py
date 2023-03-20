@@ -14,6 +14,7 @@ from Cope import *
 from sys import argv
 import sympy
 from sympy.core.sympify import SympifyError
+from os.path import dirname
 
 # displayAllPaths()
 ROOT = dirname(dirname(__file__))
