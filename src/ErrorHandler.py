@@ -7,7 +7,7 @@ from os.path import dirname, join
 
 import clipboard as clip
 from Cope import *
-from EasyRegex import *
+from ezregex import *
 from LoadingBar import LoadingBar, showLoading, showWithLoading
 from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
@@ -51,7 +51,7 @@ class ErrorHandler(QTextBrowser):
         self.errorIcon = QIcon(join(ROOT, "assets/red!.png"))
         self.main = mainWindow
         self.implicitMulLabel = implicitMulLabel
-        todo('go through this class and optimize it')
+        # todo('go through this class and optimize it')
 
     def resetError(self):
         self.main.resetTab()

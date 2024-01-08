@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QProgressBar
 from PyQt5.QtCore import QTimer
-from Cope import debug
+# from Cope import debug
 from threading import Thread
 
 

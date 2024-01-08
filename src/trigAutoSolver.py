@@ -29,7 +29,7 @@ def isWithinInterval(val, interval):
 
 
 
-@confidence('fairly')
+# @confidence('fairly')
 def getCoterminalAngleOverInterval(angle, interval=Interval(0, 2*pi), isRadians=True):
     r = 2*pi if isRadians else 360
     if angle < 0:

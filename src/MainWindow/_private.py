@@ -6,8 +6,8 @@ from os.path import dirname, join
 
 import clipboard as clip
 from Cope import *
-from EasyRegex import *
-import EasyRegex as er
+from ezregex import *
+import ezregex as er
 from LoadingBar import LoadingBar, showLoading, showWithLoading
 from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
@@ -44,22 +44,22 @@ import re
 from UnitSelector import UnitSelector
 
 
-todo('all this stuff')
+# todo('all this stuff')
 # todo('add an option to use solve or solveset', False)
 # todo('add an option to automatically replace the logs in the solution with ln\'s', False)
 # todo('add automatic latex detection', False)
 # todo(r'automatically convert from \dfrac{} to \frac{} in latex', False)
-todo('autofill derivative variable box', False)
-todo('fix and finish implementing Type box', False)
-todo('add a function (and/or variable) to detect whether self.equ/self.solution/self.expr is updated to the current equation, and add it to everything', False)
-todo('add auto-uncondition or un-finiteset an answer with only one entry in sanatize solution/sanitize output', False)
-todo('autoconvert to lambda (func and implicitly in varsetter) smartly, ie via a private function and get the atoms first instead of assuming x', False)
-todo('auto sanatize == to Eq(), = to -, and -> to Lambda()', False)
-todo('update the button box before the hard calculations so we can make sure its calculating the right thing and not something wrong that takes forever', False)
-todo('multithread the hard parts eventually', False)
-todo('make ctrl+R move the focus to the input box', False)
-todo('make the math latex button bigger', False)
-todo('fix all the paths so they stop calling ROOT, cause ROOT is broken.')
+# todo('autofill derivative variable box', False)
+# todo('fix and finish implementing Type box', False)
+# todo('add a function (and/or variable) to detect whether self.equ/self.solution/self.expr is updated to the current equation, and add it to everything', False)
+# todo('add auto-uncondition or un-finiteset an answer with only one entry in sanatize solution/sanitize output', False)
+# todo('autoconvert to lambda (func and implicitly in varsetter) smartly, ie via a private function and get the atoms first instead of assuming x', False)
+# todo('auto sanatize == to Eq(), = to -, and -> to Lambda()', False)
+# todo('update the button box before the hard calculations so we can make sure its calculating the right thing and not something wrong that takes forever', False)
+# todo('multithread the hard parts eventually', False)
+# todo('make ctrl+R move the focus to the input box', False)
+# todo('make the math latex button bigger', False)
+# todo('fix all the paths so they stop calling ROOT, cause ROOT is broken.')
 # todo sort the custom funcs into drop down groups
 
 # todo('update code box tooltip', False)

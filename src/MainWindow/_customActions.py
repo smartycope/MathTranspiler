@@ -13,7 +13,7 @@ def autism(func, *args, **kwargs):
     return lambda: func(*args, **kwargs)
 # autism = FunctionCall
 
-todo('replace the unit solver with a search for equation box, given the units involved')
+# todo('replace the unit solver with a search for equation box, given the units involved')
 #// todo('maybe make getting atoms exclusively in the variable boxes optional')
 #// todo('remove (1) from one in the prefix box')
 #// todo('add a prefix box to the solution unit

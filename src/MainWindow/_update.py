@@ -2,7 +2,7 @@
 import re
 
 from Cope import *
-from EasyRegex import *
+from ezregex import *
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
                           QRectF, Qt, QThread, QTimer)
 from PyQt5.QtGui import QIcon, QImage, QPixmap

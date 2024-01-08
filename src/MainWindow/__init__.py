@@ -6,8 +6,8 @@ from io import BytesIO
 from os.path import dirname, join
 
 import clipboard as clip
-from Cope import *
-from EasyRegex import *
+# from Cope import *
+from ezregex import *
 from LoadingBar import LoadingBar, showLoading, showWithLoading
 from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
@@ -83,12 +83,12 @@ class Main(QMainWindow):
     varCount = 0
     windowStartingPos = (3000, 0)
 
-    todo('reset isnt resetting the variables (and is throwing an error')
-    todo('also the reset vars button doesnt work')
-    todo('add a setting that optionally solves for the current variable to make switching between vars faster')
-    todo('make the var value box have undefined as a placeholder text instead of actual text')
-    #// todo('latex parsing is broken')
-    todo('get vars from vars is running all the time, and when it does run, it doesnt substitute the values correctly (at all)')
+    # todo('reset isnt resetting the variables (and is throwing an error')
+    # todo('also the reset vars button doesnt work')
+    # todo('add a setting that optionally solves for the current variable to make switching between vars faster')
+    # todo('make the var value box have undefined as a placeholder text instead of actual text')
+    # #// todo('latex parsing is broken')
+    # todo('get vars from vars is running all the time, and when it does run, it doesnt substitute the values correctly (at all)')
 
     def __init__(self):
         super(Main, self).__init__()

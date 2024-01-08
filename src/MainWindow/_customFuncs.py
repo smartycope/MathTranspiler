@@ -277,7 +277,7 @@ def getCriticalPointsOverInterval(expr, var, interval, order=1):
     return ans
 
 
-@confidence('sorta')
+# @confidence('sorta')
 def minMaxOverInterval(expr, var, interval):
     seperate()
     start = expr.subs(var, interval.start)
@@ -330,7 +330,7 @@ def getQuadrant(angle, isRadians=True):
         return None
 
 
-@confidence('sorta')
+# @confidence('sorta')
 def getReferenceAngle(angle, isRadians=True):
     if not isRadians:
         angle = angle * (pi / 180)
@@ -347,7 +347,7 @@ def getReferenceAngle(angle, isRadians=True):
         return EmptySet
 
 
-@confidence('fairly')
+# @confidence('fairly')
 def getCoterminalAngleOverInterval(angle, interval, isRadians=True):
     answers = []
     i = 2*pi if isRadians else 360
@@ -393,12 +393,12 @@ def getCoterminalAngleOverInterval(angle, interval, isRadians=True):
     # return EmptySet
 
 
-@confidence('fairly')
+# @confidence('fairly')
 def getContinuousOrGetDifferentiableOrSomething(expr, var, interval):
     return expr.subs(var, interval.start) == expr.subs(var, interval.end)
 
 
-@confidence('somewhat')
+# @confidence('somewhat')
 def getAllDiffsAt0(expr, interval, solveVar):
     if getContinuousOrGetDifferentiableOrSomething(expr, solveVar, interval):
         return solveset(Eq(expr, 0), solveVar)

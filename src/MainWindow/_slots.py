@@ -5,7 +5,7 @@ from os.path import dirname, join
 
 import clipboard as clip
 from Cope import *
-from EasyRegex import *
+from ezregex import *
 from LoadingBar import LoadingBar, showLoading, showWithLoading
 from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,

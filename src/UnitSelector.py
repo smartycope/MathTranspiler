@@ -7,7 +7,7 @@ from os.path import dirname, join
 
 import clipboard as clip
 from Cope import *
-from EasyRegex import *
+from ezregex import *
 from LoadingBar import LoadingBar, showLoading, showWithLoading
 from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
@@ -45,8 +45,8 @@ One.name = 'one'
 One.abbrev = ''
 One.scale_factor = 1
 
-todo('prefixes dont work still')
-todo("somehow make just switching variables not update the equation (maybe don't update the equation if currentVar doesn't have the changed variable set?)")
+# todo('prefixes dont work still')
+# todo("somehow make just switching variables not update the equation (maybe don't update the equation if currentVar doesn't have the changed variable set?)")
 
 
 _quantityStrings = filter(lambda u: type(getattr(_units, u)) is Quantity, dir(_units))
@@ -101,7 +101,7 @@ class UnitSelector(QWidget):
 
         self.reset()
 
-    @debug
+    # @debug
     def reset(self):
         self.unit = One()
         self.prefix = One()
