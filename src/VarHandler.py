@@ -92,7 +92,8 @@ class VarHandler:
         self.dontUpdatevarSelector = False
 
 
-    def setVars(self, vars):
+    # kwargs, because that's how signalslot wants it
+    def setVars(self, vars, **kwargs):
         self.vars = vars
         self.resetVarSelector()
         # self.dontUpdateEquation = True

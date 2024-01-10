@@ -1,5 +1,5 @@
 import json
-from os.path import join, dirname
+from os.path import join, dirname, abspath
 from copy import copy, deepcopy
 from Cope import *
 
@@ -32,6 +32,7 @@ def addCustomFuncs(self):
 
 def addCommonEqus(self):
     with open(commonEquFile, 'r') as f:
+        print(abspath(commonEquFile))
         for item in json.load(f):
             if item['catagory'] not in self._commonEquCatagories.keys():
                 self._commonEquCatagories[item['catagory']] = self.menuCommonEquations.addMenu(item['catagory'])
@@ -39,7 +40,7 @@ def addCommonEqus(self):
             self._commonEquCatagories[item['catagory']].addAction(item['name'], autism(self.equationInput.setPlainText, ihateeveryone)) # lambda: self.equationInput.setPlainText(ihateeveryone))
 
 def addUnits(self):
-    with open(unitsFile, 'r') as f:
+    with open(unitsFile, 'r', encoding="utf8") as f:
         for item in json.load(f):
             if item['catagory'] not in self._unitCatagories.keys():
                 self._unitCatagories[item['catagory']] = self.menuUnits.addMenu(item['catagory'])
@@ -51,7 +52,8 @@ def addUnits(self):
                 menu.addAction(i, autism(self.equationInput.setPlainText, ihateeveryone)) # lambda: self.equationInput.setPlainText(ihateeveryone))
 
 def addConstants(self):
-    with open(constantsFile, 'r') as f:
+    with open(constantsFile, 'r', encoding='utf8') as f:
+        print(abspath(constantsFile))
         for item in json.load(f):
             if item['catagory'] not in self._constantCatagories.keys():
                 self._constantCatagories[item['catagory']] = self.menuConstants.addMenu(item['catagory'])

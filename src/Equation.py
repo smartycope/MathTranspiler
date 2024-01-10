@@ -6,7 +6,7 @@ from os.path import dirname, join
 
 import clipboard as clip
 from Cope import *
-from EasyRegex import *
+from ezregex import *
 from LoadingBar import LoadingBar, showLoading, showWithLoading
 from PyQt5 import uic
 from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
@@ -14,6 +14,7 @@ from PyQt5.QtCore import (QByteArray, QEvent, QFile, QLine, QLineF, QRect,
 from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtWidgets import (QDialog, QFileDialog, QLabel, QLineEdit,
                              QMainWindow, QTableWidgetItem, QWidget, QCompleter)
+from signalslot import Signal
 from sympy import *
 from sympy import abc
 from sympy.abc import *
@@ -39,7 +40,7 @@ from sympy.physics.units.prefixes import Prefix
 from Variable import Variable
 from UnitSelector import UnitSelector
 from Expression import Expression
-import EasyRegex as er
+import ezregex as er
 from sympy.core.numbers import One
 import re
 # Hacking One so I don't have to make it a unit (cause I'm lazy)
@@ -52,11 +53,11 @@ One.scale_factor = 1
 
 
 class Equation(Expression):
-    arrowRegex    = (er.group(anything() + matchMax()) + match('->') + er.group(anything() + matchMax())).compile()
-    doubleEqRegex = (er.group(anything() + matchMax()) + match('==') + er.group(anything() + matchMax())).compile()
-    eqRegex       = (er.group(anything() + matchMax()) + match('=')  + er.group(anything() + matchMax())).compile()
+    arrowRegex    = (er.group(er.chunk) + '->' + er.group(er.chunk)).compile()
+    doubleEqRegex = (er.group(er.chunk) + '==' + er.group(er.chunk)).compile()
+    eqRegex       = (er.group(er.chunk) + '='  + er.group(er.chunk)).compile()
     sciNotSigFigs = 4
-    varTypes = (Symbol, Derivative, Function, FunctionCall, Integral)
+    varTypes = (Symbol, Derivative, Function, Integral)
     varTypeMap = {0: Symbol, 1: Function, 2: Derivative, 3: Integral}
     funcTypes =  (AppliedUndef, UndefinedFunction) #, Function, WildFunction)
 

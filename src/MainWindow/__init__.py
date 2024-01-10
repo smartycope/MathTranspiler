@@ -81,7 +81,7 @@ class Main(QMainWindow):
     defaultLatexExtension = ''
     defaultMathmlExtension = ''
     varCount = 0
-    windowStartingPos = (3000, 0)
+    windowStartingPos = (0, 0)
 
     # todo('reset isnt resetting the variables (and is throwing an error')
     # todo('also the reset vars button doesnt work')
